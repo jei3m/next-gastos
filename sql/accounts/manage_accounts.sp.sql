@@ -23,8 +23,10 @@ main: BEGIN
         RESIGNAL;
     END;
 
-    CASE p_action_type
+    START TRANSACTION;
 
+    CASE p_action_type
+        -- Cases: create, update, delete
         WHEN 'create' THEN
             -- INSERT statement
             INSERT INTO accounts
@@ -61,17 +63,88 @@ main: BEGIN
             END IF;
             
 		WHEN 'update' THEN
-			SET p_response = JSON_OBJECT
-                            (
-                                'responseCode', 400, 
-                                'responseMessage', 'Update'
-                            );
+            -- Validated account uuid
+            IF NOT EXISTS
+            (
+                SELECT 1
+                FROM accounts
+                WHERE uuid = p_uuid
+                LIMIT 1
+            )
+            THEN
+                SET p_response = JSON_OBJECT(
+                    'responseCode', 404,
+                    'responseMessage', 'Account not found with the specified UUID'
+                );
+                LEAVE main;
+            END IF;
+
+            -- UPDATE Statement
+            UPDATE 
+                accounts
+            SET
+               name = p_name,
+               type = p_type,
+               description = p_description
+            WHERE 
+                ref_user_id = p_user_id
+                AND uuid = p_uuid
+            LIMIT 1;
+
+            SET v_affected_rows = ROW_COUNT();
+
+            IF v_affected_rows > 0 THEN
+                SET p_response = JSON_OBJECT(
+                    'responseCode', 200,
+                    'responseMessage', 'Account Updated Sucessfully'
+                );
+            ELSE  
+                SET p_response = JSON_OBJECT(
+                    'responseCode', 500,
+                    'responseMessage', 'Failed to Update Account'
+                );
+                SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Failed to Update Account';
+            END IF;
+
         WHEN 'delete' THEN
-			SET p_response = JSON_OBJECT
-                            (
-                                'responseCode', 400, 
-                                'responseMessage', 'Delete'
-                            );
+            -- Validated account uuid
+            IF NOT EXISTS
+            (
+                SELECT 1
+                FROM accounts
+                WHERE uuid = p_uuid
+                LIMIT 1
+            )
+            THEN
+                SET p_response = JSON_OBJECT(
+                    'responseCode', 404,
+                    'responseMessage', 'Account not found with the specified UUID'
+                );
+                LEAVE main;
+            END IF;
+
+            -- DELETE query
+            DELETE FROM
+                accounts
+            WHERE 
+                uuid = p_uuid
+                AND ref_user_id = p_user_id
+            LIMIT 1;
+
+            SET v_affected_rows = ROW_COUNT();
+
+            IF v_affected_rows > 0 THEN
+                SET p_response = JSON_OBJECT(
+                    'responseCode', 200,
+                    'responseMessage', 'Account Deleted Successfully'
+                );
+            ELSE
+                SET p_response = JSON_OBJECT(
+                    'responseCode', 500,
+                    'responseMessage', 'Failed to Delete Account'
+                );
+                SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Failed to Delete Account';
+            END IF;
             
         ELSE
 			SET p_response = JSON_OBJECT
