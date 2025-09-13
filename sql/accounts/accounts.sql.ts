@@ -24,3 +24,31 @@ export const getAccounts = () => {
             WHERE
                 ref_user_id = :userID;`
 };
+
+export const updateAccount = () => {
+    return `CALL manage_accounts
+            (
+                :actionType,
+                :uuid,
+                :userID,
+                :name,
+                :type,
+                :description,
+                @response
+            );
+            SELECT @response AS response;`;
+};
+
+export const deleteAccount = () => {
+    return `CALL manage_accounts
+            (
+                :actionType,
+                :uuid,
+                :userID,
+                NULL,
+                NULL,
+                NULL,
+                @response
+            );
+            SELECT @response AS response;`;
+};
