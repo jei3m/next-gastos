@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { db } from "@/utils/db";
 import { success, fail } from "@/utils/helpers";
 import { responseRow } from "@/types/response.types";
-import { fetchUserID } from "@/utils/session";
+import { fetchUserID } from '@/lib/auth-session';
 import {
     deleteAccount,
     updateAccount
