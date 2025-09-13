@@ -4,9 +4,38 @@ import { success, fail } from "@/utils/helpers";
 import { responseRow } from "@/types/response.types";
 import { fetchUserID } from '@/lib/auth-session';
 import {
+    getAccountByID,
     deleteAccount,
     updateAccount
 } from "@/sql/accounts/accounts.sql";
+
+// Get Specific Account
+export async function GET(
+    _req: Request,
+    { params }: { params: Promise<{uuid: string}> }
+) {
+    try {
+        const { uuid } = await params;
+        
+        const [rows] = await db.query(
+            getAccountByID(),
+            {
+                userID: await fetchUserID(),
+                uuid
+            }
+        );
+
+        return success({data: rows});
+
+    } catch (error) {
+        return fail(
+            500,
+            error instanceof Error
+                ? error.message
+                : 'Failed to Fetch Account'
+        )
+    }
+};
 
 // Update Account
 export async function PUT(
