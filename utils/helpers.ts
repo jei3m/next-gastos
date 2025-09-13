@@ -13,8 +13,8 @@ export function success(
 };
 
 export function fail(
+    status: number,
     message: string,
-    status = 500
 ) {
     return NextResponse.json({
         success: false,
