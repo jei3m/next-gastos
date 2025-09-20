@@ -61,3 +61,20 @@ export const editAccount = async (uuid: string, account: EditAccount) => {
         throw Error('Failed to Edit Account')
     }
 };
+
+export const deleteAccount = async (uuid: string) => {
+    try {
+        const res = await fetch(`http://localhost:3000/api/accounts/${uuid}`, {
+            method: 'DELETE',
+            headers: {'Content-Type': 'application/json'},
+        });
+        const data = await res.json();
+        if (!res.ok) throw Error(data.message);
+        return data.data;
+    } catch (error) {
+        if (error instanceof Error) {
+            throw Error(error.message);
+        };
+        throw Error('Failed to Delete Account');
+    };
+};
