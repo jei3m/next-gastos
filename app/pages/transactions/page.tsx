@@ -21,6 +21,8 @@ import {
 
 // Icon Imports
 import {
+  ArrowDownLeft,
+  ArrowUpRight,
   Calendar,
   ChevronLeft,
   ChevronRight
@@ -277,11 +279,20 @@ export default function Transactions() {
               </div>
             </CardContent>
             <CardFooter className='-mb-1 w-full flex flex-row justify-center space-x-2'>
-              <Button className='w-[50%]'>
-                Income
+              <Button className='w-[50%] flex flex-row -space-x-1'>
+                <ArrowDownLeft strokeWidth={3}/> 
+                <span>
+                  Income
+                </span>
               </Button>
-              <Button className='w-[50%]' variant="destructive">
-                Expense
+              <Button 
+                variant='destructive'
+                className='w-[50%] flex flex-row -space-x-1' 
+              >
+                <ArrowUpRight strokeWidth={3}/> 
+                <span>
+                  Expense
+                </span>
               </Button>
             </CardFooter>
           </Card>
