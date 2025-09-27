@@ -4,6 +4,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Account } from '@/types/accounts.types';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useIsMobile } from "@/hooks/use-mobile"
 import { fetchAccounts } from '@/store/accounts.store';
 import { Button } from '@/components/ui/button';
 import {
@@ -35,6 +36,7 @@ function Navbar() {
 	const pathname = usePathname();
 	const disableSelect = pathname !== '/pages/transactions';
 	const [accounts, setAccounts] = useState<Account[]>([]);
+	const isMobile = useIsMobile();
 
 	const handleNewAccount = () => {
 		setOpen(false)
@@ -61,79 +63,84 @@ function Navbar() {
 	}, [open])
 
 	return (
-		<nav className='p-2 
-			w-full 
-			flex 
-			justify-between
-			items-center 
-			bg-white 
-			border-b-2 border-black'
-		>
-			<Link href={'/pages/transactions'}
-				className='flex space-x-2 items-center'
+		<div className={`${isMobile ? 'px-0' : 'px-3'}`}>
+			<nav 
+				className={`
+					p-2
+					w-full 
+					flex 
+					justify-between
+					items-center 
+					bg-white border-black
+					${isMobile ? 'border-b-2 rounded-none' : 'border-2 rounded-lg mt-2'}
+				`}
 			>
-				<Image
-					src='/icons/favicon.ico'
-					alt='Gaston Icon'
-					height={32}
-					width={32}
-				/>
-				<TypographyH3>
-					Gastos
-				</TypographyH3>
-			</Link>
-
-			{/* Select Accounts Dropdown */}
-			<Select open={open} onOpenChange={setOpen} disabled={disableSelect}>
-				<SelectTrigger
-					className="w-[180px] 
-					bg-primary 
-					border-2 border-black 
-					max-w-[120px]
-					text-sm"
+				<Link href={'/pages/transactions'}
+					className='flex space-x-2 items-center'
 				>
-					<SelectValue placeholder="Accounts" />
-				</SelectTrigger>
+					<Image
+						src='/icons/favicon.ico'
+						alt='Gaston Icon'
+						height={32}
+						width={32}
+					/>
+					<TypographyH3>
+						Gastos
+					</TypographyH3>
+				</Link>
 
-				<SelectContent className='border-2 border-black'>
-					<SelectGroup>
-						{isLoading ?
-							<div className='flex flex-col justify-center'> 
-								<Loader2 className='w-full h-6 w-6 mt-1 mb-1 text-gray-600 animate-spin'/>
-							</div>
-						:
-							<>
-								{accounts.map((account, index) => (
-								<ContextMenu key={index}>
-									<ContextMenuTrigger>
-										<SelectItem value={account.uuid}>
-											{account.name}
-										</SelectItem>
-									</ContextMenuTrigger>
-									<ContextMenuContent className='bg-primary rounded-md'>
-										<ContextMenuItem 
-											className="flex items-center px-2 py-1 text-sm cursor-pointer hover:bg-gray-100 rounded-sm"
-												onClick={() => handleEdit(account.uuid)}
-											>
-											<Edit className="mr-2 h-4 w-4" />
-											Edit
-										</ContextMenuItem>
-									</ContextMenuContent>
-								</ContextMenu>
-								))}
-							</>
-						}
-						<Button
-							onClick={handleNewAccount}
-							className='w-full text-white'
-							disabled={isLoading}
-						>
-							<PlusIcon className='-mr-1' /> New Account
-						</Button>
-					</SelectGroup>
-				</SelectContent>
-			</Select>
-		</nav>
+				{/* Select Accounts Dropdown */}
+				<Select open={open} onOpenChange={setOpen} disabled={disableSelect}>
+					<SelectTrigger
+						className="w-[180px] 
+						bg-primary 
+						border-2 border-black 
+						max-w-[120px]
+						text-sm"
+					>
+						<SelectValue placeholder="Accounts" />
+					</SelectTrigger>
+
+					<SelectContent className='border-2 border-black'>
+						<SelectGroup>
+							{isLoading ?
+								<div className='flex flex-col justify-center'> 
+									<Loader2 className='w-full h-6 w-6 mt-1 mb-1 text-gray-600 animate-spin'/>
+								</div>
+							:
+								<>
+									{accounts.map((account, index) => (
+									<ContextMenu key={index}>
+										<ContextMenuTrigger>
+											<SelectItem value={account.uuid}>
+												{account.name}
+											</SelectItem>
+										</ContextMenuTrigger>
+										<ContextMenuContent className='bg-primary rounded-md'>
+											<ContextMenuItem 
+												className="flex items-center px-2 py-1 text-sm cursor-pointer hover:bg-gray-100 rounded-sm"
+													onClick={() => handleEdit(account.uuid)}
+												>
+												<Edit className="mr-2 h-4 w-4" />
+												Edit
+											</ContextMenuItem>
+										</ContextMenuContent>
+									</ContextMenu>
+									))}
+								</>
+							}
+							<Button
+								onClick={handleNewAccount}
+								className='w-full text-white'
+								disabled={isLoading}
+							>
+								<PlusIcon className='-mr-1' /> New Account
+							</Button>
+						</SelectGroup>
+					</SelectContent>
+				</Select>
+			</nav>
+		</div>
 	)
 };
 
