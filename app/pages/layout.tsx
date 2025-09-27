@@ -5,13 +5,9 @@ export default function TransactionsLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <>
+    <div className="max-w-[600px] m-auto">
       <Navbar/>
       {children}
-      <Dock 
-        variant='default'
-        className='w-full fixed bottom-0'
-      />
-    </>
+    </div>
   );
 };
