@@ -52,7 +52,7 @@ export default function Transactions() {
   // Set isScrolled
   useEffect(() => {
     const onScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+      setIsScrolled(window.scrollY > 40);
     };
 
     window.addEventListener('scroll', onScroll, { passive: true });
