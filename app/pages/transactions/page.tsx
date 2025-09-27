@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { tabItems, transactions } from '@/lib/data';
 import { fetchSession } from '@/utils/session';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 // ShadCN Components
 import {
@@ -36,6 +37,7 @@ export default function Transactions() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [userEmail, setUserEmail] = useState("");
   const router = useRouter();
+  const isMobile = useIsMobile();
 
   // Validate user session
   useEffect(() => {
@@ -159,15 +161,25 @@ export default function Transactions() {
   }, [activeTab])
 
   return (
-    <main className='flex flex-col space-y-4 min-h-screen pb-12'>
+    <main className='flex flex-col space-y-4 min-h-screen'>
       {/* Date Card Section */}
       {isScrolled ?         
         <section 
-          className='sticky top-0 z-10 
-          transition-all duration-150 
-          ease-in-out'
+          className={`sticky top-0 z-10 
+            transition-all duration-150 
+            ease-in-out
+            ${isMobile ? 'px-0' : 'px-3'}
+          `}
         >
-          <Card className="-mt-2 w-full border-0 rounded-none">
+          <Card 
+            className={`
+              -mt-2 
+              border-0 
+              rounded-none
+              w-full rounded-lg
+              ${!isMobile && 'border-2'}
+            `}
+          >
             <CardHeader
               className='flex
               flex-col 
@@ -212,7 +224,9 @@ export default function Transactions() {
               </div>
             </CardHeader>
           </Card>
-          <div className='w-full border-t-2 border-black' />
+          {isMobile && (
+            <div className='w-full border-t-2 border-black' />
+          )}
         </section>
         :
         <section 
@@ -225,7 +239,7 @@ export default function Transactions() {
               className='flex
               flex-col 
               justify-center 
-              items-center'
+              items-center -mt-2'
             >
               {/* Tabs Selection */}
               <div className='flex items-center gap-x-2'>
@@ -278,7 +292,7 @@ export default function Transactions() {
                 </h1>
               </div>
             </CardContent>
-            <CardFooter className='-mb-1 w-full flex flex-row justify-center space-x-2'>
+            <CardFooter className='w-full flex flex-row justify-center space-x-2'>
               <Button className='w-[50%] flex flex-row -space-x-1'>
                 <ArrowDownLeft strokeWidth={3}/> 
                 <span>
