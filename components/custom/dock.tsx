@@ -10,7 +10,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 
-const defaultItems: DockItem[] = [
+const dockItems: DockItem[] = [
   { 
     label: 'transactions', 
     icon: ArrowLeftRight, 
@@ -23,21 +23,11 @@ const defaultItems: DockItem[] = [
   },
 ];
 export const Dock: React.FC<DockProps> = ({ 
-  items, 
   className,
   variant = 'default',
   orientation = 'horizontal',
   showLabels = false
 }) => {
-  const finalItems = useMemo(() => {
-    const isValid = items && Array.isArray(items) && items.length >= 2 && items.length <= 8;
-    if (!isValid) {
-      console.warn("Dock: 'items' prop is invalid or missing. Using default items.", items);
-      return defaultItems;
-    }
-    return items;
-  }, [items]);
-
   const getVariantStyles = () => {
     switch (variant) {
       case 'compact':
@@ -71,7 +61,7 @@ export const Dock: React.FC<DockProps> = ({
         )}
         role="navigation"
       >
-        {finalItems.map((item, index) => {
+        {dockItems.map((item, index) => {
           const isActive = pathName === item.route;
           const IconComponent = item.icon;
           return (
