@@ -11,3 +11,5 @@ export const db = mysql.createPool({
     maxIdle: 10,
     idleTimeout: 60000
 });
+
+export const connection = await db.getConnection();
