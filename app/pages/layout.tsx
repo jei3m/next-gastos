@@ -1,5 +1,6 @@
 import Navbar from "@/components/custom/navbar";
 import { Dock } from "@/components/custom/dock";
+import { Toaster } from "@/components/ui/sonner";
 
 export default function TransactionsLayout({
   children,
@@ -8,6 +9,11 @@ export default function TransactionsLayout({
     <div className="max-w-[600px] m-auto">
       <Navbar/>
       {children}
+      <Toaster
+        richColors
+        position="top-center"
+        expand={false}
+      />
       <Dock
         showLabels={true}
       />
