@@ -50,11 +50,15 @@ export const Dock: React.FC<DockProps> = ({
   const pathName = usePathname();
   const isMobile = useIsMobile();
   return (
-    <div className={`${isMobile ? 'px-0' : 'px-3'}`}>
+    <div className={`${isMobile ? 'px-0' : 'px-3'} max-w-[600px]`}>
       <nav
         className={cn(
-          `overflow-x-hidden inline-flex justify-center bg-card w-full fixed bottom-0
-          ${isMobile ? 'border-t-2' : 'border-2 rounded-lg mb-2' }`,
+          `overflow-x-hidden flex flex-col justify-center 
+            w-full bg-card fixed m-auto
+          ${
+            isMobile ? 'border-t-2 w-full bottom-0' 
+              : 'border-2 rounded-lg mb-2 max-w-[576px] m-auto bottom-2' 
+          }`,
           orientation === 'horizontal' ? 'flex-row' : 'flex-col',
           styles.container,
           className
