@@ -161,7 +161,7 @@ export default function Transactions() {
   }, [activeTab])
 
   return (
-    <main className={`flex flex-col space-y-4 min-h-screen
+    <main className={`flex flex-col space-y-2 min-h-screen
       ${isMobile ? 'pb-15' : 'pb-18'}
     `}>
       {/* Date Card Section */}
