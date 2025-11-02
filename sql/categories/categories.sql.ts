@@ -6,6 +6,7 @@ export const createCategory = () => {
                 :userID,
                 :name,
                 :type,
+                :icon,
                 @response
             );
             SELECT @response AS response;`
@@ -31,6 +32,7 @@ export const updateCategory = () => {
                 :userID,
                 :name,
                 :type,
+                :icon,
                 @response
             );
             SELECT @response AS response;`
@@ -42,6 +44,7 @@ export const deleteCategory = () => {
                 :actionType,
                 :uuid,
                 :userID,
+                NULL,
                 NULL,
                 NULL,
                 @response
