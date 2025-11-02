@@ -1,10 +1,9 @@
 "use client"
-import { useEffect, useState } from 'react';
+import { createElement, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { tabItems, categoryTypes } from '@/lib/data';
 import { fetchSession } from '@/utils/session';
 import { useIsMobile } from '@/hooks/use-mobile';
-
 // ShadCN Components
 import {
 	Card,
@@ -29,29 +28,29 @@ import {
 	BanknoteArrowUpIcon,
 	Calendar,
 	ChevronLeft,
-	ChevronRight
+	ChevronRight,
+	PlusIcon
 } from 'lucide-react';
 import { TypographyH4, TypographyH5 } from '@/components/custom/typography';
 import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
 
 export default function page() {
 	const [isScrolled, setIsScrolled] = useState(false);
 	const [activeTab, setActiveTab] = useState('weekly');
 	const [categoryType, setCategoryType] = useState('expense');
 	const [currentDate, setCurrentDate] = useState(new Date());
-	// const [userEmail, setUserEmail] = useState("");
 	const router = useRouter();
 	const isMobile = useIsMobile();
 
 	// Validate user session
-	// useEffect(() => {
-	//     fetchSession().then(({ session }) => {
-	//         if (!session) {
-	//             router.push('/auth/login')
-	//         }
-	//         setUserEmail(session?.user.email ?? '');
-	//     })
-	// }, []);
+	useEffect(() => {
+		fetchSession().then(({ session }) => {
+			if (!session) {
+				router.push('/auth/login')
+			};
+		});
+	}, []);
 
 	// Set isScrolled
 	useEffect(() => {
@@ -65,23 +64,44 @@ export default function page() {
 	const categories = [
 		{
 			title: "Food",
-			type: "expense",
+			type: "Expense",
 			amount: "10,100.00",
-			icon: BanknoteArrowUpIcon
+			icon: "BanknoteArrowUpIcon"
 		},
 		{
 			title: "Transportation",
-			type: "expense",
+			type: "Expense",
 			amount: "10,100.00",
-			icon: BanknoteArrowUpIcon
+			icon: "BanknoteArrowUpIcon"
 		},
 		{
 			title: "Cashback",
-			type: "income",
+			type: "Income",
 			amount: "10,100.00",
-			icon: BanknoteArrowDownIcon
-		}		
+			icon: "BanknoteArrowDownIcon"
+		}
 	];
+
+	// Convert string to React component
+	const getIconComponent = (iconName: string) => {
+		switch(iconName) {
+			case 'BanknoteArrowUpIcon':
+				return BanknoteArrowUpIcon;
+			case 'BanknoteArrowDownIcon':
+				return BanknoteArrowDownIcon;
+			default:
+				return BanknoteArrowUpIcon; // fallback
+		}
+	};
+
+	// Returns true or false
+	const isExpense = (type: string) => {
+		return type === 'Expense';
+	};
+
+	const handleAddCategory = () => {
+		router.push('/pages/categories/add');
+	};
 
 	// Function to handle previous or next 
 	const handleDateChange = (direction: 'prev' | 'next') => {
@@ -292,7 +312,7 @@ export default function page() {
 						transition-all duration-150 
 						ease-in-out'
 				>
-					<Card className="mt-0 border-2 ">
+					<Card className="mt-0 border-2">
 						<CardHeader
 							className='flex
 								flex-col 
@@ -340,7 +360,7 @@ export default function page() {
 						{/* Line Separator */}
 						<Separator />
 
-						<CardFooter className='w-full flex flex-row justify-center space-x-2'>
+						<CardFooter className='flex flex-row justify-center space-x-2 -mx-1 -mb-1 '>
 							<div className='
 								bg-primary 
 								w-[50%] flex flex-row
@@ -409,12 +429,12 @@ export default function page() {
 									<div className='flex flex-row space-x-2 items-center'>
 										<div className={`
 											p-1.5 rounded-lg border-2 
-											${category.type === 'expense'
+											${isExpense(category.type)
 												? 'bg-red-500'
 												: 'bg-primary'
 											}
 										`}>
-											<category.icon size={30} />									
+											{createElement(getIconComponent(category.icon), { size: 30 })}									
 										</div>
 										<div>
 											<TypographyH5 className='font-semibold'>
@@ -426,8 +446,16 @@ export default function page() {
 										<CardDescription>
 											Total Amount:
 										</CardDescription>	
-										<CardTitle>
-											PHP {category.amount}
+										<CardTitle
+											className={`
+												${
+													isExpense(category.type)
+														? 'text-red-500'
+														: 'text-primary'
+												}
+											`}
+										>
+											{isExpense(category.type) ? '-' : '+'} PHP {category.amount}
 										</CardTitle>										
 									</div>
 								</CardContent>
@@ -441,6 +469,9 @@ export default function page() {
 						</TypographyH4>
 					</>
 				)}
+				<Button onClick={handleAddCategory}>
+					<PlusIcon size={40} className='-mr-1'/> Add New Category
+				</Button>
 			</section>
 		</main>
 	)
