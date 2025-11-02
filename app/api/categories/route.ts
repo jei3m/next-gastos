@@ -10,7 +10,8 @@ export async function POST(req: NextRequest) {
     try {
         const {
             name,
-            type
+            type,
+            icon
         } = await req.json();
 
         const [resultCreate] = await db.query<responseRow[]>(
@@ -20,7 +21,8 @@ export async function POST(req: NextRequest) {
                 uuid: crypto.randomUUID(),
                 userID: await fetchUserID(),
                 name,
-                type
+                type,
+                icon
             }
         );
 

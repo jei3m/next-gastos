@@ -12,7 +12,8 @@ export async function PUT(
     try {
         const {
             name,
-            type
+            type,
+            icon
         } = await req.json();
         const { uuid } = await params;
         
@@ -24,6 +25,7 @@ export async function PUT(
                 userID: await fetchUserID(),
                 name,
                 type,
+                icon
             }
         );
 
