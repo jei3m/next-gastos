@@ -17,11 +17,27 @@ export const getCategories = () => {
                 uuid,
                 name,
                 type,
+                icon,
                 ref_user_id
             FROM 
                 v_categories
             WHERE
-                ref_user_id = :userID;`
+                ref_user_id = :userID
+                AND (:filter IS NULL OR type = :filter);`
+};
+
+export const getCategoryByID = () => {
+    return `SELECT
+                uuid,
+                name,
+                type,
+                icon,
+                ref_user_id
+            FROM 
+                v_categories
+            WHERE
+                ref_user_id = :userID
+                AND uuid = :uuid;`
 };
 
 export const updateCategory = () => {
