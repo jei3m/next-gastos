@@ -5,6 +5,7 @@ SELECT
     uuid,
     name,
     type,
+    icon,
     ref_user_id
 FROM 
     categories;
