@@ -9,6 +9,9 @@ export const createCategorySchema = z.object({
     }),
     icon: z.string().min(1, {
         message: 'Please select a category icon',
+    }),
+    accountID: z.string().min(1, {
+        message: 'Account ID is Required',
     })
 });
 
@@ -21,5 +24,8 @@ export const editCategorySchema = z.object({
     }),
     icon: z.string().min(1, {
         message: 'Please select a category icon',
+    }),
+    accountID: z.string().min(1, {
+        message: 'Account ID is Required',
     })
 });
