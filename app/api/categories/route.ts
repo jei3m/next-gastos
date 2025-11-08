@@ -7,72 +7,76 @@ import { createCategory, getCategories } from "@/sql/categories/categories.sql";
 import { fetchUserID } from "@/lib/auth-session";
 
 export async function POST(req: NextRequest) {
-    try {
-        const {
-            name,
-            type,
-            icon
-        } = await req.json();
+	try {
+		const {
+			name,
+			type,
+			icon
+		} = await req.json();
 
-        const [resultCreate] = await db.query<responseRow[]>(
-            createCategory(),
-            {
-                actionType: 'create',
-                uuid: crypto.randomUUID(),
-                userID: await fetchUserID(),
-                name,
-                type,
-                icon
-            }
-        );
+		const [resultCreate] = await db.query<responseRow[]>(
+			createCategory(),
+			{
+				actionType: 'create',
+				uuid: crypto.randomUUID(),
+				userID: await fetchUserID(),
+				name,
+				type,
+				icon
+			}
+		);
 
-        const parsedData = JSON.parse(
-            resultCreate[1][0].response
-        );
+		const parsedData = JSON.parse(
+			resultCreate[1][0].response
+		);
 
-        if (parsedData.responseCode !== 200) {
-            return fail(
-                parsedData.responseCode,
-                parsedData.responseMessage
-            )
-        };
+		if (parsedData.responseCode !== 200) {
+			return fail(
+				parsedData.responseCode,
+				parsedData.responseMessage
+			)
+		};
 
-        return success({
-            data: parsedData
-        });
-        
-    } catch (error) {
-        return fail(
-            500,
-            error instanceof Error
-                ? error.message
-                : 'Failed to Create Categery'
-        );
-    } finally {
-        connection.release();
-    }
+		return success({
+			data: parsedData
+		});
+
+	} catch (error) {
+		return fail(
+			500,
+			error instanceof Error
+				? error.message
+				: 'Failed to Create Category'
+		);
+	} finally {
+		connection.release();
+	}
 };
 
-export async function GET() {
-    try {
-        const [selectQuery] = await db.query(
-            getCategories(),
-            {
-                userID: await fetchUserID()
-            }
-        );
+export async function GET(request: Request) {
+	try {
+		const url = new URL(request.url);
+		const filter = url.searchParams.get('filter');
 
-        return success({
-            data: selectQuery
-        });
-    } catch (error) {
-        return fail(
-            500,
-            error instanceof Error
-                ? error.message
-                : 'Failed to Fetch Categories'
-        );
-    } finally {
-        connection.release();
-    }
+		const [selectQuery] = await db.query(
+			getCategories(),
+			{
+				userID: await fetchUserID(),
+				filter
+			}
+		);
+
+		return success({
+			data: selectQuery
+		});
+	} catch (error) {
+		return fail(
+			500,
+			error instanceof Error
+				? error.message
+				: 'Failed to Fetch Categories'
+		);
+	} finally {
+		connection.release();
+	}
 };
