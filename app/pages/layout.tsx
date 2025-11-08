@@ -10,7 +10,6 @@ export default function TransactionsLayout({
       <Navbar/>
       {children}
       <Toaster
-        richColors
         position="top-center"
         expand={false}
       />
