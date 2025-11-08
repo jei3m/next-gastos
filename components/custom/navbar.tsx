@@ -23,11 +23,15 @@ import {
 	Loader2,
 	PlusIcon
 } from 'lucide-react';
-import { 
+import {
 	ContextMenu,
-	ContextMenuTrigger 
+	ContextMenuTrigger
 } from '../ui/context-menu';
-import { ContextMenuContent, ContextMenuItem } from '@radix-ui/react-context-menu';
+import {
+	ContextMenuContent,
+	ContextMenuItem
+} from '@radix-ui/react-context-menu';
+import { useAccount } from '@/context/account-context';
 
 function Navbar() {
 	const router = useRouter();
@@ -35,7 +39,7 @@ function Navbar() {
 	const [open, setOpen] = useState(false);
 	const pathname = usePathname();
 	const [accounts, setAccounts] = useState<Account[]>([]);
-	const [selectedAccountID, setSelectedAccountID] = useState('');
+	const { selectedAccountID, setSelectedAccount } = useAccount();
 	const isMobile = useIsMobile();
 
 	const disableSelect = [
@@ -53,17 +57,9 @@ function Navbar() {
 	};
 
 	const handleSelect = (uuid: string) => {
-		localStorage.setItem('accountID', uuid);
-		setSelectedAccountID(uuid);
+		setSelectedAccount(uuid);
 		setOpen(false)
 	};
-
-	useEffect(() => {
-		const localAccountID = localStorage.getItem('accountID');
-		if (localAccountID) {
-			setSelectedAccountID(localAccountID)
-		};
-	}, [selectedAccountID]);
 
 	useEffect(() => {
 		fetchAccounts()
@@ -77,17 +73,17 @@ function Navbar() {
 					setIsLoading(false);
 				};
 			})
-	}, [open])
+	}, [open]);
 
 	return (
 		<div className={`${isMobile ? 'px-0' : 'px-3'}`}>
-			<nav 
+			<nav
 				className={`
 					p-2
-					w-full 
-					flex 
+					w-full
+					flex
 					justify-between
-					items-center 
+					items-center
 					bg-white border-black
 					${isMobile ? 'border-b-2 rounded-none' : 'border-2 rounded-lg mt-2'}
 				`}
@@ -107,17 +103,17 @@ function Navbar() {
 				</Link>
 
 				{/* Select Accounts Dropdown */}
-				<Select 
-					open={open} 
-					onOpenChange={setOpen} 
-					disabled={disableSelect} 
+				<Select
+					open={open}
+					onOpenChange={setOpen}
+					disabled={disableSelect}
 					onValueChange={handleSelect}
-					value={selectedAccountID}
+					value={selectedAccountID || ''}
 				>
 					<SelectTrigger
-						className="w-[180px] 
-						bg-primary 
-						border-2 border-black 
+						className="w-[180px]
+						bg-primary
+						border-2 border-black
 						max-w-[120px]
 						text-sm"
 					>
@@ -127,7 +123,7 @@ function Navbar() {
 					<SelectContent className='border-2 border-black'>
 						<SelectGroup>
 							{isLoading ?
-								<div className='flex flex-col justify-center'> 
+								<div className='flex flex-col justify-center'>
 									<Loader2 className='w-full h-6 w-6 mt-1 mb-1 text-gray-600 animate-spin'/>
 								</div>
 							:
