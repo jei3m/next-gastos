@@ -6,7 +6,8 @@ SELECT
     name,
     type,
     icon,
-    ref_user_id
+    ref_user_id,
+    ref_accounts_id
 FROM 
     categories;
 /* END Select Query */
