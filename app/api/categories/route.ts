@@ -11,7 +11,8 @@ export async function POST(req: NextRequest) {
 		const {
 			name,
 			type,
-			icon
+			icon,
+			accountID
 		} = await req.json();
 
 		const [resultCreate] = await db.query<responseRow[]>(
@@ -20,6 +21,7 @@ export async function POST(req: NextRequest) {
 				actionType: 'create',
 				uuid: crypto.randomUUID(),
 				userID: await fetchUserID(),
+				accountID,
 				name,
 				type,
 				icon
@@ -57,11 +59,13 @@ export async function GET(request: Request) {
 	try {
 		const url = new URL(request.url);
 		const filter = url.searchParams.get('filter');
+		const accountID = url.searchParams.get('accountID');
 
 		const [selectQuery] = await db.query(
 			getCategories(),
 			{
 				userID: await fetchUserID(),
+				accountID,
 				filter
 			}
 		);

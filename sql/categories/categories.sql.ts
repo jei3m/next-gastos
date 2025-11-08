@@ -4,6 +4,7 @@ export const createCategory = () => {
                 :actionType,
                 :uuid,
                 :userID,
+                :accountID,
                 :name,
                 :type,
                 :icon,
@@ -23,6 +24,7 @@ export const getCategories = () => {
                 v_categories
             WHERE
                 ref_user_id = :userID
+                AND ref_accounts_id = :accountID
                 AND (:filter IS NULL OR type = :filter);`
 };
 
