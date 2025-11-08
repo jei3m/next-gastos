@@ -3,9 +3,9 @@ import {
     EditCategory
 } from "@/types/categories.types";
 
-export const fetchCategories = async() => {
+export const fetchCategories = async(filter: string) => {
     try {
-        const res = await fetch('http://localhost:3000/api/categories');
+        const res = await fetch(`/api/categories?filter=${filter}`);
         const data = await res.json();
         return(data.data);
     } catch (error) {
@@ -16,9 +16,22 @@ export const fetchCategories = async() => {
     }
 };
 
+export const fetchCategoryByID = async (uuid:string) => {
+    try {
+        const res = await fetch(`/api/categories/${uuid}`);
+        const data = await res.json();
+        return(data.data)
+    } catch (error) {
+        if (error instanceof Error) {
+            throw Error(error.message)
+        };
+        throw Error('Failed to Fetch Category');
+    }
+};
+
 export const createCategory = async(category: CreateCategory) => {
     try {
-        const res = await fetch('http://localhost:3000/api/categories', {
+        const res = await fetch('/api/categories', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(category)
@@ -36,7 +49,7 @@ export const createCategory = async(category: CreateCategory) => {
 
 export const editCategory = async(uuid:string, category: EditCategory) => {
     try {
-        const res = await fetch(`http://localhost:3000/api/categories/${uuid}`, {
+        const res = await fetch(`/api/categories/${uuid}`, {
             method: 'PUT',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(category)
@@ -54,7 +67,7 @@ export const editCategory = async(uuid:string, category: EditCategory) => {
 
 export const deleteCategory = async(uuid:string) => {
     try {
-        const res = await fetch(`http://localhost:3000/api/categories/${uuid}`, {
+        const res = await fetch(`/api/categories/${uuid}`, {
             method: 'DELETE',
             headers: {'Content-Type': 'application/json'},
         });
