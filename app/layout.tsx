@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Poppins } from "next/font/google"; // Already imported
 import "./globals.css";
+import { AccountProvider } from "@/context/account-context";
 
 const APP_NAME = "Gastos";
 const APP_DEFAULT_TITLE = "Gastos";
@@ -60,8 +61,10 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body className={`${poppins.variable} font-sans antialiased`}>
-        {children}
+      <body className={`${poppins.variable} font-sans antialiased m-auto max-w-[600px]`}>
+        <AccountProvider>
+          {children}
+        </AccountProvider>
       </body>
     </html>
   );
