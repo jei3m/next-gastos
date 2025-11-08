@@ -1,11 +1,11 @@
-import { 
+import {
     CreateCategory,
     EditCategory
 } from "@/types/categories.types";
 
-export const fetchCategories = async(filter: string) => {
+export const fetchCategories = async(filter: string, accountID: string) => {
     try {
-        const res = await fetch(`/api/categories?filter=${filter}`);
+        const res = await fetch(`/api/categories?filter=${filter}&accountID=${accountID}`);
         const data = await res.json();
         return(data.data);
     } catch (error) {
