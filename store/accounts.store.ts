@@ -2,7 +2,7 @@ import { CreateAccount, EditAccount } from "@/types/accounts.types";
 
 export const fetchAccounts = async () => {
     try {
-        const res = await fetch('http://localhost:3000/api/accounts');
+        const res = await fetch('/api/accounts');
         const data = await res.json();
         return(data.data)
     } catch (error) {
@@ -15,7 +15,7 @@ export const fetchAccounts = async () => {
 
 export const fetchAccountByID = async (uuid:string) => {
     try {
-        const res = await fetch(`http://localhost:3000/api/accounts/${uuid}`);
+        const res = await fetch(`/api/accounts/${uuid}`);
         const data = await res.json();
         return(data.data)
     } catch (error) {
@@ -28,7 +28,7 @@ export const fetchAccountByID = async (uuid:string) => {
 
 export const createAccount = async (account: CreateAccount) => {
     try {
-        const res = await fetch('http://localhost:3000/api/accounts',{
+        const res = await fetch('/api/accounts',{
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(account)
@@ -46,7 +46,7 @@ export const createAccount = async (account: CreateAccount) => {
 
 export const editAccount = async (uuid: string, account: EditAccount) => {
     try {
-        const res = await fetch(`http://localhost:3000/api/accounts/${uuid}`,{
+        const res = await fetch(`/api/accounts/${uuid}`,{
             method: 'PUT',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(account)
@@ -64,7 +64,7 @@ export const editAccount = async (uuid: string, account: EditAccount) => {
 
 export const deleteAccount = async (uuid: string) => {
     try {
-        const res = await fetch(`http://localhost:3000/api/accounts/${uuid}`, {
+        const res = await fetch(`/api/accounts/${uuid}`, {
             method: 'DELETE',
             headers: {'Content-Type': 'application/json'},
         });
