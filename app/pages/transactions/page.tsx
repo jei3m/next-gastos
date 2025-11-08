@@ -81,21 +81,7 @@ export default function Transactions() {
     const toISODate = (d: Date) => d.toISOString().slice(0, 10);
     const date = new Date(currentDate);
 
-    if (activeTab === 'daily') {
-      const dateStart = new Date(date),
-        dateEnd = new Date(date);
-      return {
-        dateStart: toISODate(dateStart),
-        dateEnd: toISODate(dateEnd),
-        dateDisplay: dateStart.toLocaleDateString(
-          'en-US',
-          {
-            month: 'long',
-            day: 'numeric'
-          }
-        )
-      }
-    } else if (activeTab === 'weekly') {
+    if (activeTab === 'weekly') {
       const dateStart = new Date(date),
         dayOfWeek = dateStart.getDay(),
         diff = dateStart.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1),
@@ -122,7 +108,7 @@ export default function Transactions() {
             }
           )}`
       }
-    } else {
+    } else if (activeTab === 'monthly') {
       const dateStart = new Date(
         Date.UTC(date.getFullYear(), date.getMonth(), 1)
       )
@@ -142,7 +128,27 @@ export default function Transactions() {
           }
         )
       };
-    };
+    } else {
+      const dateStart = new Date(
+        Date.UTC(date.getFullYear(), 0, 1)
+      )
+      const dateEnd = new Date(
+        Date.UTC(date.getFullYear(), 11, 31)
+      );
+
+      return {
+        dateStart: toISODate(dateStart),
+        dateEnd: toISODate(dateEnd),
+        dateDisplay: dateStart.toLocaleDateString(
+          'en-US',
+          {
+            month: 'long',
+            year: 'numeric',
+            timeZone: 'UTC'
+          }
+        )
+      };
+    }
   };
 
   // Declaration of variables for filtering and display
@@ -285,7 +291,7 @@ export default function Transactions() {
             <CardContent className='flex flex-col gap-y-4'>
               <div className='flex flex-col'>
                 <h3 className='text-gray-600 font-normal text-lg'>
-                  Total Balance
+                  Calculated Balance
                 </h3>
                 <h1 className='text-2xl font-extrabold'>
                   PHP 1,200.00
