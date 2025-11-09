@@ -9,6 +9,8 @@ CREATE PROCEDURE `manage_transactions`(
 	IN p_note VARCHAR(20),
 	IN p_amount DECIMAL(12,2),
 	IN p_type ENUM('income', 'expense'),
+    IN p_time TIME,
+    IN p_date DATE,
 	IN p_ref_accounts_id CHAR(36),
 	IN p_ref_categories_id CHAR(36),
 	IN p_ref_user_id CHAR(36),
@@ -35,6 +37,8 @@ main: BEGIN
 				note,
 				amount,
 				type,
+                time,
+                date,
 				ref_categories_id,
 				ref_user_id
 			)
@@ -43,6 +47,8 @@ main: BEGIN
 				p_note,
 				p_amount,
 				p_type,
+                p_time,
+                p_date,
 				p_ref_categories_id,
 				p_ref_user_id
 			);
@@ -85,6 +91,8 @@ main: BEGIN
 				note = p_note,
 				amount = p_amount,
 				type = p_type,
+                time = p_time,
+                date = p_date,
 				ref_categories_id = p_ref_categories_id
 			WHERE
 				uuid = p_uuid
