@@ -33,7 +33,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { ChevronDownIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 
-export default function AddTransaction() {
+export default function AddTransactionForm() {
   const [datePickerOpen, setDatePickerOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [categories, setCategories] = useState<Category[]>([]);
