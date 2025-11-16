@@ -28,14 +28,17 @@ import { fetchCategories } from "@/store/categories.store";
 import { useAccount } from "@/context/account-context";
 import { Category } from "@/types/categories.types";
 import { toast } from "sonner";
-import { createTransaction } from "@/store/transactions.store";
+import { createTransaction, fetchTransactionByID } from "@/store/transactions.store";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ChevronDownIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
+import { transactionTypes } from "@/lib/data";
+import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 
 export default function AddTransactionForm() {
   const [datePickerOpen, setDatePickerOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<string>("");
   const [categories, setCategories] = useState<Category[]>([]);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -62,7 +65,6 @@ export default function AddTransactionForm() {
       categoryID: ""
     }
   });
-
   const transactionDate = form.getValues('date');
 
   async function onSubmit(values: z.infer<typeof createTransactionSchema>) {
@@ -88,21 +90,35 @@ export default function AddTransactionForm() {
       })
   };
 
+  // Set initial tab value and form value from url param
   useEffect(() => {
     if (
       transactionTypeParam
       && (transactionTypeParam === 'income'
       ||  transactionTypeParam === 'expense')
     ) {
+      setActiveTab(transactionTypeParam);
       form.setValue('type', transactionTypeParam)
     };
   }, [form, transactionTypeParam]);
 
+  // Set form value from Tab Selector
+  useEffect(() => {
+    if (
+      activeTab
+      && (activeTab === 'income'
+      || activeTab === 'expense')
+    ) {
+      form.setValue('type', activeTab)
+    }
+  }, [activeTab, form]);
+
   useEffect(() => {
     if (!selectedAccountID) return;
+    setIsLoading(true);
+    form.setValue('accountID', selectedAccountID);
     fetchCategories(form.getValues('type'), selectedAccountID)
       .then((categories) => {
-        setIsLoading(true);
         setCategories(categories);
       })
       .catch((error) => {
@@ -113,17 +129,26 @@ export default function AddTransactionForm() {
       .finally(() => {
         setIsLoading(false);
       })
-  },[form, selectedAccountID])
+  },[form, form.getValues('type'), selectedAccountID]);
 
   return (
     <main className='flex flex-col space-y-4 p-3'>
-      <TypographyH3 className="text-center">
-        Create New {
-        transactionTypeParam 
-        && transactionTypeParam.charAt(0).toUpperCase() 
-          + transactionTypeParam.slice(1)
-        }
+      <TypographyH3>
+        New Transaction
       </TypographyH3>
+      <Tabs defaultValue='daily' value={activeTab} onValueChange={setActiveTab} className="-mt-1">
+        <TabsList className='bg-white border-2 w-full h-10'>
+          {transactionTypes.map((category, index) => (
+            <TabsTrigger
+              value={category.toLowerCase()}
+              key={index}
+              className="text-md"
+            >
+              {category}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col space-y-4">
           <FormField
@@ -136,11 +161,11 @@ export default function AddTransactionForm() {
                 </FormLabel>
                 <FormControl>
                   <Input
-                    required 
-                    placeholder="PHP 0.00..." 
-                    {...field} 
-                    className="h-9 
-                    rounded-lg border-2 
+                    required
+                    placeholder="PHP 0.00..."
+                    {...field}
+                    className="h-9
+                    rounded-lg border-2
                     border-black bg-white"
                   />
                 </FormControl>
@@ -168,7 +193,7 @@ export default function AddTransactionForm() {
                         </SelectItem>
                       ))}
                     </SelectContent>
-                  </Select>                 
+                  </Select>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -184,11 +209,11 @@ export default function AddTransactionForm() {
                 </FormLabel>
                 <FormControl>
                   <Input
-                    required 
-                    placeholder="Transaction note..." 
-                    {...field} 
-                    className="h-9 
-                    rounded-lg border-2 
+                    required
+                    placeholder="Transaction note..."
+                    {...field}
+                    className="h-9
+                    rounded-lg border-2
                     border-black bg-white"
                   />
                 </FormControl>
@@ -251,12 +276,12 @@ export default function AddTransactionForm() {
                   </FormLabel>
                   <FormControl>
                     <Input
-                      required 
-                      placeholder="Time..." 
+                      required
+                      placeholder="Time..."
                       type="time"
-                      {...field} 
-                      className="h-9 
-                      rounded-lg border-2 
+                      {...field}
+                      className="h-9
+                      rounded-lg border-2
                       border-black bg-white"
                     />
                   </FormControl>
@@ -270,13 +295,13 @@ export default function AddTransactionForm() {
               onClick={() => router.back()}
               className="bg-red-500 border-2 hover:none"
               disabled={isLoading}
-              type="button" 
+              type="button"
             >
               Cancel
             </Button>
-            <Button 
-              className="border-2" 
-              type="submit" 
+            <Button
+              className="border-2"
+              type="submit"
               disabled={isLoading}
             >
               {isLoading ? "Submitting..." : "Submit"}
