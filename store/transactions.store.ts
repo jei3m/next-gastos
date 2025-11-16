@@ -2,7 +2,6 @@ import {
   CreateTransaction
 } from "@/types/transactions.types";
 
-
 export const createTransaction = async(transaction: CreateTransaction) => {
   try {
     const res = await fetch('/api/transactions', {
@@ -18,5 +17,37 @@ export const createTransaction = async(transaction: CreateTransaction) => {
       throw Error(error.message);
     };
     throw Error('Failed to Create Transaction');
+  }
+};
+
+export const fetchTransactions = async(
+  selectedAccountID: string, 
+  dateStart: string, 
+  dateEnd: string
+) => {
+  try {
+    const res = await fetch(`/api/transactions?accountID=${selectedAccountID}&dateStart=${dateStart}&dateEnd=${dateEnd}`)
+    const data = await res.json();
+    return(data.data);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw Error(error.message)
+    };
+    throw Error("Failed to Fetch Transactions")
+  }
+};
+
+export const fetchTransactionByID = async(
+  uuid: string, 
+) => {
+  try {
+    const res = await fetch(`/api/transactions/${uuid}`)
+    const data = await res.json();
+    return(data.data);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw Error(error.message)
+    };
+    throw Error("Failed to Fetch Transaction")
   }
 };
