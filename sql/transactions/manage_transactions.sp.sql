@@ -20,7 +20,12 @@ CREATE PROCEDURE `manage_transactions`(
 main: BEGIN
 
     DECLARE v_affected_rows INT;
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+    DECLARE v_total_balance, v_amount DECIMAL(12,2);
+    DECLARE v_ref_accounts_id CHAR(36);
+    DECLARE v_original_type ENUM('income', 'expense');
+    DECLARE v_new_balance DECIMAL(12,2);
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
         ROLLBACK;
         RESIGNAL;
@@ -31,7 +36,27 @@ main: BEGIN
 	CASE p_action_type
 
 		WHEN 'create' THEN
-			-- INSERT statement
+            -- Get total_balance from accounts
+            SELECT
+                total_balance
+            INTO
+                v_total_balance
+            FROM
+                accounts
+            WHERE
+                uuid = p_ref_accounts_id
+                AND ref_user_id = p_ref_user_id
+            LIMIT 1;
+            -- Validate total_balance
+            IF v_total_balance + (p_amount * CASE WHEN p_type = 'income' THEN 1 ELSE -1 END) < 0 THEN
+                SET p_response = JSON_OBJECT(
+                    'responseCode', 500,
+                    'responseMessage', 'Amount exceeds the account''s total balance'
+                );
+                LEAVE main;
+            END IF;
+
+            -- INSERT statement
 			INSERT INTO transactions(
 				uuid,
 				note,
@@ -39,6 +64,7 @@ main: BEGIN
 				type,
                 time,
                 date,
+                ref_accounts_id,
 				ref_categories_id,
 				ref_user_id
 			)
@@ -49,6 +75,7 @@ main: BEGIN
 				p_type,
                 p_time,
                 p_date,
+                p_ref_accounts_id,
 				p_ref_categories_id,
 				p_ref_user_id
 			);
@@ -56,6 +83,16 @@ main: BEGIN
 			SET v_affected_rows = ROW_COUNT();
 
 			IF v_affected_rows > 0 THEN
+                -- Add or subtract to accounts total_balance
+                UPDATE
+                    accounts
+                SET
+                    total_balance = v_total_balance + (p_amount * CASE WHEN p_type = 'income' THEN 1 ELSE -1 END)
+                WHERE
+                    uuid = p_ref_accounts_id
+                    AND ref_user_id = p_ref_user_id
+                LIMIT 1;
+
 				SET p_response = JSON_OBJECT(
 					'responseCode', 200,
 					'responseMessage', 'Transaction Successfully Created'
@@ -67,17 +104,26 @@ main: BEGIN
 				);
 				LEAVE main;
 			END IF;
-			
+
 		WHEN 'update' THEN
+            -- Get original transaction details
+            SELECT
+                amount,
+                type,
+                ref_accounts_id
+            INTO
+                v_amount,
+                v_original_type,
+                v_ref_accounts_id
+            FROM
+                transactions
+            WHERE
+                uuid = p_uuid
+                AND ref_user_id = p_ref_user_id
+            LIMIT 1;
+
             -- Validate transaction uuid
-            IF NOT EXISTS
-            (
-                SELECT 1
-                FROM transactions
-                WHERE uuid = p_uuid
-                LIMIT 1
-            )
-            THEN
+            IF v_amount IS NULL THEN
                 SET p_response = JSON_OBJECT(
                     'responseCode', 404,
                     'responseMessage', 'Transaction not found with the specified UUID'
@@ -85,7 +131,33 @@ main: BEGIN
                 LEAVE main;
             END IF;
 
-			UPDATE 
+            -- Get total balance of the account
+            SELECT
+                total_balance
+            INTO
+                v_total_balance
+            FROM
+                accounts
+            WHERE
+                uuid = v_ref_accounts_id
+                AND ref_user_id = p_ref_user_id
+            LIMIT 1;
+
+            -- Calculate v_new_balance
+            SET v_new_balance = v_total_balance
+                                - (v_amount * CASE WHEN v_original_type = 'income' THEN 1 ELSE -1 END)
+                                + (p_amount * CASE WHEN p_type = 'income' THEN 1 ELSE -1 END);
+
+            -- Validate new total_balance
+            IF v_new_balance <= 0 THEN
+                SET p_response = JSON_OBJECT(
+                    'responseCode', 500,
+                    'responseMessage', 'Amount exceeds the account''s total balance'
+                );
+                LEAVE main;
+            END IF;
+
+			UPDATE
 				transactions
 			SET
 				note = p_note,
@@ -102,11 +174,21 @@ main: BEGIN
 			SET v_affected_rows = ROW_COUNT();
 
             IF v_affected_rows > 0 THEN
+                -- Update account balance
+                UPDATE
+                    accounts
+                SET
+                    total_balance = v_new_balance
+                WHERE
+                    uuid = v_ref_accounts_id
+                    AND ref_user_id = p_ref_user_id
+                LIMIT 1;
+
                 SET p_response = JSON_OBJECT(
                     'responseCode', 200,
-                    'responseMessage', 'Transaction Updated Sucessfully'
+                    'responseMessage', 'Transaction Updated Successfully'
                 );
-            ELSE  
+            ELSE
                 SET p_response = JSON_OBJECT(
                     'responseCode', 500,
                     'responseMessage', 'Failed to Update Transaction'
@@ -115,15 +197,24 @@ main: BEGIN
             END IF;
 
 		WHEN 'delete' THEN
+            -- Get transaction details
+            SELECT
+                amount,
+                type,
+                ref_accounts_id
+            INTO
+                v_amount,
+                v_original_type,
+                v_ref_accounts_id
+            FROM
+                transactions
+            WHERE
+                uuid = p_uuid
+                AND ref_user_id = p_ref_user_id
+            LIMIT 1;
+
             -- Validate transaction uuid
-            IF NOT EXISTS
-            (
-                SELECT 1
-                FROM transactions
-                WHERE uuid = p_uuid
-                LIMIT 1
-            )
-            THEN
+            IF v_amount IS NULL THEN
                 SET p_response = JSON_OBJECT(
                     'responseCode', 404,
                     'responseMessage', 'Transaction not found with the specified UUID'
@@ -131,10 +222,34 @@ main: BEGIN
                 LEAVE main;
             END IF;
 
+            -- Get total_balance
+            SELECT
+                total_balance
+            INTO
+                v_total_balance
+            FROM
+                accounts
+            WHERE
+                uuid = v_ref_accounts_id
+                AND ref_user_id = p_ref_user_id
+            LIMIT 1;
+
+            -- Calculate new balance before deleting
+            SET v_new_balance = v_total_balance - (v_amount * CASE WHEN v_original_type = 'income' THEN 1 ELSE -1 END);
+
+            -- Validate new total_balance
+            IF v_new_balance <= 0 THEN
+                SET p_response = JSON_OBJECT(
+                    'responseCode', 500,
+                    'responseMessage', 'Deleting this transaction would result in a negative account balance'
+                );
+                LEAVE main;
+            END IF;
+
             -- DELETE query
             DELETE FROM
                 transactions
-            WHERE 
+            WHERE
                 uuid = p_uuid
                 AND ref_user_id = p_ref_user_id
             LIMIT 1;
@@ -142,6 +257,16 @@ main: BEGIN
             SET v_affected_rows = ROW_COUNT();
 
             IF v_affected_rows > 0 THEN
+                -- Update account balance
+                UPDATE
+                    accounts
+                SET
+                    total_balance = v_new_balance
+                WHERE
+                    uuid = v_ref_accounts_id
+                    AND ref_user_id = p_ref_user_id
+                LIMIT 1;
+
                 SET p_response = JSON_OBJECT(
                     'responseCode', 200,
                     'responseMessage', 'Transaction Deleted Successfully'
