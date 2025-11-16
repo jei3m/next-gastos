@@ -1,43 +1,24 @@
 "use client"
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { tabItems, transactions } from '@/lib/data';
 import { fetchSession } from '@/utils/session';
 import { useIsMobile } from '@/hooks/use-mobile';
-
-// ShadCN Components
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger
-} from "@/components/ui/tabs";
-
-// Icon Imports
-import {
-  ArrowDownLeft,
-  ArrowUpRight,
-  Calendar,
-  ChevronLeft,
-  ChevronRight,
-} from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TypographyH4 } from '@/components/custom/typography';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
+import { fetchTransactions } from '@/store/transactions.store';
+import { Transaction, TransactionDetails } from '@/types/transactions.types';
+import { toast } from 'sonner';
+import DateTransactionCard from '@/components/transactions/date-transaction-card';
+import { useAccount } from '@/context/account-context';
+import Link from 'next/link';
 
 export default function Transactions() {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [activeTab, setActiveTab] = useState('weekly');
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [dateStart, setDateStart] = useState<string>('');
+  const [dateEnd, setDateEnd] = useState<string>('');
   const router = useRouter();
   const isMobile = useIsMobile();
+  const { selectedAccountID  } = useAccount();
 
   // Validate user session
   useEffect(() => {
@@ -48,317 +29,123 @@ export default function Transactions() {
     })
   }, [router]);
 
-  // Set isScrolled
-  useEffect(() => {
-    const onScroll = () => {
-      setIsScrolled(window.scrollY > 40);
-    };
+  // Calculate the balance
+  const calculateBalance = () => {
+    if (!transactions || transactions.length === 0) return 'PHP 0.00';
 
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+    const total = transactions.reduce((sum, transaction) => {
+      const amount = parseFloat(transaction.total);
+      return sum + (isNaN(amount) ? 0 : amount);
+    }, 0);
 
-  // Function to handle previous or next 
-  const handleDateChange = (direction: 'prev' | 'next') => {
-    const newDate = new Date(currentDate);
-    if (activeTab === 'daily') {
-      newDate.setDate(
-        newDate.getDate() + (direction === 'prev' ? -1 : 1)
-      );
-    } else if (activeTab === 'weekly') {
-      newDate.setDate(
-        newDate.getDate() + (direction === 'prev' ? -7 : 7)
-      );
-    } else {
-      newDate.setMonth(
-        newDate.getMonth() + (direction === 'prev' ? -1 : 1)
-      );
-    }
-    setCurrentDate(newDate);
+    return `PHP ${total.toFixed(2)}`;
   };
 
-  // Return dateStart, dateEnd, and dateDisplay
-  const getDateRange = () => {
-    const toISODate = (d: Date) => d.toISOString().slice(0, 10);
-    const date = new Date(currentDate);
-
-    if (activeTab === 'weekly') {
-      const dateStart = new Date(date),
-        dayOfWeek = dateStart.getDay(),
-        diff = dateStart.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1),
-        dateEnd = new Date(dateStart);
-
-      // Set dateStart and dateEnd
-      dateStart.setDate(diff);
-      dateEnd.setDate(dateStart.getDate() + 6);
-
-      return {
-        dateStart: toISODate(dateStart),
-        dateEnd: toISODate(dateEnd),
-        dateDisplay: `${dateStart.toLocaleDateString(
-          'en-US',
-          {
-            month: 'long',
-            day: 'numeric'
-          })} - 
-					${dateEnd.toLocaleDateString(
-            'en-US',
-            {
-              month: 'long',
-              day: 'numeric'
-            }
-          )}`
-      }
-    } else if (activeTab === 'monthly') {
-      const dateStart = new Date(
-        Date.UTC(date.getFullYear(), date.getMonth(), 1)
-      )
-      const dateEnd = new Date(
-        Date.UTC(date.getFullYear(), date.getMonth() + 1, 0)
-      );
-
-      return {
-        dateStart: toISODate(dateStart),
-        dateEnd: toISODate(dateEnd),
-        dateDisplay: dateStart.toLocaleDateString(
-          'en-US',
-          {
-            month: 'long',
-            year: 'numeric',
-            timeZone: 'UTC'
-          }
-        )
-      };
-    } else {
-      const dateStart = new Date(
-        Date.UTC(date.getFullYear(), 0, 1)
-      )
-      const dateEnd = new Date(
-        Date.UTC(date.getFullYear(), 11, 31)
-      );
-
-      return {
-        dateStart: toISODate(dateStart),
-        dateEnd: toISODate(dateEnd),
-        dateDisplay: dateStart.toLocaleDateString(
-          'en-US',
-          {
-            month: 'long',
-            year: 'numeric',
-            timeZone: 'UTC'
-          }
-        )
-      };
-    }
+  const handleAddTransaction = (type: 'income' | 'expense') => {
+    router.push(`/pages/transactions/add?type=${type}`);
   };
 
-  // Declaration of variables for filtering and display
-  const { dateStart, dateEnd, dateDisplay } = getDateRange();  
+  // Handle date range changes from the DateTransactionCard component
+  const handleDateRangeChange = (start: string, end: string) => {
+    setDateStart(start);
+    setDateEnd(end);
+  };
 
+  // Fetch transactions from API when date range changes
   useEffect(() => {
-    console.log(`Date Start: ${dateStart}`);
-    console.log(`Date End: ${dateEnd}`);
-  },[dateStart, dateEnd])
-
-  // Reset currentDate every tab change
-  useEffect(() => {
-    setCurrentDate(new Date())
-  }, [activeTab])
+    if (dateStart && dateEnd && selectedAccountID) {
+      fetchTransactions(selectedAccountID, dateStart, dateEnd)
+        .then((data) => {
+          setTransactions(data)
+        })
+        .catch((error) => {
+          if (error instanceof Error) {
+            toast.error(error.message)
+          };
+        })
+    }
+  }, [selectedAccountID, dateStart, dateEnd]);
 
   return (
     <main className={`flex flex-col space-y-2 min-h-screen
       ${isMobile ? 'pb-15' : 'pb-18'}
     `}>
+
       {/* Date Card Section */}
-      {isScrolled ?         
-        <section 
-          className={`sticky top-0 z-10 
-            transition-all duration-150 
-            ease-in-out
-            ${isMobile ? 'px-0' : 'px-3'}
-          `}
-        >
-          <Card 
-            className={`
-              -mt-2 
-              border-0 
-              rounded-none
-              w-full rounded-lg
-              ${!isMobile && 'border-2'}
-            `}
-          >
-            <CardHeader
-              className='flex
-              flex-col 
-              justify-center 
-              items-center'
-            >
-              {/* Tabs Selection */}
-              <div className='flex items-center gap-x-2'>
-                <Calendar />
-                <Tabs defaultValue='daily' value={activeTab} onValueChange={setActiveTab}>
-                  <TabsList className='bg-white'>
-                    {tabItems.map((item, index) => (
-                      <TabsTrigger
-                        value={item.value}
-                        key={index}
-                      >
-                        {/* Capitalized first letter of item.value */}
-                        {item.value.charAt(0).toUpperCase() + item.value.slice(1)}
-                      </TabsTrigger>
-                    ))}
-                  </TabsList>
-                </Tabs>
-              </div>
-
-              {/* Date Display and Date Change */}
-              <div className='w-full'>
-                <div className="flex 
-                    justify-between 
-                    items-center
-                    font-semibold"
-                >
-                  <ChevronLeft
-                    className='cursor-pointer'
-                    onClick={() => handleDateChange('prev')}
-                  />
-                  {dateDisplay}
-                  <ChevronRight
-                    className='cursor-pointer'
-                    onClick={() => handleDateChange('next')}
-                  />
-                </div>
-              </div>
-            </CardHeader>
-          </Card>
-          {isMobile && (
-            <div className='w-full border-t-2 border-black' />
-          )}
-        </section>
-        :
-        <section 
-          className='pt-2 px-3 
-          transition-all duration-150 
-          ease-in-out'
-        >
-          <Card className="mt-0 border-2 ">
-            <CardHeader
-              className='flex
-              flex-col 
-              justify-center 
-              items-center -mt-2'
-            >
-              {/* Tabs Selection */}
-              <div className='flex items-center gap-x-2'>
-                <Calendar />
-                <Tabs defaultValue='daily' value={activeTab} onValueChange={setActiveTab}>
-                  <TabsList className='bg-white'>
-                    {tabItems.map((item, index) => (
-                      <TabsTrigger
-                        value={item.value}
-                        key={index}
-                      >
-                        {/* Capitalized first letter of item.value */}
-                        {item.value.charAt(0).toUpperCase() + item.value.slice(1)}
-                      </TabsTrigger>
-                    ))}
-                  </TabsList>
-                </Tabs>
-              </div>
-
-              {/* Date Display and Date Change */}
-              <div className='w-full'>
-                <div className="flex 
-                    justify-between 
-                    items-center
-                    font-semibold"
-                >
-                  <ChevronLeft
-                    className='cursor-pointer'
-                    onClick={() => handleDateChange('prev')}
-                  />
-                  {dateDisplay}
-                  <ChevronRight
-                    className='cursor-pointer'
-                    onClick={() => handleDateChange('next')}
-                  />
-                </div>
-              </div>
-            </CardHeader>
-
-            <Separator />
-
-            <CardContent className='flex flex-col gap-y-4'>
-              <div className='flex flex-col'>
-                <h3 className='text-gray-600 font-normal text-lg'>
-                  Calculated Balance
-                </h3>
-                <h1 className='text-2xl font-extrabold'>
-                  PHP 1,200.00
-                </h1>
-              </div>
-            </CardContent>
-            <CardFooter className='w-full flex flex-row justify-center space-x-2'>
-              <Button 
-                className='w-[50%] flex flex-row -space-x-1'
-                onClick={() => router.push('/pages/transactions/add?type=income')}
-              >
-                <ArrowDownLeft strokeWidth={3}/> 
-                <span>
-                  Income
-                </span>
-              </Button>
-              <Button 
-                variant='destructive'
-                className='w-[50%] flex flex-row -space-x-1' 
-                onClick={() => router.push('/pages/transactions/add?type=expense')}
-              >
-                <ArrowUpRight strokeWidth={3}/> 
-                <span>
-                  Expense
-                </span>
-              </Button>
-            </CardFooter>
-          </Card>
-        </section>
-      }
+      <DateTransactionCard
+        balance={calculateBalance()}
+        onAddTransaction={handleAddTransaction}
+        onDateRangeChange={handleDateRangeChange}
+      />
 
       {/* Transactions Section */}
       <section className='flex flex-col space-y-2 px-3 mb-2'>
         <TypographyH4>
           Transactions
         </TypographyH4>
-        {transactions && ( 
+        {transactions.length > 0 ? (
           <>
             {transactions.map((transaction, index) => (
               <Card key={index} className='border-2'>
                 <CardHeader>
                   <CardTitle className='flex justify-between'>
-                    <span>{transaction.date}</span>
-                    <span className='text-red-500'>{transaction.total}</span>
+                    <span>
+                      {new Date(transaction.date).toLocaleDateString('en-US', {
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </span>
+                    <span
+                      className={
+                        `${
+                          transaction.total.startsWith('-')
+                            ? 'text-red-500'
+                            : 'text-primary'
+                        }`
+                      }
+                    >
+                      PHP {transaction.total}
+                    </span>
                   </CardTitle>
                 </CardHeader>
                 <div className='w-full border-t border-gray-300' />
                 <CardContent className='-mb-4'>
-                  {transaction.details.map((detail, index) => (
-                    <div key={index} className='space-y-3 flex flex-row items-center justify-between'>
-                      <div className='flex flex-col text-sm'>
-                        <span>
-                          {detail.category}
-                        </span>
-                        <span className='text-gray-600'>
-                          {detail.note}
-                        </span>
+                  {transaction.details.map((detail: TransactionDetails, index: number) => (
+                    <Link key={index} href={`transactions/${detail.uuid}`}>
+                      <div className='space-y-3 flex flex-row items-center justify-between'>
+                          <div className='flex flex-col text-sm'>
+                            <span>
+                              {detail.category}
+                            </span>
+                            <span className='text-gray-600'>
+                              {detail.note}
+                            </span>
+                          </div>
+                          <span className={`text-sm ${detail.type === 'income' ? 'text-primary' : 'text-red-500'}`}>
+                          PHP
+                            {
+                              detail.type === 'income'
+                                ? ' +'
+                                : ' -'
+                            }
+                          {detail.amount.toFixed(2)}
+                          </span>                      
                       </div>
-                      <span className='text-sm text-red-500'>
-                        {detail.amount}
-                      </span>
-                    </div>
+                    </Link>
                   ))}
                 </CardContent>
               </Card>
             ))}
           </>
+        ) : (
+					<div className="flex flex-col items-center justify-center py-10">
+						<TypographyH4 className='text-gray-400 font-semibold text-center'>
+							No Transactions
+						</TypographyH4>
+						<p className="text-gray-500 text-sm text-center">
+							Start by adding your first transaction
+						</p>
+					</div>
         )}
       </section>
     </main>
