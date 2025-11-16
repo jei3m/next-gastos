@@ -13,6 +13,9 @@ export const createTransactionSchema = z.object({
   categoryID: z.string({
     message: "Please select a category"
   }),
+  accountID: z.string({
+    message: "Please select an account"
+  }),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, {
     message: "Date must be in YYYY-MM-DD format"
   }),
