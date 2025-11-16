@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { createElement, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { tabItems, categoryTypes } from '@/lib/data';
@@ -453,7 +453,7 @@ export default function Categories() {
 													}
 												`}
 											>
-												{isExpense(category.type) ? '-' : '+'} PHP {category.amount ?? 0.00}
+												{isExpense(category.type) ? '-' : '+'} PHP {category.totalAmount ?? 0.00}
 											</CardTitle>										
 										</div>
 									</CardContent>
