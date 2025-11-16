@@ -16,15 +16,17 @@ export const createCategory = () => {
 export const getCategories = () => {
     return `SELECT
                 uuid,
+                icon,
                 name,
                 type,
-                icon,
-                ref_user_id
+                totalAmount,
+                refUserID,
+                refAccountsID
             FROM 
                 v_categories
             WHERE
-                ref_user_id = :userID
-                AND ref_accounts_id = :accountID
+                refUserID = :userID
+                AND refAccountsID = :accountID
                 AND (:filter IS NULL OR type = :filter);`
 };
 
@@ -34,11 +36,11 @@ export const getCategoryByID = () => {
                 name,
                 type,
                 icon,
-                ref_user_id
+                refUserID
             FROM 
                 v_categories
             WHERE
-                ref_user_id = :userID
+                refUserID = :userID
                 AND uuid = :uuid;`
 };
 
