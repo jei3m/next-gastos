@@ -49,4 +49,4 @@ export const transactions = [
 ];
 export const categoryTypes = ["Expense", "Income"];
 
-export const transactionTypes = ["Expense", "Income", "Transfer"];
+export const transactionTypes = ["Expense", "Income"];
