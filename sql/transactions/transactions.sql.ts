@@ -8,8 +8,8 @@ export const createTransaction = () => {
                 :type,
                 :time,
                 :date,
-                :accountID,
-                :categoryID,
+                :refAccountsID,
+                :refCategoriesID,
                 :userID,
                 @response
             );
@@ -38,8 +38,7 @@ export const getTransactionByID = () => {
                 type,
                 time,
                 date,
-                refCategoriesID,
-                refUserID
+                refCategoriesID
             FROM
                 v_transaction_details
             WHERE
@@ -58,8 +57,8 @@ export const updateTransaction = () => {
                 :type,
                 :time,
                 :date,
-                :accountID,
-                :categoryID,
+                :refAccountsID,
+                :refCategoriesID,
                 :userID,
                 @response
             );
