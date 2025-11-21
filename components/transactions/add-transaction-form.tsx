@@ -23,7 +23,7 @@ import {
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { createTransactionSchema } from "@/schema/transactions.schema";
+import { transactionSchema } from "@/schema/transactions.schema";
 import { fetchCategories } from "@/store/categories.store";
 import { useAccount } from "@/context/account-context";
 import { Category } from "@/types/categories.types";
@@ -54,8 +54,8 @@ export default function AddTransactionForm() {
       })
   },[router])
 
-  const form = useForm<z.infer<typeof createTransactionSchema>>({
-    resolver: zodResolver(createTransactionSchema),
+  const form = useForm<z.infer<typeof transactionSchema>>({
+    resolver: zodResolver(transactionSchema),
     defaultValues: {
       note: "",
       amount: "0.00",
@@ -67,7 +67,7 @@ export default function AddTransactionForm() {
   });
   const transactionDate = form.getValues('date');
 
-  async function onSubmit(values: z.infer<typeof createTransactionSchema>) {
+  async function onSubmit(values: z.infer<typeof transactionSchema>) {
     setIsLoading(true);
     const transactionData = {
       ...values,
@@ -83,7 +83,7 @@ export default function AddTransactionForm() {
           toast.error(error.message);
           return;
         };
-        console.error(error);
+        toast.error('Failed to Create Transaction');
       })
       .finally(() => {
         setIsLoading(false);
@@ -117,19 +117,21 @@ export default function AddTransactionForm() {
     if (!selectedAccountID) return;
     setIsLoading(true);
     form.setValue('accountID', selectedAccountID);
-    fetchCategories(form.getValues('type'), selectedAccountID)
-      .then((categories) => {
-        setCategories(categories);
-      })
-      .catch((error) => {
-        if (error instanceof Error) {
-          toast.error(error.message);
-        }
-      })
-      .finally(() => {
-        setIsLoading(false);
-      })
-  },[form, form.getValues('type'), selectedAccountID]);
+    if (activeTab) {
+      fetchCategories(activeTab, selectedAccountID)
+        .then((categories) => {
+          setCategories(categories);
+        })
+        .catch((error) => {
+          if (error instanceof Error) {
+            toast.error(error.message);
+          }
+        })
+        .finally(() => {
+          setIsLoading(false);
+        })
+    }
+  },[form, activeTab, selectedAccountID]);
 
   return (
     <main className='flex flex-col space-y-4 p-3'>
@@ -142,7 +144,13 @@ export default function AddTransactionForm() {
             <TabsTrigger
               value={category.toLowerCase()}
               key={index}
-              className="text-md"
+              className={`text-md
+                ${
+                  activeTab === 'expense'
+                    ? 'data-[state=active]:bg-red-400'
+                    : 'data-[state=active]:bg-green-300'
+                }`
+              }
             >
               {category}
             </TabsTrigger>
