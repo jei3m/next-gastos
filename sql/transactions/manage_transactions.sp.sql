@@ -149,7 +149,7 @@ main: BEGIN
                                 + (p_amount * CASE WHEN p_type = 'income' THEN 1 ELSE -1 END);
 
             -- Validate new total_balance
-            IF v_new_balance <= 0 THEN
+            IF v_new_balance < 0 THEN
                 SET p_response = JSON_OBJECT(
                     'responseCode', 500,
                     'responseMessage', 'Amount exceeds the account''s total balance'
@@ -238,7 +238,7 @@ main: BEGIN
             SET v_new_balance = v_total_balance - (v_amount * CASE WHEN v_original_type = 'income' THEN 1 ELSE -1 END);
 
             -- Validate new total_balance
-            IF v_new_balance <= 0 THEN
+            IF v_new_balance < 0 THEN
                 SET p_response = JSON_OBJECT(
                     'responseCode', 500,
                     'responseMessage', 'Deleting this transaction would result in a negative account balance'
