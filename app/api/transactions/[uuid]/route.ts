@@ -53,8 +53,8 @@ export async function PUT(
 			type,
 			time,
 			date,
-			accountID,
-			categoryID
+			refAccountsID,
+			refCategoriesID
 		} = await req.json();
 		const { uuid } = await params;
 
@@ -69,8 +69,8 @@ export async function PUT(
 				type,
 				time,
 				date,
-				accountID,
-				categoryID,
+				refAccountsID,
+				refCategoriesID,
 			}
 		);
 
