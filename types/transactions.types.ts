@@ -19,7 +19,7 @@ export interface CreateTransaction {
   type: string,
   time: string,
   date: string,
-  categoryID: string
+  refCategoriesID: string
 };
 
 export interface EditTransaction {
