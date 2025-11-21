@@ -1,6 +1,6 @@
-import { 
+import {
   CreateTransaction,
-  EditTransaction
+  EditTransactionPayload,
 } from "@/types/transactions.types";
 
 export const createTransaction = async(transaction: CreateTransaction) => {
@@ -53,11 +53,14 @@ export const fetchTransactionByID = async(
   }
 };
 
-export const editTransactions = async(uuid: string, transaction: EditTransaction) => {
+export const editTransactions = async(
+  uuid: string,
+  transaction: EditTransactionPayload
+) => {
   try {
     const res = await fetch(`/api/transactions/${uuid}`, {
       method: 'PUT',
-      headers: {'Content-Type': 'application.json'},
+      headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(transaction)
     });
     const data = await res.json();
@@ -75,7 +78,7 @@ export const deleteTransaction = async(uuid: string) => {
   try {
     const res = await fetch(`/api/transactions/${uuid}`, {
       method: 'DELETE',
-      headers: {'Content-Type': 'application.json'},
+      headers: {'Content-Type': 'application/json'},
     });
     const data = await res.json();
     if (!res.ok) throw Error(data.message);
