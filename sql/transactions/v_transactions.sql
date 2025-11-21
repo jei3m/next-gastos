@@ -31,8 +31,10 @@ WITH transactions_cte AS (
 SELECT
     date,
     CASE
-		WHEN SUM(CASE WHEN type = 'income' THEN amount ELSE -amount END) >= 0
+		WHEN SUM(CASE WHEN type = 'income' THEN amount ELSE -amount END) > 0
 			THEN CONCAT('+', SUM(CASE WHEN type = 'income' THEN amount ELSE -amount END))
+		WHEN SUM(CASE WHEN type = 'income' THEN amount ELSE -amount END) = 0
+			THEN SUM(CASE WHEN type = 'income' THEN amount ELSE -amount END)
 		ELSE
 			CAST(SUM(CASE WHEN type = 'income' THEN amount ELSE -amount END) AS CHAR)
     END AS total,
