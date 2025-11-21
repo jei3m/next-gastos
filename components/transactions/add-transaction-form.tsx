@@ -28,7 +28,7 @@ import { fetchCategories } from "@/store/categories.store";
 import { useAccount } from "@/context/account-context";
 import { Category } from "@/types/categories.types";
 import { toast } from "sonner";
-import { createTransaction, fetchTransactionByID } from "@/store/transactions.store";
+import { createTransaction } from "@/store/transactions.store";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ChevronDownIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
