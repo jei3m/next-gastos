@@ -23,9 +23,11 @@ export interface CreateTransaction {
 };
 
 export interface EditTransaction {
-  amount: number,
-  type: string,
-  time: string,
-  date: string,
-  categoryID: string
+  note: string;
+  amount: number;
+  type: string;
+  time: string;
+  date: string;
+  accountID: string;
+  categoryID: string;
 };
