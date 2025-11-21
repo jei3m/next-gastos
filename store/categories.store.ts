@@ -3,9 +3,11 @@ import {
     EditCategory
 } from "@/types/categories.types";
 
-export const fetchCategories = async(filter: string, accountID: string) => {
+export const fetchCategories = async(filter: string | null, accountID: string) => {
     try {
-        const res = await fetch(`/api/categories?filter=${filter}&accountID=${accountID}`);
+        const res = filter 
+            ? await fetch(`/api/categories?filter=${filter}&accountID=${accountID}`)
+            : await fetch(`/api/categories?accountID=${accountID}`);
         const data = await res.json();
         return(data.data);
     } catch (error) {
