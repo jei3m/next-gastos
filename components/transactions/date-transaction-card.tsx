@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { ArrowDownLeft, ArrowUpRight, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
