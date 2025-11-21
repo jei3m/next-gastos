@@ -61,8 +61,8 @@ export default function AddTransactionForm() {
       amount: "0.00",
       type: "",
       time: new Date().toTimeString().substring(0, 5),
-      date: new Date().toISOString().split('T')[0],
-      categoryID: ""
+      date: new Date().toLocaleDateString('en-CA'), // Use 'en-CA' locale which formats as YYYY-MM-DD
+      refCategoriesID: ""
     }
   });
   const transactionDate = form.getValues('date');
@@ -116,7 +116,7 @@ export default function AddTransactionForm() {
   useEffect(() => {
     if (!selectedAccountID) return;
     setIsLoading(true);
-    form.setValue('accountID', selectedAccountID);
+    form.setValue('refAccountsID', selectedAccountID);
     if (activeTab) {
       fetchCategories(activeTab, selectedAccountID)
         .then((categories) => {
@@ -183,7 +183,7 @@ export default function AddTransactionForm() {
           />
           <FormField
             control={form.control}
-            name="categoryID"
+            name="refCategoriesID"
             render={({ field }) => (
               <FormItem className="-space-y-1">
                 <FormLabel className="text-md font-medium">
