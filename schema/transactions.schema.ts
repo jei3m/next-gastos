@@ -14,10 +14,10 @@ export const transactionSchema = z.object({
   type: z.enum(['income', 'expense', ''], {
     message: "Transaction type can only be income or expense"
   }),
-  categoryID: z.string({
+  refCategoriesID: z.string({
     message: "Please select a category"
   }),
-  accountID: z.string({
+  refAccountsID: z.string({
     message: "Please select an account"
   }),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, {
