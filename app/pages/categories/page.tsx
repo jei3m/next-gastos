@@ -41,6 +41,7 @@ import { useAccount } from '@/context/account-context';
 
 export default function Categories() {
 	const [isScrolled, setIsScrolled] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
 	const [activeTab, setActiveTab] = useState('weekly');
 	const [categoryType, setCategoryType] = useState('expense');
 	const [currentDate, setCurrentDate] = useState(new Date());
@@ -187,6 +188,7 @@ export default function Categories() {
 	// Fetch categories when categoryType, router, or selectedAccountID changes
 	useEffect(() => {
 		if (selectedAccountID) {
+			setIsLoading(true);
 			fetchCategories(categoryType, selectedAccountID)
 				.then((categories) => {
 					setCategories(categories);
@@ -195,6 +197,9 @@ export default function Categories() {
 					if (error instanceof Error) {
 						toast.error(error.message)
 					}
+				})
+				.finally(() => {
+					setIsLoading(false);
 				})
 		} else {
 			toast.error("Please select an account first");
@@ -418,62 +423,68 @@ export default function Categories() {
 						</TabsList>
 					</div>
 				</Tabs>
-				{categories.length > 0 ? (
-					<>
-						{categories.map((category, index) => (
-							<Link key={index} href={`/pages/categories/${category.id}`}>
-								<Card className='border-2 p-[10px]'>
-									<CardContent className='flex flex-row justify-between items-center -p-1'>
-										<div className='flex flex-row space-x-2 items-center'>
-											<div className={`
-												p-1.5 rounded-lg border-2 
-												${isExpense(category.type)
-													? 'bg-red-500'
-													: 'bg-primary'
-												}
-											`}>
-												{createElement(getIconComponent(category.icon), { size: 30 })}									
-											</div>
-											<div>
-												<TypographyH5 className='font-semibold'>
-													{category.name}
-												</TypographyH5>									
-											</div>
-										</div>
-										<div className='text-right'>
-											<CardDescription>
-												Total Amount:
-											</CardDescription>	
-											<CardTitle
-												className={`
-													${
-														isExpense(category.type)
-															? 'text-red-500'
-															: 'text-primary'
-													}
-												`}
-											>
-												{isExpense(category.type) ? '-' : '+'} PHP {category.totalAmount ?? 0.00}
-											</CardTitle>										
-										</div>
-									</CardContent>
-								</Card>
-							</Link>
-						))}
-					</>
-				) : (
-					<div className="flex flex-col items-center justify-center py-10">
-						<TypographyH4 className='text-gray-400 font-semibold text-center'>
-							No Categories
-						</TypographyH4>
-						<p className="text-gray-500 text-sm text-center">
-							Start by adding your first category
-						</p>
-					</div>
+				{isLoading ? (
+						<div>Loading...</div>
+					):(
+						<>
+							{categories && categories.length > 0 ? (
+								<>
+									{categories.map((category, index) => (
+										<Link key={index} href={`/pages/categories/${category.id}`}>
+											<Card className='border-2 p-[10px]'>
+												<CardContent className='flex flex-row justify-between items-center -p-1'>
+													<div className='flex flex-row space-x-2 items-center'>
+														<div className={`
+															p-1.5 rounded-lg border-2 
+															${isExpense(category.type)
+																? 'bg-red-500'
+																: 'bg-primary'
+															}
+														`}>
+															{createElement(getIconComponent(category.icon), { size: 30 })}									
+														</div>
+														<div>
+															<TypographyH5 className='font-semibold'>
+																{category.name}
+															</TypographyH5>									
+														</div>
+													</div>
+													<div className='text-right'>
+														<CardDescription>
+															Total Amount:
+														</CardDescription>	
+														<CardTitle
+															className={`
+																${
+																	isExpense(category.type)
+																		? 'text-red-500'
+																		: 'text-primary'
+																}
+															`}
+														>
+															{isExpense(category.type) ? '-' : '+'} PHP {category.totalAmount ?? 0.00}
+														</CardTitle>										
+													</div>
+												</CardContent>
+											</Card>
+										</Link>
+									))}
+								</>
+							) : (
+								<div className="flex flex-col items-center justify-center py-10">
+									<TypographyH4 className='text-gray-400 font-semibold text-center'>
+										No Categories
+									</TypographyH4>
+									<p className="text-gray-500 text-sm text-center">
+										Start by adding your first category
+									</p>
+								</div>
+							)}
+							<Button onClick={handleAddCategory}>
+								<PlusIcon size={40} className='-mr-1'/> Add New Category
+							</Button>
+						</>				
 				)}
-				<Button onClick={handleAddCategory}>
-					<PlusIcon size={40} className='-mr-1'/> Add New Category
-				</Button>
 			</section>
 		</main>
 	)

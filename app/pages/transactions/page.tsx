@@ -14,6 +14,7 @@ import Link from 'next/link';
 
 export default function Transactions() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [dateStart, setDateStart] = useState<string>('');
   const [dateEnd, setDateEnd] = useState<string>('');
   const router = useRouter();
@@ -54,6 +55,7 @@ export default function Transactions() {
   // Fetch transactions from API when date range changes
   useEffect(() => {
     if (dateStart && dateEnd && selectedAccountID) {
+      setIsLoading(true);
       fetchTransactions(selectedAccountID, dateStart, dateEnd)
         .then((data) => {
           setTransactions(data)
@@ -62,6 +64,9 @@ export default function Transactions() {
           if (error instanceof Error) {
             toast.error(error.message)
           };
+        })
+        .finally(() => {
+          setIsLoading(false);
         })
     }
   }, [selectedAccountID, dateStart, dateEnd]);
@@ -83,69 +88,75 @@ export default function Transactions() {
         <TypographyH4>
           Transactions
         </TypographyH4>
-        { transactions && transactions.length > 0 ? (
+        {isLoading ? (
+          <div>Loading...</div>
+        ):(
           <>
-            {transactions.map((transaction, index) => (
-              <Card key={index} className='border-2'>
-                <CardHeader>
-                  <CardTitle className='flex justify-between'>
-                    <span>
-                      {new Date(transaction.date).toLocaleDateString('en-US', {
-                        month: 'long',
-                        day: 'numeric'
-                      })}
-                    </span>
-                    <span
-                      className={
-                        `${
-                          transaction.total.startsWith('-')
-                            ? 'text-red-500'
-                            : 'text-primary'
-                        }`
-                      }
-                    >
-                      PHP {transaction.total}
-                    </span>
-                  </CardTitle>
-                </CardHeader>
-                <div className='w-full border-t border-gray-300' />
-                <CardContent className='-mb-4'>
-                  {transaction.details.map((detail: TransactionDetails, index: number) => (
-                    <Link key={index} href={`transactions/${detail.id}`}>
-                      <div className='space-y-3 flex flex-row items-center justify-between'>
-                          <div className='flex flex-col text-sm'>
-                            <span>
-                              {detail.category}
-                            </span>
-                            <span className='text-gray-600'>
-                              {detail.note}
-                            </span>
+            { transactions && transactions.length > 0 ? (
+              <>
+                {transactions.map((transaction, index) => (
+                  <Card key={index} className='border-2'>
+                    <CardHeader>
+                      <CardTitle className='flex justify-between'>
+                        <span>
+                          {new Date(transaction.date).toLocaleDateString('en-US', {
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </span>
+                        <span
+                          className={
+                            `${
+                              transaction.total.startsWith('-')
+                                ? 'text-red-500'
+                                : 'text-primary'
+                            }`
+                          }
+                        >
+                          PHP {transaction.total}
+                        </span>
+                      </CardTitle>
+                    </CardHeader>
+                    <div className='w-full border-t border-gray-300' />
+                    <CardContent className='-mb-4'>
+                      {transaction.details.map((detail: TransactionDetails, index: number) => (
+                        <Link key={index} href={`transactions/${detail.id}`}>
+                          <div className='space-y-3 flex flex-row items-center justify-between'>
+                              <div className='flex flex-col text-sm'>
+                                <span>
+                                  {detail.category}
+                                </span>
+                                <span className='text-gray-600'>
+                                  {detail.note}
+                                </span>
+                              </div>
+                              <span className={`text-sm ${detail.type === 'income' ? 'text-primary' : 'text-red-500'}`}>
+                              PHP
+                                {
+                                  detail.type === 'income'
+                                    ? ' +'
+                                    : ' -'
+                                }
+                              {detail.amount.toFixed(2)}
+                              </span>                      
                           </div>
-                          <span className={`text-sm ${detail.type === 'income' ? 'text-primary' : 'text-red-500'}`}>
-                          PHP
-                            {
-                              detail.type === 'income'
-                                ? ' +'
-                                : ' -'
-                            }
-                          {detail.amount.toFixed(2)}
-                          </span>                      
-                      </div>
-                    </Link>
-                  ))}
-                </CardContent>
-              </Card>
-            ))}
+                        </Link>
+                      ))}
+                    </CardContent>
+                  </Card>
+                ))}
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-10">
+                <TypographyH4 className='text-gray-400 font-semibold text-center'>
+                  No Transactions
+                </TypographyH4>
+                <p className="text-gray-500 text-sm text-center">
+                  Start by adding your first transaction
+                </p>
+              </div>
+            )}          
           </>
-        ) : (
-					<div className="flex flex-col items-center justify-center py-10">
-						<TypographyH4 className='text-gray-400 font-semibold text-center'>
-							No Transactions
-						</TypographyH4>
-						<p className="text-gray-500 text-sm text-center">
-							Start by adding your first transaction
-						</p>
-					</div>
         )}
       </section>
     </main>
