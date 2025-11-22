@@ -30,7 +30,7 @@ import { Category } from "@/types/categories.types";
 import { toast } from "sonner";
 import { deleteTransaction, editTransactions, fetchTransactionByID } from "@/store/transactions.store";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { ChevronDownIcon, Loader, Loader2, Trash2 } from "lucide-react";
+import { ChevronDownIcon, Trash2 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { transactionTypes } from "@/lib/data";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -400,7 +400,7 @@ export default function EditTransactionForm() {
               type="submit"
               disabled={isLoading}
             >
-              {isLoading ? "Submitting..." : "Submit"}
+              Submit
             </Button>
           </div>
         </form>
