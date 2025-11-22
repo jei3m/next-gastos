@@ -12,16 +12,16 @@ import {
 // Get Specific Account
 export async function GET(
     _req: Request,
-    { params }: { params: Promise<{uuid: string}> }
+    { params }: { params: Promise<{id: string}> }
 ) {
     try {
-        const { uuid } = await params;
+        const { id } = await params;
         
         const [rows] = await db.query(
             getAccountByID(),
             {
                 userID: await fetchUserID(),
-                uuid
+                id
             }
         );
 
@@ -42,7 +42,7 @@ export async function GET(
 // Update Account
 export async function PUT(
     req: NextRequest,
-    { params }: { params: Promise<{ uuid: string }> }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const { 
@@ -50,13 +50,13 @@ export async function PUT(
             type, 
             description 
         } = await req.json();
-        const { uuid } = await params;
+        const { id } = await params;
 
         const [resultUpdate] = await db.query<responseRow[]>(
             updateAccount(),
             {
                 actionType: 'update',
-                uuid,
+                id,
                 userID: await fetchUserID(),
                 name,
                 type,
@@ -94,16 +94,16 @@ export async function PUT(
 // Delete Account
 export async function DELETE(
     _req: NextRequest,
-    { params }: { params: Promise<{ uuid: string }> }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const { uuid } = await params;
+        const { id } = await params;
 
         const [resultDelete] = await db.query<responseRow[]>(
             deleteAccount(),
             {
                 actionType: 'delete',
-                uuid,
+                id,
                 userID: await fetchUserID()
             }
         );

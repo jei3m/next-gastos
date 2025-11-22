@@ -2,7 +2,7 @@ export const createTransaction = () => {
     return `CALL manage_transactions
             (
                 :actionType,
-                :uuid,
+                :id,
                 :note,
                 :amount,
                 :type,
@@ -32,7 +32,7 @@ export const getTransactions = () => {
 
 export const getTransactionByID = () => {
     return `SELECT
-                uuid,
+                id,
                 note,
                 amount,
                 type,
@@ -42,7 +42,7 @@ export const getTransactionByID = () => {
             FROM
                 v_transaction_details
             WHERE
-                uuid = :uuid
+                id = :id
                 AND refUserID = :userID
             LIMIT 1;`;
 };
@@ -51,7 +51,7 @@ export const updateTransaction = () => {
     return `CALL manage_transactions
             (
                 :actionType,
-                :uuid,
+                :id,
                 :note,
                 :amount,
                 :type,
@@ -69,7 +69,7 @@ export const deleteTransaction = () => {
     return `CALL manage_transactions
             (
                 :actionType,
-                :uuid,
+                :id,
                 NULL,
                 NULL,
                 NULL,

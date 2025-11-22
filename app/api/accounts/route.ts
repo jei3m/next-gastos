@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
 			createAccounts(),
 			{
 				actionType: 'create',
-				uuid: crypto.randomUUID(),
+				id: crypto.randomUUID(),
 				userID: await fetchUserID(),
 				name,
 				type,

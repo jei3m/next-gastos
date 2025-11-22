@@ -2,7 +2,7 @@ export const createCategory = () => {
     return `CALL manage_categories
             (
                 :actionType,
-                :uuid,
+                :id,
                 :userID,
                 :accountID,
                 :name,
@@ -15,7 +15,7 @@ export const createCategory = () => {
 
 export const getCategories = () => {
     return `SELECT
-                uuid,
+                id,
                 icon,
                 name,
                 type,
@@ -32,7 +32,7 @@ export const getCategories = () => {
 
 export const getCategoryByID = () => {
     return `SELECT
-                uuid,
+                id,
                 name,
                 type,
                 icon,
@@ -41,14 +41,14 @@ export const getCategoryByID = () => {
                 v_categories
             WHERE
                 refUserID = :userID
-                AND uuid = :uuid;`
+                AND id = :id;`
 };
 
 export const updateCategory = () => {
     return `CALL manage_categories
             (
                 :actionType,
-                :uuid,
+                :id,
                 :userID,
                 :name,
                 :type,
@@ -62,7 +62,7 @@ export const deleteCategory = () => {
     return `CALL manage_categories
             (
                 :actionType,
-                :uuid,
+                :id,
                 :userID,
                 NULL,
                 NULL,

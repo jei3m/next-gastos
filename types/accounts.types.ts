@@ -1,6 +1,5 @@
 export interface Account {
-    id: number,
-    uuid: string,
+    id: string,
     name: string,
     type: string,
     description: string

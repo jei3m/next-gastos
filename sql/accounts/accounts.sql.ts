@@ -2,7 +2,7 @@ export const createAccounts = () => {
     return `CALL manage_accounts
             (
                 :actionType,
-                :uuid,
+                :id,
                 :userID,
                 :name,
                 :type,
@@ -15,7 +15,7 @@ export const createAccounts = () => {
 export const getAccounts = () => {
     return `SELECT 
                 id,
-                uuid,
+                id,
                 name,
                 type,
                 description
@@ -28,7 +28,7 @@ export const getAccounts = () => {
 export const getAccountByID = () => {
     return `SELECT 
                 id,
-                uuid,
+                id,
                 name,
                 type,
                 description
@@ -36,7 +36,7 @@ export const getAccountByID = () => {
                 v_accounts
             WHERE
                 ref_user_id = :userID
-                AND uuid = :uuid
+                AND id = :id
             LIMIT 1;`
 };
 
@@ -44,7 +44,7 @@ export const updateAccount = () => {
     return `CALL manage_accounts
             (
                 :actionType,
-                :uuid,
+                :id,
                 :userID,
                 :name,
                 :type,
@@ -58,7 +58,7 @@ export const deleteAccount = () => {
     return `CALL manage_accounts
             (
                 :actionType,
-                :uuid,
+                :id,
                 :userID,
                 NULL,
                 NULL,

@@ -5,7 +5,7 @@ DELIMITER $$
 CREATE PROCEDURE `manage_accounts`(
 
     IN p_action_type ENUM('create', 'update', 'delete'),
-	IN p_uuid CHAR(36),
+	IN p_id CHAR(36),
 	IN p_user_id CHAR(36),
     IN p_name VARCHAR(10),
     IN p_type ENUM('Cash', 'Digital'),
@@ -31,7 +31,7 @@ main: BEGIN
             -- INSERT statement
             INSERT INTO accounts
             (
-                uuid,
+                id,
                 ref_user_id,
                 name,
                 type,
@@ -39,7 +39,7 @@ main: BEGIN
             )
             VALUES
             (
-                p_uuid,
+                p_id,
                 p_user_id,
                 p_name,
                 p_type,
@@ -63,12 +63,12 @@ main: BEGIN
             END IF;
             
 		WHEN 'update' THEN
-            -- Validated account uuid
+            -- Validate account id
             IF NOT EXISTS
             (
                 SELECT 1
                 FROM accounts
-                WHERE uuid = p_uuid
+                WHERE uidid = p_id
                 LIMIT 1
             )
             THEN
@@ -88,7 +88,7 @@ main: BEGIN
                description = p_description
             WHERE 
                 ref_user_id = p_user_id
-                AND uuid = p_uuid
+                AND id = p_id
             LIMIT 1;
 
             SET v_affected_rows = ROW_COUNT();
@@ -112,7 +112,7 @@ main: BEGIN
             (
                 SELECT 1
                 FROM accounts
-                WHERE uuid = p_uuid
+                WHERE id = p_id
                 LIMIT 1
             )
             THEN

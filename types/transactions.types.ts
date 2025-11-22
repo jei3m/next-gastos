@@ -6,7 +6,7 @@ export interface Transaction {
 };
 
 export interface TransactionDetails {
-  uuid: string,
+  id: string,
   note: string,
   time: string,
   type: string,
@@ -23,7 +23,7 @@ export interface CreateTransaction {
 };
 
 export interface EditTransaction {
-  uuid: string,
+  id: string,
   note: string,
   time: string,
   type: "" | "income" | "expense",

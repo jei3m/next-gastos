@@ -4,7 +4,7 @@ DROP PROCEDURE IF EXISTS `manage_categories`;
 DELIMITER $$
 CREATE PROCEDURE `manage_categories`(
     IN p_action_type ENUM('create', 'update', 'delete'),
-    IN p_uuid CHAR(36),
+    IN p_id CHAR(36),
     IN p_user_id CHAR(36),
     IN p_accounts_id CHAR(36),
     IN p_name VARCHAR(15),
@@ -45,7 +45,7 @@ BEGIN
 
                 -- INSERT statement
                 INSERT INTO categories(
-                    uuid,
+                    id,
                     ref_user_id,
                     ref_accounts_id,
                     name,
@@ -53,7 +53,7 @@ BEGIN
                     icon
                 )
                 VALUES(
-                    p_uuid,
+                    p_id,
                     p_user_id,
                     p_accounts_id,
                     p_name,
@@ -65,7 +65,7 @@ BEGIN
 
                 IF v_affected_rows > 0 THEN
                     SET p_response = JSON_OBJECT(
-                        'uuid', p_uuid,
+                        'id', p_id,
                         'responseCode', 200,
                         'responseMessage', 'Category Created Successfully'
                     );
@@ -78,16 +78,16 @@ BEGIN
                 END IF;
 
             WHEN 'update' THEN
-                -- Validate category uuid
+                -- Validate category id
                 IF NOT EXISTS(
                     SELECT 1
                     FROM categories
-                    WHERE uuid = p_uuid
+                    WHERE id = p_id
                     LIMIT 1
                 ) THEN
                     SET p_response = JSON_OBJECT(
                         'responseCode', 404,
-                        'responseMessage', 'Category not found with the specified UUID'
+                        'responseMessage', 'Category not found with the specified id'
                     );
                     LEAVE main;
                 END IF;
@@ -99,7 +99,7 @@ BEGIN
                     WHERE
                         ref_user_id = p_user_id
                         AND name = p_name
-                        AND uuid <> p_uuid
+                        AND id <> p_id
                     LIMIT 1
                 ) THEN
                     SET p_response = JSON_OBJECT(
@@ -117,7 +117,7 @@ BEGIN
                     icon = p_icon
                 WHERE
                     ref_user_id = p_user_id
-                    AND uuid = p_uuid
+                    AND id = p_id
                 LIMIT 1;
 
                 SET v_affected_rows = ROW_COUNT();
@@ -136,16 +136,16 @@ BEGIN
                 END IF;
 
             WHEN 'delete' THEN
-                -- Validate category uuid
+                -- Validate category id
                 IF NOT EXISTS(
                     SELECT 1
                     FROM categories
-                    WHERE uuid = p_uuid
+                    WHERE id = p_id
                     LIMIT 1
                 ) THEN
                     SET p_response = JSON_OBJECT(
                         'responseCode', 404,
-                        'responseMessage', 'Category not found with the specified UUID'
+                        'responseMessage', 'Category not found with the specified id'
                     );
                     LEAVE main;
                 END IF;
@@ -154,7 +154,7 @@ BEGIN
                 DELETE FROM 
                     categories
                 WHERE
-                    uuid = p_uuid
+                    id = p_id
                     AND ref_user_id = p_user_id
                 LIMIT 1;
 

@@ -3,7 +3,7 @@ CREATE OR REPLACE VIEW `v_transactions` AS
 /* Select Query */
 WITH transactions_cte AS (
 	SELECT
-		t.uuid,
+		t.id,
 		t.date,
         t.amount,
         c.name,
@@ -13,9 +13,9 @@ WITH transactions_cte AS (
         t.ref_user_id,
         t.ref_accounts_id
 	FROM transactions t
-    LEFT JOIN categories c on t.ref_categories_id = c.uuid
+    LEFT JOIN categories c on t.ref_categories_id = c.id
 	GROUP BY
-		t.uuid,
+		t.id,
 		t.date,
         t.amount,
         c.name,
@@ -40,7 +40,7 @@ SELECT
     END AS total,
     JSON_ARRAYAGG(
         JSON_OBJECT(
-            'uuid', uuid,
+            'id', id,
             'category', name,
             'note', note,
             'amount', amount,

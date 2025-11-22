@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
 			createCategory(),
 			{
 				actionType: 'create',
-				uuid: crypto.randomUUID(),
+				id: crypto.randomUUID(),
 				userID: await fetchUserID(),
 				accountID,
 				name,

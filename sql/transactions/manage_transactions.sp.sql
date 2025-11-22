@@ -5,7 +5,7 @@ DELIMITER $$
 CREATE PROCEDURE `manage_transactions`(
 
     IN p_action_type ENUM('create', 'update', 'delete'),
-	IN p_uuid CHAR(36),
+	IN p_id CHAR(36),
 	IN p_note VARCHAR(20),
 	IN p_amount DECIMAL(12,2),
 	IN p_type ENUM('income', 'expense'),
@@ -44,7 +44,7 @@ main: BEGIN
             FROM
                 accounts
             WHERE
-                uuid = p_ref_accounts_id
+                id = p_ref_accounts_id
                 AND ref_user_id = p_ref_user_id
             LIMIT 1;
             -- Validate total_balance
@@ -58,7 +58,7 @@ main: BEGIN
 
             -- INSERT statement
 			INSERT INTO transactions(
-				uuid,
+				id,
 				note,
 				amount,
 				type,
@@ -69,7 +69,7 @@ main: BEGIN
 				ref_user_id
 			)
 			VALUES(
-				p_uuid,
+				p_id,
 				p_note,
 				p_amount,
 				p_type,
@@ -89,7 +89,7 @@ main: BEGIN
                 SET
                     total_balance = v_total_balance + (p_amount * CASE WHEN p_type = 'income' THEN 1 ELSE -1 END)
                 WHERE
-                    uuid = p_ref_accounts_id
+                    id = p_ref_accounts_id
                     AND ref_user_id = p_ref_user_id
                 LIMIT 1;
 
@@ -118,15 +118,15 @@ main: BEGIN
             FROM
                 transactions
             WHERE
-                uuid = p_uuid
+                id = p_id
                 AND ref_user_id = p_ref_user_id
             LIMIT 1;
 
-            -- Validate transaction uuid
+            -- Validate transaction id
             IF v_amount IS NULL THEN
                 SET p_response = JSON_OBJECT(
                     'responseCode', 404,
-                    'responseMessage', 'Transaction not found with the specified UUID'
+                    'responseMessage', 'Transaction not found with the specified id'
                 );
                 LEAVE main;
             END IF;
@@ -139,7 +139,7 @@ main: BEGIN
             FROM
                 accounts
             WHERE
-                uuid = v_ref_accounts_id
+                id = v_ref_accounts_id
                 AND ref_user_id = p_ref_user_id
             LIMIT 1;
 
@@ -167,7 +167,7 @@ main: BEGIN
                 date = p_date,
 				ref_categories_id = p_ref_categories_id
 			WHERE
-				uuid = p_uuid
+				id = p_id
 				AND ref_user_id = p_ref_user_id
 			LIMIT 1;
 
@@ -180,7 +180,7 @@ main: BEGIN
                 SET
                     total_balance = v_new_balance
                 WHERE
-                    uuid = v_ref_accounts_id
+                    id = v_ref_accounts_id
                     AND ref_user_id = p_ref_user_id
                 LIMIT 1;
 
@@ -209,15 +209,15 @@ main: BEGIN
             FROM
                 transactions
             WHERE
-                uuid = p_uuid
+                id = p_id
                 AND ref_user_id = p_ref_user_id
             LIMIT 1;
 
-            -- Validate transaction uuid
+            -- Validate transaction id
             IF v_amount IS NULL THEN
                 SET p_response = JSON_OBJECT(
                     'responseCode', 404,
-                    'responseMessage', 'Transaction not found with the specified UUID'
+                    'responseMessage', 'Transaction not found with the specified id'
                 );
                 LEAVE main;
             END IF;
@@ -230,7 +230,7 @@ main: BEGIN
             FROM
                 accounts
             WHERE
-                uuid = v_ref_accounts_id
+                id = v_ref_accounts_id
                 AND ref_user_id = p_ref_user_id
             LIMIT 1;
 
@@ -250,7 +250,7 @@ main: BEGIN
             DELETE FROM
                 transactions
             WHERE
-                uuid = p_uuid
+                id = p_id
                 AND ref_user_id = p_ref_user_id
             LIMIT 1;
 
@@ -263,7 +263,7 @@ main: BEGIN
                 SET
                     total_balance = v_new_balance
                 WHERE
-                    uuid = v_ref_accounts_id
+                    id = v_ref_accounts_id
                     AND ref_user_id = p_ref_user_id
                 LIMIT 1;
 

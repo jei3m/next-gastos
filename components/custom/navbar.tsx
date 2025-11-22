@@ -51,13 +51,13 @@ function Navbar() {
 		router.push('/pages/accounts/add')
 	};
 
-	const handleEdit = (uuid: string) => {
+	const handleEdit = (id: string) => {
 		setOpen(false);
-		router.push(`/pages/accounts/${uuid}`);
+		router.push(`/pages/accounts/${id}`);
 	};
 
-	const handleSelect = (uuid: string) => {
-		setSelectedAccount(uuid);
+	const handleSelect = (id: string) => {
+		setSelectedAccount(id);
 		setOpen(false)
 	};
 
@@ -131,14 +131,14 @@ function Navbar() {
 									{accounts.map((account, index) => (
 										<ContextMenu key={index}>
 											<ContextMenuTrigger>
-												<SelectItem value={account.uuid}>
+												<SelectItem value={account.id}>
 													{account.name}
 												</SelectItem>
 											</ContextMenuTrigger>
 											<ContextMenuContent className='bg-primary rounded-md'>
 												<ContextMenuItem 
 													className="flex items-center px-2 py-1 text-sm cursor-pointer hover:bg-gray-100 rounded-sm"
-														onClick={() => handleEdit(account.uuid)}
+														onClick={() => handleEdit(account.id)}
 													>
 													<Edit className="mr-2 h-4 w-4" />
 													Edit

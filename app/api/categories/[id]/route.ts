@@ -1,30 +1,26 @@
 import { NextRequest } from "next/server";
 import { connection, db } from "@/utils/db";
-import {
-	success,
-	fail
-} from "@/utils/helpers";
+import { success, fail } from "@/utils/helpers";
 import { responseRow } from "@/types/response.types";
 import { fetchUserID } from '@/lib/auth-session';
-import {
-	deleteTransaction,
-	getTransactionByID,
-	updateTransaction
-} from "@/sql/transactions/transactions.sql";
+import { 
+	getCategoryByID, 
+	deleteCategory, 
+	updateCategory 
+} from "@/sql/categories/categories.sql";
 
-// Get Specific Transaction
 export async function GET(
 	_req: Request,
-	{ params }: { params: Promise<{ uuid: string }> }
+	{ params }: { params: Promise<{ id: string }> }
 ) {
 	try {
-		const { uuid } = await params;
+		const { id } = await params;
 
 		const [rows] = await db.query(
-			getTransactionByID(),
+			getCategoryByID(),
 			{
 				userID: await fetchUserID(),
-				uuid
+				id
 			}
 		);
 
@@ -34,43 +30,34 @@ export async function GET(
 			500,
 			error instanceof Error
 				? error.message
-				: "Failed to Fetch Transaction"
-		)
+				: 'Failed to Fetch Category'
+		);
 	} finally {
 		connection.release();
 	}
-};
+}
 
-// Update Transaction
 export async function PUT(
 	req: NextRequest,
-	{ params }: { params: Promise<{ uuid: string }> }
+	{ params }: { params: Promise<{ id: string }> }
 ) {
 	try {
 		const {
-			note,
-			amount,
+			name,
 			type,
-			time,
-			date,
-			refAccountsID,
-			refCategoriesID
+			icon
 		} = await req.json();
-		const { uuid } = await params;
+		const { id } = await params;
 
 		const [resultUpdate] = await db.query<responseRow[]>(
-			updateTransaction(),
+			updateCategory(),
 			{
 				actionType: 'update',
-				uuid,
+				id,
 				userID: await fetchUserID(),
-				note,
-				amount,
+				name,
 				type,
-				time,
-				date,
-				refAccountsID,
-				refCategoriesID,
+				icon
 			}
 		);
 
@@ -94,26 +81,25 @@ export async function PUT(
 			500,
 			error instanceof Error
 				? error.message
-				: 'Failed to Update Transaction'
-		)
+				: 'Failed to Update Category'
+		);
 	} finally {
 		connection.release();
 	}
 };
 
-// Delete Transaction
 export async function DELETE(
 	_req: NextRequest,
-	{ params }: { params: Promise<{ uuid: string }> }
+	{ params }: { params: Promise<{ id: string }> }
 ) {
 	try {
-		const { uuid } = await params;
+		const { id } = await params;
 
 		const [resultDelete] = await db.query<responseRow[]>(
-			deleteTransaction(),
+			deleteCategory(),
 			{
 				actionType: 'delete',
-				uuid,
+				id,
 				userID: await fetchUserID()
 			}
 		);
@@ -122,7 +108,7 @@ export async function DELETE(
 			resultDelete[1][0].response
 		);
 
-		if (parsedData.responseCode !== 200) {
+		if (parsedData.responseMessage !== 200) {
 			return fail(
 				parsedData.responseCode,
 				parsedData.responseMessage
@@ -138,7 +124,7 @@ export async function DELETE(
 			500,
 			error instanceof Error
 				? error.message
-				: 'Failed to Delete Transaction'
+				: 'Failed to Delete Category'
 		)
 	} finally {
 		connection.release();

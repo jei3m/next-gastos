@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
       createTransaction(),
       {
         actionType: 'create',
-        uuid: crypto.randomUUID(),
+        id: crypto.randomUUID(),
         userID: await fetchUserID(),
         note,
         amount,

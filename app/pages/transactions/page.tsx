@@ -111,7 +111,7 @@ export default function Transactions() {
                 <div className='w-full border-t border-gray-300' />
                 <CardContent className='-mb-4'>
                   {transaction.details.map((detail: TransactionDetails, index: number) => (
-                    <Link key={index} href={`transactions/${detail.uuid}`}>
+                    <Link key={index} href={`transactions/${detail.id}`}>
                       <div className='space-y-3 flex flex-row items-center justify-between'>
                           <div className='flex flex-col text-sm'>
                             <span>

@@ -13,9 +13,9 @@ export const fetchAccounts = async () => {
     }
 };
 
-export const fetchAccountByID = async (uuid:string) => {
+export const fetchAccountByID = async (id:string) => {
     try {
-        const res = await fetch(`/api/accounts/${uuid}`);
+        const res = await fetch(`/api/accounts/${id}`);
         const data = await res.json();
         return(data.data)
     } catch (error) {
@@ -44,9 +44,9 @@ export const createAccount = async (account: CreateAccount) => {
     };
 };
 
-export const editAccount = async (uuid: string, account: EditAccount) => {
+export const editAccount = async (id: string, account: EditAccount) => {
     try {
-        const res = await fetch(`/api/accounts/${uuid}`,{
+        const res = await fetch(`/api/accounts/${id}`,{
             method: 'PUT',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(account)
@@ -62,9 +62,9 @@ export const editAccount = async (uuid: string, account: EditAccount) => {
     }
 };
 
-export const deleteAccount = async (uuid: string) => {
+export const deleteAccount = async (id: string) => {
     try {
-        const res = await fetch(`/api/accounts/${uuid}`, {
+        const res = await fetch(`/api/accounts/${id}`, {
             method: 'DELETE',
             headers: {'Content-Type': 'application/json'},
         });

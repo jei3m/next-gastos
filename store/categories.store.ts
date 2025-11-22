@@ -18,9 +18,9 @@ export const fetchCategories = async(filter: string | null, accountID: string) =
     }
 };
 
-export const fetchCategoryByID = async (uuid:string) => {
+export const fetchCategoryByID = async (id:string) => {
     try {
-        const res = await fetch(`/api/categories/${uuid}`);
+        const res = await fetch(`/api/categories/${id}`);
         const data = await res.json();
         return(data.data)
     } catch (error) {
@@ -49,9 +49,9 @@ export const createCategory = async(category: CreateCategory) => {
     };
 };
 
-export const editCategory = async(uuid:string, category: EditCategory) => {
+export const editCategory = async(id:string, category: EditCategory) => {
     try {
-        const res = await fetch(`/api/categories/${uuid}`, {
+        const res = await fetch(`/api/categories/${id}`, {
             method: 'PUT',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(category)
@@ -67,9 +67,9 @@ export const editCategory = async(uuid:string, category: EditCategory) => {
     };
 };
 
-export const deleteCategory = async(uuid:string) => {
+export const deleteCategory = async(id:string) => {
     try {
-        const res = await fetch(`/api/categories/${uuid}`, {
+        const res = await fetch(`/api/categories/${id}`, {
             method: 'DELETE',
             headers: {'Content-Type': 'application/json'},
         });
