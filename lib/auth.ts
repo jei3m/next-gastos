@@ -8,5 +8,11 @@ export const auth = betterAuth({
         enabled: true,
         minPasswordLength: 6 
     },
+    session: {
+        cookieCache: {
+            enabled: true,
+            maxAge: 10 * 60, // 10mins
+        }
+    },
     plugins: [nextCookies()]
 })
