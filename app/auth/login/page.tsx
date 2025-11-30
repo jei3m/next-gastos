@@ -90,7 +90,7 @@ export default function Login() {
             disabled={loading}
             className="mt-1 h-12 w-full rounded-lg border-2 font-semibold"
           >
-            {loading ? "Signing up…" : "Sign up"}
+            {loading ? "Logging in…" : "LOGIN"}
           </Button>
         </form>
 
