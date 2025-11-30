@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { fetchSession } from "@/utils/session";
 import {
   Select,
   SelectContent,
@@ -44,15 +43,6 @@ export default function AddTransactionForm() {
   const searchParams = useSearchParams();
   const transactionTypeParam = searchParams.get('type');
   const { selectedAccountID  } = useAccount();
-
-  useEffect(() => {
-    fetchSession()
-      .then(({session}) => {
-        if (!session) {
-          router.push('/auth/login')
-        }
-      })
-  },[router])
 
   const form = useForm<z.infer<typeof transactionSchema>>({
     resolver: zodResolver(transactionSchema),
@@ -120,7 +110,7 @@ export default function AddTransactionForm() {
     if (activeTab) {
       fetchCategories(activeTab, selectedAccountID)
         .then((categories) => {
-          setCategories(categories);
+          setCategories(categories[0]?.details);
         })
         .catch((error) => {
           if (error instanceof Error) {
