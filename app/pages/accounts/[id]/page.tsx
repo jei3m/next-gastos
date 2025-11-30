@@ -12,7 +12,6 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { TypographyH3 } from "@/components/custom/typography";
-import { fetchSession } from "@/utils/session";
 import {
 	Form,
 	FormControl,
@@ -44,23 +43,14 @@ import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function EditAccount() {
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState("");
 	const router = useRouter();
 	const params = useParams();
-	const uuid = params.uuid as string;
-
-	// Validate user session
-	useEffect(() => {
-		fetchSession()
-			.then(({ session }) => {
-				if (!session) {
-					router.push('/auth/login')
-				}
-			})
-	}, [router]);
+	const id = params.id as string;
 
 	const form = useForm<z.infer<typeof createAccountSchema>>({
 		resolver: zodResolver(createAccountSchema),
@@ -73,23 +63,26 @@ export default function EditAccount() {
 
 	async function onSubmit(values: z.infer<typeof updateAccountSchema>) {
 		setIsLoading(true);
-		editAccount(uuid, values)
+		editAccount(id, values)
 			.then((account) => {
-				router.push('/pages/transactions')
-				console.log(account.responseMessage);
+				router.push('/pages/transactions');
+				console.log(account.responseMessage)
+				toast.success(account.responseMessage);
 				setIsLoading(false);				
 			})
 			.catch((error) => {
-				setError(error.message)
+				setError(error.message);
+				toast.error(error.message);
 				setIsLoading(false);
 			})
 	};
 
-	const handleDelete = (uuid: string) => {
+	const handleDelete = (id: string) => {
 		setIsLoading(true);
-		deleteAccount(uuid)
-			.then(() => {
+		deleteAccount(id)
+			.then((account) => {
 				router.push('/pages/transactions');
+				toast.success(account.responseMessage);
 				setIsLoading(false);
 			})
 			.catch((error) => {
@@ -101,7 +94,7 @@ export default function EditAccount() {
 	useEffect(() => {
 		setIsLoading(true);
 		
-		fetchAccountByID(uuid)
+		fetchAccountByID(id)
 			.then((account) => {
 				form.reset({
 					name: account[0].name,
@@ -114,7 +107,7 @@ export default function EditAccount() {
 				setIsLoading(false);
 				throw Error(error.responseMessage);
 			})
-	}, [uuid, form]);
+	}, [id, form]);
 
 	return (
 		<main className='flex flex-col m-auto space-y-4 p-3 max-w-[500px]'>
@@ -145,7 +138,7 @@ export default function EditAccount() {
 							<Button 
 								variant="destructive" 
 								className="border-2"
-								onClick={() => handleDelete(uuid)}
+								onClick={() => handleDelete(id)}
 							>
 								Yes, I&apos;m sure
 							</Button>
@@ -229,6 +222,7 @@ export default function EditAccount() {
 							onClick={() => router.back()}
 							className="bg-red-500 border-2 hover:none"
 							disabled={isLoading}
+							type="button"
 						>
 							Cancel
 						</Button>
