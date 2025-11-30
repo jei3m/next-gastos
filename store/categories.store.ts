@@ -3,11 +3,16 @@ import {
     EditCategory
 } from "@/types/categories.types";
 
-export const fetchCategories = async(filter: string | null, accountID: string) => {
+export const fetchCategories = async(
+    filter: string | null, 
+    accountID: string,
+    dateStart?: string,
+    dateEnd?: string
+) => {
     try {
-        const res = filter 
-            ? await fetch(`/api/categories?filter=${filter}&accountID=${accountID}`)
-            : await fetch(`/api/categories?accountID=${accountID}`);
+        const res = dateStart && dateEnd 
+            ? await fetch(`/api/categories?filter=${filter}&accountID=${accountID}&dateStart=${dateStart}&dateEnd=${dateEnd}`) // For categories page
+            : await fetch(`/api/categories?filter=${filter}&accountID=${accountID}`); // For dropdown select
         const data = await res.json();
         return(data.data);
     } catch (error) {
