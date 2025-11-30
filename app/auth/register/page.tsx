@@ -19,7 +19,7 @@ export default function Register() {
         router.push('/pages/transactions')
       } 
     });
-  },[]);
+  },[router]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -48,7 +48,7 @@ export default function Register() {
 
   return (
     <main className="h-full w-full flex flex-col items-center justify-start">
-        <div className="h-full w-full max-w-sm space-y-6 flex flex-col justify-center">
+        <div className="h-full w-full px-2 space-y-6 flex flex-col justify-center">
           <div className="text-center">
             <h1 className="text-3xl font-bold text-slate-900">Get Started</h1>
           </div>

@@ -8,6 +8,14 @@ export async function middleware(request: NextRequest) {
     })
  
     if (!session) {
+        // Return JSON response for API routes
+        if (request.nextUrl.pathname.startsWith('/api/')) {
+            return NextResponse.json(
+                {error: "Unauthorized"},
+                {status: 401},
+            );
+        }      
+        // Page redirect for non API routes
         return NextResponse.redirect(new URL("/auth/login", request.url));
     }
  
@@ -15,6 +23,11 @@ export async function middleware(request: NextRequest) {
 }
  
 export const config = {
-  runtime: "nodejs",
-  matcher: ["/pages/transactions"],
+  	runtime: "nodejs",
+	matcher: [
+        "/pages/transactions/:path*",
+        "/pages/categories/:path*",
+        "/pages/accounts/:path*",
+        "/api/((?!auth).*)"
+	]
 };

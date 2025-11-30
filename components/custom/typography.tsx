@@ -1,12 +1,17 @@
 import type { HTMLAttributes, ReactNode } from 'react';
+import { cn } from '@/lib/utils';
 
 export function TypographyH1({
-    children,
-    ...props
+  children,
+  className,
+  ...props   
 }: HTMLAttributes<HTMLHeadingElement> & { children?: ReactNode }) {
   return (
-    <h1 className="scroll-m-20 text-center text-4xl font-extrabold tracking-tight text-balance"
-        {...props}
+    <h1 {...props}
+      className={cn(
+        'scroll-m-20 text-center text-4xl font-extrabold tracking-tight text-balance',
+        className
+      )}        
     >
       {children}
     </h1>
@@ -14,12 +19,16 @@ export function TypographyH1({
 };
 
 export function TypographyH2({
-    children,
-    ...props
+  children,
+  className,
+  ...props    
 }: HTMLAttributes<HTMLHeadingElement> & { children?: ReactNode }) {
   return (
-    <h2 className="scroll-m-20 text-center text-3xl font-extrabold tracking-tight text-balance"
-        {...props}
+    <h2 {...props}
+      className={cn(
+        'scroll-m-20 text-center text-3xl font-extrabold tracking-tight text-balance',
+        className
+      )}        
     >
       {children}
     </h2>
@@ -28,11 +37,15 @@ export function TypographyH2({
 
 export function TypographyH3({
     children,
+    className,
     ...props    
 }: HTMLAttributes<HTMLHeadingElement> & { children?: ReactNode }) {
   return (
-    <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight"
-        {...props}
+    <h3 {...props}
+      className={cn(
+        'scroll-m-20 text-2xl font-extrabold tracking-tight',
+        className
+      )}
     >
       {children}
     </h3>
@@ -40,25 +53,50 @@ export function TypographyH3({
 };
 
 export function TypographyH4({
-    children,
-    ...props  
+  children,
+  className,
+  ...props    
 }: HTMLAttributes<HTMLHeadingElement> & { children?: ReactNode }) {
   return (
-    <h4 className="scroll-m-20 text-xl font-semibold tracking-tight"
-        {...props}
+    <h4 {...props}
+      className={cn(
+        'scroll-m-20 text-xl font-semibold tracking-tight',
+        className
+      )}
     >
       {children}
     </h4>
   )
 };
 
-export function TypographyP({
-    children,
-    ...props  
+export function TypographyH5({
+  children,
+  className,
+  ...props    
 }: HTMLAttributes<HTMLHeadingElement> & { children?: ReactNode }) {
   return (
-    <p className="leading-7 [&:not(:first-child)]:mt-6"
-        {...props}
+    <h5 {...props}
+      className={cn(
+        'scroll-m-20 text-lg font-regular tracking-tight',
+        className
+      )}
+    >
+      {children}
+    </h5>
+  )
+};
+
+export function TypographyP({
+  children,
+  className,
+  ...props  
+}: HTMLAttributes<HTMLHeadingElement> & { children?: ReactNode }) {
+  return (
+    <p {...props}
+      className={cn(
+        'leading-7 [&:not(:first-child)]:mt-6',
+        className
+      )}
     >
       {children}
     </p>

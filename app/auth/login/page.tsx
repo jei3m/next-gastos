@@ -16,10 +16,10 @@ export default function Login() {
   useEffect(() => {
     fetchSession().then(({session}) => {
       if (session) {
-          router.push('/pages/transactions')
+        router.push('/pages/transactions')
       } 
     });
-  },[]);
+  },[router]);
 
   async function handleSubmit(e:React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -47,7 +47,7 @@ export default function Login() {
 
   return (
     <main className="h-full w-full flex flex-col items-center justify-start">
-      <div className="h-full w-full max-w-sm space-y-6 flex flex-col justify-center">
+      <div className="h-full w-full px-2 space-y-6 flex flex-col justify-center">
         <div className="text-center">
           <h1 className="text-3xl font-bold text-slate-900">Login</h1>
         </div>
