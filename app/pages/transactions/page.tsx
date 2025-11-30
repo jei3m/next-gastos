@@ -1,7 +1,6 @@
 "use client"
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { fetchSession } from '@/utils/session';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TypographyH4 } from '@/components/custom/typography';
@@ -20,15 +19,6 @@ export default function Transactions() {
   const router = useRouter();
   const isMobile = useIsMobile();
   const { selectedAccountID  } = useAccount();
-
-  // Validate user session
-  useEffect(() => {
-    fetchSession().then(({ session }) => {
-      if (!session) {
-        router.push('/auth/login')
-      }
-    })
-  }, [router]);
 
   // Calculate the balance
   const calculateBalance = () => {
