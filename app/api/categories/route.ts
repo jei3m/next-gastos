@@ -60,15 +60,26 @@ export async function GET(request: Request) {
 		const url = new URL(request.url);
 		const filter = url.searchParams.get('filter');
 		const accountID = url.searchParams.get('accountID');
+		const dateStart = url.searchParams.get('dateStart');
+		const dateEnd = url.searchParams.get('dateEnd');
 
 		const [selectQuery] = await db.query(
 			getCategories(),
 			{
 				userID: await fetchUserID(),
 				accountID,
-				filter
+				filter,
+				dateStart,
+				dateEnd,
 			}
 		);
+
+		console.log(
+			accountID,
+			filter,
+			dateStart,
+			dateEnd,
+		)
 
 		return success({
 			data: selectQuery
