@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { fetchSession } from "@/utils/session";
+import { toast } from "sonner";
 
 export default function Register() {
   const [loading, setLoading] = useState(false);
@@ -41,8 +42,10 @@ export default function Register() {
     if (error) {
       setErrors([error.message || "Unknown Error"]);
       setLoading(false);
+    } else {
+      toast.success("User is registered successfully!");
+      router.push('/pages/transactions');
     };
-
     setLoading(false);
   };
 
