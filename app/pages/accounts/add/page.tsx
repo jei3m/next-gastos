@@ -26,6 +26,7 @@ import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { createAccountSchema } from "@/schema/acccounts.schema";
+import { toast } from "sonner";
 
 export default function CreateAccount() {
 	const [isLoading, setIsLoading] = useState(false);
@@ -56,11 +57,11 @@ export default function CreateAccount() {
 		createAccount(values)
 			.then((account) => {
 				router.push('/pages/transactions')
-				console.log(account.responseMessage);
+				toast.success(account.responseMessage);
 				setIsLoading(false);
 			})
 			.catch((error) => {
-				console.error(error);
+				toast.error(error.message);
 				setIsLoading(false);
 			})
 	}
