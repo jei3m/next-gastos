@@ -320,12 +320,12 @@ export default function EditTransactionForm() {
               </FormItem>
             )}
           />
-          <div className="flex flex-row space-x-2">
+          <div className="flex flex-row w-full gap-x-2">
             <FormField
               control={form.control}
               name="date"
               render={({ field }) => (
-                <FormItem className="-space-y-1 w-full">
+                <FormItem className="-space-y-1 flex-1">
                   <FormLabel className="text-md font-medium">
                     Date
                   </FormLabel>
@@ -371,7 +371,7 @@ export default function EditTransactionForm() {
               name="time"
               disabled={isLoading}
               render={({ field }) => (
-                <FormItem className="-space-y-1 w-full">
+                <FormItem className="-space-y-1 flex-1">
                   <FormLabel className="text-md font-medium">
                     Time
                   </FormLabel>
