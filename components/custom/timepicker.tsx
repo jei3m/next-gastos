@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -235,14 +235,14 @@ function ScrollWheelPeriod({
   const containerHeight = itemHeight * visibleItems;
   const paddingHeight = ((visibleItems - 1) / 2) * itemHeight;
 
-  const periods: ("AM" | "PM")[] = ["AM", "PM"];
+  const periods = useMemo(():("AM" | "PM")[] => ["AM", "PM"], []);
 
   useEffect(() => {
     if (scrollContainerRef.current && !isScrolling.current) {
       const targetScroll = (periods.indexOf(value) || 0) * itemHeight
       scrollContainerRef.current.scrollTop = targetScroll
     };
-  }, [value]);
+  }, [value, periods]);
 
   const handleScroll = () => {
     if (!scrollContainerRef.current) return;
