@@ -25,41 +25,28 @@ import {
 import {
 	ArrowDown,
 	ArrowUp,
-	Calendar,
-	ChevronLeft,
-	ChevronRight,
 	PlusIcon
 } from 'lucide-react';
 import { TypographyH4, TypographyH5 } from '@/components/custom/typography';
-import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { fetchCategories } from '@/store/categories.store';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import { useAccount } from '@/context/account-context';
+import DateSelectCard from '@/components/custom/date-select-card';
+import PulseLoader from '@/components/custom/pulse-loader';
 
 export default function Categories() {
-	const [isScrolled, setIsScrolled] = useState(false);
+  const [dateStart, setDateStart] = useState<string>('');
+  const [dateEnd, setDateEnd] = useState<string>('');
 	const [isLoading, setIsLoading] = useState(false);
-	const [activeTab, setActiveTab] = useState('weekly');
 	const [categoryType, setCategoryType] = useState('expense');
-	const [currentDate, setCurrentDate] = useState(new Date());
 	const [categories, setCategories] = useState<Category[]>([]);
 	const [totalIncome, setTotalIncome] = useState<string>("");
 	const [totalExpense, setTotalExpense] = useState<string>("");
 	const { selectedAccountID } = useAccount();
 	const router = useRouter();
 	const isMobile = useIsMobile();
-
-	// Set isScrolled
-	useEffect(() => {
-		const onScroll = () => {
-			setIsScrolled(window.scrollY > 40);
-		};
-		window.addEventListener('scroll', onScroll, { passive: true });
-		return () => window.removeEventListener('scroll', onScroll);
-	}, []);
-
 
 	// Convert string to React component
 	const getIconComponent = (iconName: string) => {
@@ -77,100 +64,18 @@ export default function Categories() {
 	};
 
 	// Function to handle previous or next 
-	const handleDateChange = (direction: 'prev' | 'next') => {
-		const newDate = new Date(currentDate);
-		if (activeTab === 'daily') {
-			newDate.setDate(
-				newDate.getDate() + (direction === 'prev' ? -1 : 1)
-			);
-		} else if (activeTab === 'weekly') {
-			newDate.setDate(
-				newDate.getDate() + (direction === 'prev' ? -7 : 7)
-			);
-		} else {
-			newDate.setMonth(
-				newDate.getMonth() + (direction === 'prev' ? -1 : 1)
-			);
-		}
-		setCurrentDate(newDate);
-	};
+  const handleDateRangeChange = (start: string, end: string) => {
+    setDateStart(start);
+    setDateEnd(end);
+  };
 
-	// Return dateStart, dateEnd, and dateDisplay
-	const getDateRange = () => {
-		const toISODate = (d: Date) => d.toISOString().slice(0, 10);
-		const date = new Date(currentDate);
+  const calculateBalance = () => {
+    if (!totalIncome || !totalExpense) return 'PHP 0.00';
 
-		if (activeTab === 'daily') {
-			const dateStart = new Date(date),
-				dateEnd = new Date(date);
-			return {
-				dateStart: toISODate(dateStart),
-				dateEnd: toISODate(dateEnd),
-				dateDisplay: dateStart.toLocaleDateString(
-					'en-US',
-					{
-						month: 'long',
-						day: 'numeric'
-					}
-				)
-			}
-		} else if (activeTab === 'weekly') {
-			const dateStart = new Date(date),
-				dayOfWeek = dateStart.getDay(),
-				diff = dateStart.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1),
-				dateEnd = new Date(dateStart);
+    const total = Number(totalIncome) - Number(totalExpense);
 
-			// Set dateStart and dateEnd
-			dateStart.setDate(diff);
-			dateEnd.setDate(dateStart.getDate() + 6);
-
-			return {
-				dateStart: toISODate(dateStart),
-				dateEnd: toISODate(dateEnd),
-				dateDisplay: `${dateStart.toLocaleDateString(
-					'en-US',
-					{
-						month: 'long',
-						day: 'numeric'
-					})} - 
-                    ${dateEnd.toLocaleDateString(
-						'en-US',
-						{
-							month: 'long',
-							day: 'numeric'
-						}
-					)}`
-			}
-		} else {
-			const dateStart = new Date(
-				Date.UTC(date.getFullYear(), date.getMonth(), 1)
-			)
-			const dateEnd = new Date(
-				Date.UTC(date.getFullYear(), date.getMonth() + 1, 0)
-			);
-
-			return {
-				dateStart: toISODate(dateStart),
-				dateEnd: toISODate(dateEnd),
-				dateDisplay: dateStart.toLocaleDateString(
-					'en-US',
-					{
-						month: 'long',
-						year: 'numeric',
-						timeZone: 'UTC'
-					}
-				)
-			};
-		};
-	};
-
-	// Declaration of variables for filtering and display
-	const { dateStart, dateEnd, dateDisplay } = getDateRange();
-
-	// Reset currentDate every tab change
-	useEffect(() => {
-		setCurrentDate(new Date())
-	}, [activeTab])
+    return `PHP ${total.toFixed(2)}`;
+  };
 
 	// Fetch categories when categoryType, router, or selectedAccountID changes
 	useEffect(() => {
@@ -200,198 +105,57 @@ export default function Categories() {
       ${isMobile ? 'pb-15' : 'pb-18'}
     `}>
 			{/* Date Card Section */}
-			{isScrolled ? (
-				<section
-          className={`sticky top-0 z-10 
-            transition-all duration-150 
-            ease-in-out
-            ${isMobile ? 'px-0' : 'px-3'}
-          `}
-				>
-					<Card className="rounded-none border-b-2">
-						<CardHeader
-							className='flex
-								flex-col 
-								justify-center 
-								items-center -mt-2'
+			<DateSelectCard 
+				onDateRangeChange={handleDateRangeChange}
+				content={<>
+					<div className='flex flex-col'>
+						<h3 className='text-gray-600 font-normal text-lg'>
+							Balance
+						</h3>
+						<h1 className='text-2xl font-extrabold'>
+							{calculateBalance()}
+						</h1>
+					</div>
+					<div className='flex space-x-2'>
+						<div className='
+							bg-primary 
+							w-[50%] flex flex-row
+							justify-between items-center text-white
+							border-2 rounded-xl h-16 container p-2'
 						>
-							{/* Tabs Selection */}
-							<div className='flex items-center gap-x-2'>
-								<Calendar />
-								<Tabs defaultValue='daily' value={activeTab} onValueChange={setActiveTab}>
-									<TabsList className='bg-white'>
-										{tabItems.map((item, index) => (
-											<TabsTrigger
-												value={item.value}
-												key={index}
-											>
-												{/* Capitalized first letter of item.value */}
-												{item.value.charAt(0).toUpperCase() + item.value.slice(1)}
-											</TabsTrigger>
-										))}
-									</TabsList>
-								</Tabs>
+							<div>
+								<ArrowDown size={32} />
 							</div>
-
-							{/* Date Display and Date Change */}
-							<div className='w-full'>
-								<div className="flex 
-									justify-between 
-									items-center
-									font-semibold"
-								>
-									<ChevronLeft
-										className='cursor-pointer'
-										onClick={() => handleDateChange('prev')}
-									/>
-									{dateDisplay}
-									<ChevronRight
-										className='cursor-pointer'
-										onClick={() => handleDateChange('next')}
-									/>
+							<div className='text-right -space-y-1'>
+								<div className='text-md'>
+									Income
+								</div>
+								<div className='text-2xl font-bold'>
+									{totalIncome || "0.00"}
 								</div>
 							</div>
-						</CardHeader>
-
-						{/* Line Separator */}
-						<Separator />
-
-						<CardFooter className='w-full flex flex-row justify-center space-x-2'>
-							<div className='
-								bg-primary 
-								w-[50%] flex flex-row
-								justify-between items-center text-white
-								border-2 rounded-xl h-16 container p-2'
-							>
-								<div>
-									<ArrowDown size={32} />
-								</div>
-								<div className='text-right -space-y-1'>
-									<div className='text-md'>
-										Income
-									</div>
-									<div className='text-2xl font-bold'>
-										{totalIncome || "0.00"}
-									</div>
-								</div>
-							</div>
-							<div className='
-								bg-red-500
-								w-[50%] flex flex-row
-								justify-between items-center text-white
-								border-2 rounded-xl h-16 container p-2'
-							>
-								<div>
-									<ArrowUp size={32} />
-								</div>
-								<div className='text-right -space-y-1'>
-									<div className='text-md'>
-										Expense
-									</div>
-									<div className='text-2xl font-bold'>
-										{totalExpense || "0.00"}
-									</div>
-								</div>
-							</div>
-						</CardFooter>
-					</Card>
-				</section>
-			):(
-				<section
-					className='
-						pt-2 px-3 
-						transition-all duration-150 
-						ease-in-out'
-				>
-					<Card className="mt-0 border-2">
-						<CardHeader
-							className='flex
-								flex-col 
-								justify-center 
-								items-center -mt-2'
+						</div>
+						<div className='
+							bg-red-500
+							w-[50%] flex flex-row
+							justify-between items-center text-white
+							border-2 rounded-xl h-16 container p-2'
 						>
-							{/* Tabs Selection */}
-							<div className='flex items-center gap-x-2'>
-								<Calendar />
-								<Tabs defaultValue='daily' value={activeTab} onValueChange={setActiveTab}>
-									<TabsList className='bg-white'>
-										{tabItems.map((item, index) => (
-											<TabsTrigger
-												value={item.value}
-												key={index}
-											>
-												{/* Capitalized first letter of item.value */}
-												{item.value.charAt(0).toUpperCase() + item.value.slice(1)}
-											</TabsTrigger>
-										))}
-									</TabsList>
-								</Tabs>
+							<div>
+								<ArrowUp size={32} />
 							</div>
-
-							{/* Date Display and Date Change */}
-							<div className='w-full'>
-								<div className="flex 
-									justify-between 
-									items-center
-									font-semibold"
-								>
-									<ChevronLeft
-										className='cursor-pointer'
-										onClick={() => handleDateChange('prev')}
-									/>
-									{dateDisplay}
-									<ChevronRight
-										className='cursor-pointer'
-										onClick={() => handleDateChange('next')}
-									/>
+							<div className='text-right -space-y-1'>
+								<div className='text-md'>
+									Expense
+								</div>
+								<div className='text-2xl font-bold'>
+									{totalExpense || "0.00"}
 								</div>
 							</div>
-						</CardHeader>
-
-						{/* Line Separator */}
-						<Separator />
-
-						<CardFooter className='flex flex-row justify-center space-x-2 -mx-1 -mb-1 '>
-							<div className='
-								bg-primary 
-								w-[50%] flex flex-row
-								justify-between items-center text-white
-								border-2 rounded-xl h-16 container p-2'
-							>
-								<div>
-									<ArrowDown size={32} />
-								</div>
-								<div className='text-right -space-y-1'>
-									<div className='text-md'>
-										Income
-									</div>
-									<div className='text-2xl font-bold'>
-										{totalIncome || "0.00"}
-									</div>
-								</div>
-							</div>
-							<div className='
-								bg-red-500
-								w-[50%] flex flex-row
-								justify-between items-center text-white
-								border-2 rounded-xl h-16 container p-2'
-							>
-								<div>
-									<ArrowUp size={32} />
-								</div>
-								<div className='text-right -space-y-1'>
-									<div className='text-md'>
-										Expense
-									</div>
-									<div className='text-2xl font-bold'>
-										{totalExpense || "0.00"}
-									</div>
-								</div>
-							</div>
-						</CardFooter>
-					</Card>
-				</section>
-			)}
+						</div>
+					</div>
+				</>}
+			/>
 
 			{/* Categories Section */}
 			<section className='flex flex-col space-y-2 px-3 mb-2'>
@@ -418,7 +182,7 @@ export default function Categories() {
 					</div>
 				</Tabs>
 				{isLoading ? (
-						<div>Loading...</div>
+						<PulseLoader />
 					):(
 						<>
 							{categories && categories.length > 0 ? (

@@ -7,9 +7,12 @@ import { TypographyH4 } from '@/components/custom/typography';
 import { fetchTransactions } from '@/store/transactions.store';
 import { Transaction, TransactionDetails } from '@/types/transactions.types';
 import { toast } from 'sonner';
-import DateTransactionCard from '@/components/transactions/date-transaction-card';
+import DateSelectCard from '@/components/custom/date-select-card';
 import { useAccount } from '@/context/account-context';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { ArrowDownLeft, ArrowUpRight } from 'lucide-react';
+import PulseLoader from '@/components/custom/pulse-loader';
 
 export default function Transactions() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -32,11 +35,7 @@ export default function Transactions() {
     return `PHP ${total.toFixed(2)}`;
   };
 
-  const handleAddTransaction = (type: 'income' | 'expense') => {
-    router.push(`/pages/transactions/add?type=${type}`);
-  };
-
-  // Handle date range changes from the DateTransactionCard component
+  // Handle date range changes from the DateSelectCard component
   const handleDateRangeChange = (start: string, end: string) => {
     setDateStart(start);
     setDateEnd(end);
@@ -67,10 +66,39 @@ export default function Transactions() {
     `}>
 
       {/* Date Card Section */}
-      <DateTransactionCard
-        balance={calculateBalance()}
-        onAddTransaction={handleAddTransaction}
+      <DateSelectCard
         onDateRangeChange={handleDateRangeChange}
+        content={<>
+          <div className='flex flex-col'>
+            <h3 className='text-gray-600 font-normal text-lg'>
+              Balance
+            </h3>
+            <h1 className='text-2xl font-extrabold'>
+              {calculateBalance()}
+            </h1>
+          </div>
+          <div className='w-full flex flex-row justify-center space-x-2'>
+            <Button
+              className='w-[50%] flex flex-row -space-x-1'
+              onClick={() => router.push(`/pages/transactions/add?type=income`)}
+            >
+              <ArrowDownLeft strokeWidth={3}/>
+              <span>
+                Income
+              </span>
+            </Button>
+            <Button
+              variant='destructive'
+              className='w-[50%] flex flex-row -space-x-1'
+              onClick={() => router.push(`/pages/transactions/add?type=expense`)}
+            >
+              <ArrowUpRight strokeWidth={3}/>
+              <span>
+                Expense
+              </span>
+            </Button>
+          </div>
+        </>}
       />
 
       {/* Transactions Section */}
@@ -79,7 +107,7 @@ export default function Transactions() {
           Transactions
         </TypographyH4>
         {isLoading ? (
-          <div>Loading...</div>
+          <PulseLoader/>
         ):(
           <>
             { transactions && transactions.length > 0 ? (
