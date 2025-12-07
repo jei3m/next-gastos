@@ -1,19 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-import { ArrowDownLeft, ArrowUpRight, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { tabItems } from '@/lib/data';
 import { Separator } from '@/components/ui/separator';
-import { Button } from '@/components/ui/button';
 
 interface DateTransactionCardProps {
-  balance?: string;
-  onAddTransaction: (type: 'income' | 'expense') => void;
   onDateRangeChange?: (dateStart: string, dateEnd: string, dateDisplay: string) => void;
+  content?: ReactNode
 }
 
-function DateTransactionCard({ balance = 'PHP 0.00', onAddTransaction, onDateRangeChange }: DateTransactionCardProps) {
+function DateSelectCard({ content, onDateRangeChange }: DateTransactionCardProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeTab, setActiveTab] = useState('weekly');
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -260,40 +258,14 @@ function DateTransactionCard({ balance = 'PHP 0.00', onAddTransaction, onDateRan
                 </div>
               </div>
             </CardHeader>
-
-            <Separator />
-
-            <CardContent className='flex flex-col gap-y-4'>
-              <div className='flex flex-col'>
-                <h3 className='text-gray-600 font-normal text-lg'>
-                  Calculated Balance
-                </h3>
-                <h1 className='text-2xl font-extrabold'>
-                  {balance}
-                </h1>
-              </div>
-            </CardContent>
-            <CardFooter className='w-full flex flex-row justify-center space-x-2'>
-              <Button
-                className='w-[50%] flex flex-row -space-x-1'
-                onClick={() => onAddTransaction('income')}
-              >
-                <ArrowDownLeft strokeWidth={3}/>
-                <span>
-                  Income
-                </span>
-              </Button>
-              <Button
-                variant='destructive'
-                className='w-[50%] flex flex-row -space-x-1'
-                onClick={() => onAddTransaction('expense')}
-              >
-                <ArrowUpRight strokeWidth={3}/>
-                <span>
-                  Expense
-                </span>
-              </Button>
-            </CardFooter>
+            {content && (
+              <>
+                <Separator />
+                <CardContent className='flex flex-col gap-y-2'>
+                  {content}
+                </CardContent>
+              </>
+            )}
           </Card>
         </section>
       }
@@ -301,4 +273,4 @@ function DateTransactionCard({ balance = 'PHP 0.00', onAddTransaction, onDateRan
   )
 }
 
-export default DateTransactionCard
+export default DateSelectCard;
