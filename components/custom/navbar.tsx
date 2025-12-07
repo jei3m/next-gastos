@@ -41,6 +41,8 @@ function Navbar() {
 	const [accounts, setAccounts] = useState<Account[]>([]);
 	const { selectedAccountID, setSelectedAccount } = useAccount();
 	const isMobile = useIsMobile();
+	
+	const isSticky = pathname === ('/pages/transactions');
 
 	const disableSelect = [
 		pathname.startsWith('/pages/accounts')
@@ -76,7 +78,7 @@ function Navbar() {
 	}, [open]);
 
 	return (
-		<div className={`${isMobile ? 'px-0' : 'px-3'}`}>
+		<div className={`${isMobile ? 'px-0' : 'px-3'} max-w-[600px]`}>
 			<nav
 				className={`
 					p-2
@@ -86,6 +88,7 @@ function Navbar() {
 					items-center
 					bg-white border-black
 					${isMobile ? 'border-b-2 rounded-none' : 'border-2 rounded-lg mt-2'}
+					${isSticky ? 'fixed top-0 z-10 m-auto max-w-[576px]' : ''}
 				`}
 			>
 				<Link href={'/pages/transactions'}
