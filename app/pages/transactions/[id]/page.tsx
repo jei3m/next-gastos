@@ -36,6 +36,11 @@ import { transactionTypes } from "@/lib/data";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { EditTransaction } from "@/types/transactions.types";
+import { 
+  dateToTimeString, 
+  TimePicker, 
+  timeStringToDate 
+} from "@/components/custom/timepicker";
 
 export default function EditTransactionForm() {
   const [datePickerOpen, setDatePickerOpen] = useState<boolean>(false);
@@ -253,11 +258,14 @@ export default function EditTransactionForm() {
                 <FormControl>
                   <Input
                     required
-                    placeholder="PHP 0.00..."
+                    placeholder="0.00"
                     {...field}
                     className="h-9
                     rounded-lg border-2
                     border-black bg-white"
+                    type="number"
+                    inputMode="decimal"
+                    pattern="[0-9\.]*"
                   />
                 </FormControl>
                 <FormMessage />
@@ -375,17 +383,14 @@ export default function EditTransactionForm() {
                     Time
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      required
-                      placeholder="Time..."
-                      type="time"
-                      {...field}
-                      className="h-9
-                      rounded-lg border-2
-                      border-black bg-white
-                      [appearance:textfield] 
-                      [&::-webkit-outer-spin-button]:appearance-none 
-                      [&::-webkit-inner-spin-button]:appearance-none"
+                    <TimePicker
+                      value={timeStringToDate(field.value)}
+                      onChange={(date) => {
+                        if (date) {
+                          const timeString = dateToTimeString(date);
+                          field.onChange(timeString);
+                        }
+                      }}
                     />
                   </FormControl>
                   <FormMessage />

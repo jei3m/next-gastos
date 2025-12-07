@@ -33,6 +33,11 @@ import { ChevronDownIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { transactionTypes } from "@/lib/data";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
+import { 
+  dateToTimeString, 
+  TimePicker, 
+  timeStringToDate 
+} from "@/components/custom/timepicker";
 
 export default function AddTransactionForm() {
   const [datePickerOpen, setDatePickerOpen] = useState<boolean>(false);
@@ -48,7 +53,7 @@ export default function AddTransactionForm() {
     resolver: zodResolver(transactionSchema),
     defaultValues: {
       note: "",
-      amount: "0.00",
+      amount: "",
       type: "",
       time: new Date().toTimeString().substring(0, 5),
       date: new Date().toLocaleDateString('en-CA'), // Use 'en-CA' locale which formats as YYYY-MM-DD
@@ -160,11 +165,12 @@ export default function AddTransactionForm() {
                 <FormControl>
                   <Input
                     required
-                    placeholder="PHP 0.00..."
+                    placeholder="0.00"
                     {...field}
-                    className="h-9
-                    rounded-lg border-2
-                    border-black bg-white"
+                    className="h-9 rounded-lg border-2 border-black bg-white"
+                    type="number"
+                    inputMode="decimal"
+                    pattern="[0-9\.]*"
                   />
                 </FormControl>
                 <FormMessage />
@@ -191,7 +197,7 @@ export default function AddTransactionForm() {
                             <SelectItem key={index} value={category.id}>
                               {category.name}
                             </SelectItem>
-                          ))}                        
+                          ))}
                         </>
                       )}
                     </SelectContent>
@@ -277,14 +283,14 @@ export default function AddTransactionForm() {
                     Time
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      required
-                      placeholder="Time..."
-                      type="time"
-                      {...field}
-                      className="h-9
-                      rounded-lg border-2
-                      border-black bg-white"
+                    <TimePicker
+                      value={timeStringToDate(field.value)}
+                      onChange={(date) => {
+                        if (date) {
+                          const timeString = dateToTimeString(date);
+                          field.onChange(timeString);
+                        }
+                      }}
                     />
                   </FormControl>
                   <FormMessage />
