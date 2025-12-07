@@ -1,7 +1,7 @@
 "use client";
 import { createElement, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { tabItems, categoryTypes } from '@/lib/data';
+import { categoryTypes } from '@/lib/data';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Category } from '@/types/categories.types';
 import { icons } from '@/lib/icons';
@@ -10,8 +10,6 @@ import {
 	Card,
 	CardContent,
 	CardDescription,
-	CardFooter,
-	CardHeader,
 	CardTitle,
 } from '@/components/ui/card';
 
