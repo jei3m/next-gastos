@@ -77,9 +77,9 @@ export default function Categories() {
 
 	// Fetch categories when categoryType, router, or selectedAccountID changes
 	useEffect(() => {
-		if (selectedAccountID) {
+		if (selectedAccountID && categoryType && dateStart && dateEnd) {
 			setIsLoading(true);
-			fetchCategories(categoryType, selectedAccountID, dateStart, dateEnd)
+			fetchCategories(categoryType, selectedAccountID)
 				.then((categories) => {
 					setTotalIncome(categories[0]?.totalIncome || "0.00");
 					setTotalExpense(categories[0]?.totalExpense || "0.00");
@@ -88,15 +88,15 @@ export default function Categories() {
 				.catch((error) => {
 					if (error instanceof Error) {
 						toast.error(error.message)
-					}
+					} else {
+						toast.error('Failed to Fetch Categories')
+					};
 				})
 				.finally(() => {
 					setIsLoading(false);
 				})
-		} else {
-			toast.error("Please select an account first");
 		}
-	}, [categoryType, router, selectedAccountID, dateStart, dateEnd]);
+	}, [selectedAccountID, categoryType, dateStart, dateEnd]);
 
 	return (
 		<main className={`flex flex-col space-y-2 min-h-screen
