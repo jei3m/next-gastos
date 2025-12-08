@@ -56,15 +56,21 @@ export default function Transactions() {
 
   // Fetch Transactions
   useEffect(() => {
-    if (selectedAccountID && account && transactionsCount) {
+    if (selectedAccountID && page) {
       setIsMoreLoading(true);
       fetchTransactions(selectedAccountID, page)
         .then((data) => {
           setTransactions((prev) => {
-            return [
-              ...prev,
-              ...data
-            ]
+            const combinedData = [...prev, ...data]; 
+            const uniqueData = new Set();
+            // Remove duplicates accdg to transaction.date
+            return combinedData.filter(transaction => {
+              if (uniqueData.has(transaction.date)) {
+                return false;
+              };
+              uniqueData.add(transaction.date);
+              return true;
+            })
           });            
         })
         .catch((error) => {
@@ -76,7 +82,7 @@ export default function Transactions() {
           setIsMoreLoading(false);
         })
     }
-  }, [selectedAccountID, account, transactionsCount, page]);
+  }, [selectedAccountID, page]);
 
   // Reset state when selectedAccountID changes
   useEffect(() => {
@@ -178,11 +184,11 @@ export default function Transactions() {
         <TypographyH4>
           Transactions
         </TypographyH4>
-        {isLoading || !account || !transactions ? (
+        {isLoading || !account ? (
           <PulseLoader/>
         ):(
           <>
-            {transactions.length > 0 ? (
+            {transactions && transactions.length > 0 ? (
               <>
                 {transactions.map((transaction, index) => (
                   <Card key={index} className='border-2'>
