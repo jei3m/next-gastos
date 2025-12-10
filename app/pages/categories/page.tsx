@@ -79,7 +79,7 @@ export default function Categories() {
 	useEffect(() => {
 		if (selectedAccountID && categoryType && dateStart && dateEnd) {
 			setIsLoading(true);
-			fetchCategories(categoryType, selectedAccountID)
+			fetchCategories(categoryType, selectedAccountID, dateStart, dateEnd)
 				.then((categories) => {
 					setTotalIncome(categories[0]?.totalIncome || "0.00");
 					setTotalExpense(categories[0]?.totalExpense || "0.00");
