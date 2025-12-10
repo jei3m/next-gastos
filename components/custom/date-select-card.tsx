@@ -101,7 +101,6 @@ function DateSelectCard({ content, onDateRangeChange }: DateTransactionCardProps
 
     // Prevent moving to future dates
     if (convertedDateEnd > today && direction === 'next') {
-      console.log('Validation Triggered')
       return;
     }
 
