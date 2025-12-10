@@ -17,6 +17,8 @@ export const getCategories = () => {
     return `WITH 
                 sum_income AS (
                     SELECT
+                        ref_user_id,
+                        ref_accounts_id,
                         SUM(amount) AS total_income
                     FROM
                         v_transactions_table
@@ -24,11 +26,15 @@ export const getCategories = () => {
                         ref_user_id = :userID
                         AND ref_accounts_id = :accountID
                         AND type = 'income'
-                        AND (:dateStart IS NULL OR :dateStart <= date)
-                        AND (:dateEnd IS NULL OR :dateEnd >= date)
+                        AND (:dateStart IS NULL OR date BETWEEN :dateStart AND :dateEnd)
+                    GROUP BY
+                        ref_user_id,
+                        ref_accounts_id
                 ),
                 sum_expense AS (
                     SELECT
+                        ref_user_id,
+			            ref_accounts_id,
                         SUM(amount) AS total_expense
                     FROM
                         v_transactions_table
@@ -36,21 +42,24 @@ export const getCategories = () => {
                         ref_user_id = :userID
                         AND ref_accounts_id = :accountID
                         AND type = 'expense'
-                        AND (:dateStart IS NULL OR :dateStart <= date)
-                        AND (:dateEnd IS NULL OR :dateEnd >= date)
+                        AND (:dateStart IS NULL OR date BETWEEN :dateStart AND :dateEnd)
+                    GROUP BY
+                        ref_user_id,
+                        ref_accounts_id
                 ),
-                transaction_details AS (
+                category_details AS (
                     SELECT
                         ref_categories_id,
+                        ref_user_id,
                         SUM(amount) AS amount
                     FROM
                         v_transactions_table
                     WHERE
                         ref_user_id = :userID
-                        AND (:dateStart IS NULL OR :dateStart <= date)
-                        AND (:dateEnd IS NULL OR :dateEnd >= date)
+                        AND (:dateStart IS NULL OR date BETWEEN :dateStart AND :dateEnd)
                     GROUP BY
-                        ref_categories_id
+                        ref_categories_id,
+                        ref_user_id
                 )
             SELECT
                 c.type,
@@ -62,7 +71,7 @@ export const getCategories = () => {
                         'icon', c.icon,
                         'name', c.name,
                         'type', c.type,
-                        'totalAmount', td.amount,
+                        'totalAmount', cd.amount,
                         'refUserID', c.ref_user_id,
                         'refAccountsID', c.ref_accounts_id
                     )
@@ -71,9 +80,15 @@ export const getCategories = () => {
                 c.ref_accounts_id AS refAccountsID
             FROM 
                 v_categories_table c
-            LEFT JOIN transaction_details td ON c.id = td.ref_categories_id
-            JOIN sum_income si
-            JOIN sum_expense se 
+            LEFT JOIN category_details cd 
+                ON c.id = cd.ref_categories_id
+                AND c.ref_user_id = cd.ref_user_id
+            LEFT JOIN sum_income si
+                ON c.ref_accounts_id = si.ref_accounts_id 
+                AND c.ref_user_id = si.ref_user_id 
+            JOIN sum_expense se
+                ON c.ref_accounts_id = se.ref_accounts_id 
+                AND c.ref_user_id = se.ref_user_id 
             WHERE
                 c.ref_user_id = :userID
                 AND c.ref_accounts_id = :accountID
