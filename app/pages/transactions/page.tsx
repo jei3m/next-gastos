@@ -148,7 +148,7 @@ export default function Transactions() {
         <Card className={`
             ${
               isScrolled
-              ? 'border-0 -mt-2 rounded-none' 
+              ? `-mt-2 ${isMobile ? 'border-0 rounded-none' : 'border-2'}` 
               : 'border-2 mt-0'
             }
           `}
