@@ -46,6 +46,12 @@ export default function Categories() {
 	const router = useRouter();
 	const isMobile = useIsMobile();
 
+  // Scroll to top on load
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    window.scroll(0, 0);
+  }, []);
+
 	// Convert string to React component
 	const getIconComponent = (iconName: string) => {
 		const iconKey = iconName;
