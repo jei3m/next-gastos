@@ -33,6 +33,7 @@ import Link from 'next/link';
 import { useAccount } from '@/context/account-context';
 import DateSelectCard from '@/components/custom/date-select-card';
 import PulseLoader from '@/components/custom/pulse-loader';
+import { formatAmount } from '@/utils/format-amount';
 
 export default function Categories() {
   const [dateStart, setDateStart] = useState<string>('');
@@ -40,8 +41,8 @@ export default function Categories() {
 	const [isLoading, setIsLoading] = useState(false);
 	const [categoryType, setCategoryType] = useState('expense');
 	const [categories, setCategories] = useState<Category[]>([]);
-	const [totalIncome, setTotalIncome] = useState<string>("");
-	const [totalExpense, setTotalExpense] = useState<string>("");
+	const [totalIncome, setTotalIncome] = useState<string>("0.00");
+	const [totalExpense, setTotalExpense] = useState<string>("0.00");
 	const { selectedAccountID } = useAccount();
 	const router = useRouter();
 	const isMobile = useIsMobile();
@@ -74,11 +75,11 @@ export default function Categories() {
   };
 
   const calculateBalance = () => {
-    if (!totalIncome || !totalExpense) return 'PHP 0.00';
+    if (!totalIncome || !totalExpense) return '0.00';
 
     const total = Number(totalIncome) - Number(totalExpense);
 
-    return `PHP ${total.toFixed(2)}`;
+    return total.toFixed(2);
   };
 
 	// Fetch categories when categoryType, router, or selectedAccountID changes
@@ -117,7 +118,7 @@ export default function Categories() {
 							Balance
 						</h3>
 						<h1 className='text-2xl font-extrabold'>
-							{calculateBalance()}
+							PHP {formatAmount(calculateBalance())}
 						</h1>
 					</div>
 					<div className='flex space-x-2'>
@@ -135,7 +136,7 @@ export default function Categories() {
 									Income
 								</div>
 								<div className='text-2xl font-bold'>
-									{totalIncome || "0.00"}
+									{formatAmount(totalIncome)}
 								</div>
 							</div>
 						</div>
@@ -153,7 +154,7 @@ export default function Categories() {
 									Expense
 								</div>
 								<div className='text-2xl font-bold'>
-									{totalExpense || "0.00"}
+									{formatAmount(totalExpense)}
 								</div>
 							</div>
 						</div>
@@ -224,7 +225,7 @@ export default function Categories() {
 																}
 															`}
 														>
-															{isExpense(category.type) ? '-' : '+'} PHP {category.totalAmount ?? 0.00}
+															PHP {isExpense(category.type) ? '-' : '+'}{formatAmount(category.totalAmount) ?? 0.00}
 														</CardTitle>										
 													</div>
 												</CardContent>
