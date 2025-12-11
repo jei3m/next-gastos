@@ -18,6 +18,7 @@ import { Account } from '@/types/accounts.types';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Transactions() {
+  const [isScrolled, setIsScrolled] = useState(false);
   const [account, setAccount] = useState<Account>();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [transactionsCount, setTransactionsCount] = useState<number>(0);
@@ -27,6 +28,12 @@ export default function Transactions() {
   const isMobile = useIsMobile();
   const { selectedAccountID  } = useAccount();
   const router = useRouter();
+
+  // Scroll to top on load
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    window.scroll(0, 0);
+  }, []);
 
   // Fetch Account Data
   useEffect(() => {
@@ -113,13 +120,38 @@ export default function Transactions() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [isLoading, transactions, transactionsCount]);
 
+  // Set isScrolled
+  useEffect(() => {
+    const onScroll = () => {
+      setIsScrolled(window.scrollY > 40);
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   return (
     <main className={`flex flex-col space-y-2 min-h-screen
-      ${isMobile ? 'pb-18 mt-14' : 'pb-20 mt-16'}
+      ${isMobile ? 'pb-18' : 'pb-20'}
     `}>
       {/* Total Amount Section */}
-      <section className='pt-2 px-3'>
-        <Card className='border-2 bg-white'>
+      <section
+        className={`
+          transition-all duration-150
+          ease-in-out
+          ${isScrolled
+              ? 'sticky top-0 z-10' 
+              : 'pt-2 px-3'}
+        `}
+      >
+        <Card className={`
+            ${
+              isScrolled
+              ? 'border-0 -mt-2 rounded-none' 
+              : 'border-2 mt-0'
+            }
+          `}
+        >
           <CardHeader>
             <div className='flex flex-rows items-center justify-between'>
               <div className='text-xl font-bold'>
@@ -154,29 +186,34 @@ export default function Transactions() {
                 </h1> 
               )}
             </div>
-            <div className='w-full flex flex-row justify-center space-x-2'>
-              <Button
-                className='w-[50%] flex flex-row -space-x-1'
-                onClick={() => router.push(`/pages/transactions/add?type=income`)}
-              >
-                <ArrowDownLeft strokeWidth={3}/>
-                <span>
-                  Income
-                </span>
-              </Button>
-              <Button
-                variant='destructive'
-                className='w-[50%] flex flex-row -space-x-1'
-                onClick={() => router.push(`/pages/transactions/add?type=expense`)}
-              >
-                <ArrowUpRight strokeWidth={3}/>
-                <span>
-                  Expense
-                </span>
-              </Button>
-            </div>
+            {!isScrolled && (
+              <div className='w-full flex flex-row justify-center space-x-2'>
+                <Button
+                  className='w-[50%] flex flex-row -space-x-1'
+                  onClick={() => router.push(`/pages/transactions/add?type=income`)}
+                >
+                  <ArrowDownLeft strokeWidth={3}/>
+                  <span>
+                    Income
+                  </span>
+                </Button>
+                <Button
+                  variant='destructive'
+                  className='w-[50%] flex flex-row -space-x-1'
+                  onClick={() => router.push(`/pages/transactions/add?type=expense`)}
+                >
+                  <ArrowUpRight strokeWidth={3}/>
+                  <span>
+                    Expense
+                  </span>
+                </Button>
+              </div>              
+            )}
           </CardContent>
-        </Card>  
+        </Card> 
+        {isMobile && isScrolled && (
+          <div className='w-full border-t-2 border-black' />
+        )} 
       </section>
 
       {/* Transactions Section */}
