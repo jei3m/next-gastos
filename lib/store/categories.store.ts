@@ -1,0 +1,115 @@
+import {
+	CreateCategory,
+	EditCategory
+} from "@/types/categories.types";
+import { revalidateCategories } from "../actions/categories.actions";
+
+export const fetchCategories = async (
+	filter: string | null,
+	accountID: string,
+	dateStart?: string,
+	dateEnd?: string
+) => {
+	try {
+		const res = dateStart && dateEnd
+			? await fetch(`/api/categories?filter=${filter}&accountID=${accountID}&dateStart=${dateStart}&dateEnd=${dateEnd}`, {
+				method: 'GET',
+				next: {
+					tags: ['categories'],
+					revalidate: 3600 // 1hr
+				}
+			}) // For categories page
+			: await fetch(`/api/categories?filter=${filter}&accountID=${accountID}`,{
+				method: 'GET',
+				next: {
+					tags: ['categories-options'],
+					revalidate: 3600 // 1hr
+				}
+			}); // For dropdown select
+		const data = await res.json();
+		return (data.data);
+	} catch (error) {
+		if (error instanceof Error) {
+			throw Error(error.message)
+		};
+		throw Error('Failed to Fetch Categories');
+	}
+};
+
+export const fetchCategoryByID = async (id: string) => {
+	try {
+		const res = await fetch(`/api/categories/${id}`, {
+			method: 'GET',
+			next: {
+				tags: [`category-${id}`],
+				revalidate: 3600 // 1hr
+			}
+		});
+		const data = await res.json();
+		return (data.data)
+	} catch (error) {
+		if (error instanceof Error) {
+			throw Error(error.message)
+		};
+		throw Error('Failed to Fetch Category');
+	}
+};
+
+export const createCategory = async (category: CreateCategory) => {
+	try {
+		const res = await fetch('/api/categories', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(category)
+		});
+		const data = await res.json();
+		if (!res.ok) throw Error(data.message);
+		// Expire cache tags
+		revalidateCategories();
+		return (data.data);
+	} catch (error) {
+		if (error instanceof Error) {
+			throw Error(error.message);
+		};
+		throw Error('Failed to Create Category');
+	};
+};
+
+export const editCategory = async (id: string, category: EditCategory) => {
+	try {
+		const res = await fetch(`/api/categories/${id}`, {
+			method: 'PUT',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(category)
+		});
+		const data = await res.json();
+		if (!res.ok) throw Error(data.message);
+		// Expire cache tags
+		revalidateCategories(id);
+		return (data.data);
+	} catch (error) {
+		if (error instanceof Error) {
+			throw Error(error.message);
+		};
+		throw Error('Failed to Edit Category');
+	};
+};
+
+export const deleteCategory = async (id: string) => {
+	try {
+		const res = await fetch(`/api/categories/${id}`, {
+			method: 'DELETE',
+			headers: { 'Content-Type': 'application/json' },
+		});
+		const data = await res.json();
+		if (!res.ok) throw Error(data.message);
+		// Expire cache tags
+		revalidateCategories(id);
+		return (data.data);
+	} catch (error) {
+		if (error instanceof Error) {
+			throw Error(error.message);
+		};
+		throw Error('Failed to Delete Category');
+	};
+};
