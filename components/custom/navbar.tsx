@@ -44,7 +44,7 @@ function Navbar() {
 	const isMobile = useIsMobile();
 
 	const disableSelect = [
-		pathname.startsWith('/pages/accounts')
+		pathname.startsWith('/pages/accounts/')
 	].includes(true);
 
 	const handleNewAccount = () => {
