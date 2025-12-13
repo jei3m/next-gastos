@@ -1,11 +1,9 @@
 "use client";
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { Account } from '@/types/accounts.types';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useIsMobile } from "@/hooks/use-mobile"
-import { fetchAccounts } from '@/lib/store/accounts.store';
 import { Button } from '@/components/ui/button';
 import {
 	Select,
@@ -35,11 +33,14 @@ import { useAccount } from '@/context/account-context';
 
 function Navbar() {
 	const router = useRouter();
-	const [isLoading, setIsLoading] = useState(true);
 	const [open, setOpen] = useState(false);
 	const pathname = usePathname();
-	const [accounts, setAccounts] = useState<Account[]>([]);
-	const { selectedAccountID, setSelectedAccount } = useAccount();
+	const { 
+		selectedAccountID, 
+		setSelectedAccount,
+		isAccountsLoading,
+		accounts
+	} = useAccount();
 	const isMobile = useIsMobile();
 
 	const disableSelect = [
@@ -60,20 +61,6 @@ function Navbar() {
 		setSelectedAccount(id);
 		setOpen(false)
 	};
-
-	useEffect(() => {
-		fetchAccounts()
-			.then((accounts) => {
-				setAccounts(accounts);
-				setIsLoading(false);
-			})
-			.catch((error) => {
-				if (error instanceof Error) {
-					console.error(error.message)
-					setIsLoading(false);
-				};
-			})
-	}, [open]);
 
 	return (
 		<div className={`${isMobile ? 'px-0' : 'px-3'} max-w-[600px]`}>
@@ -122,7 +109,7 @@ function Navbar() {
 
 					<SelectContent className='border-2 border-black'>
 						<SelectGroup>
-							{isLoading ?
+							{isAccountsLoading ?
 								<div className='flex flex-col justify-center'>
 									<Loader2 className='w-full h-6 w-6 mt-1 mb-1 text-gray-600 animate-spin'/>
 								</div>
@@ -155,7 +142,7 @@ function Navbar() {
 							<Button
 								onClick={handleNewAccount}
 								className='w-full text-white'
-								disabled={isLoading}
+								disabled={isAccountsLoading}
 							>
 								<PlusIcon className='-mr-1' /> New Account
 							</Button>
