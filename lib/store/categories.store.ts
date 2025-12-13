@@ -2,7 +2,6 @@ import {
 	CreateCategory,
 	EditCategory
 } from "@/types/categories.types";
-import { revalidateCategories } from "../actions/categories.actions";
 
 export const fetchCategories = async (
 	filter: string | null,
@@ -14,19 +13,14 @@ export const fetchCategories = async (
 		const res = dateStart && dateEnd
 			? await fetch(`/api/categories?filter=${filter}&accountID=${accountID}&dateStart=${dateStart}&dateEnd=${dateEnd}`, {
 				method: 'GET',
-				next: {
-					tags: ['categories'],
-					revalidate: 3600 // 1hr
-				}
 			}) // For categories page
 			: await fetch(`/api/categories?filter=${filter}&accountID=${accountID}`,{
 				method: 'GET',
-				next: {
-					tags: ['categories-options'],
-					revalidate: 3600 // 1hr
-				}
 			}); // For dropdown select
 		const data = await res.json();
+    if (!data.success) {
+      throw Error(data.message)
+    };
 		return (data.data);
 	} catch (error) {
 		if (error instanceof Error) {
@@ -40,12 +34,11 @@ export const fetchCategoryByID = async (id: string) => {
 	try {
 		const res = await fetch(`/api/categories/${id}`, {
 			method: 'GET',
-			next: {
-				tags: [`category-${id}`],
-				revalidate: 3600 // 1hr
-			}
 		});
 		const data = await res.json();
+    if (!data.success) {
+      throw Error(data.message)
+    };
 		return (data.data)
 	} catch (error) {
 		if (error instanceof Error) {
@@ -63,9 +56,9 @@ export const createCategory = async (category: CreateCategory) => {
 			body: JSON.stringify(category)
 		});
 		const data = await res.json();
-		if (!res.ok) throw Error(data.message);
-		// Expire cache tags
-		revalidateCategories();
+    if (!data.success) {
+      throw Error(data.message)
+    };
 		return (data.data);
 	} catch (error) {
 		if (error instanceof Error) {
@@ -83,9 +76,9 @@ export const editCategory = async (id: string, category: EditCategory) => {
 			body: JSON.stringify(category)
 		});
 		const data = await res.json();
-		if (!res.ok) throw Error(data.message);
-		// Expire cache tags
-		revalidateCategories(id);
+    if (!data.success) {
+      throw Error(data.message)
+    };
 		return (data.data);
 	} catch (error) {
 		if (error instanceof Error) {
@@ -102,9 +95,9 @@ export const deleteCategory = async (id: string) => {
 			headers: { 'Content-Type': 'application/json' },
 		});
 		const data = await res.json();
-		if (!res.ok) throw Error(data.message);
-		// Expire cache tags
-		revalidateCategories(id);
+    if (!data.success) {
+      throw Error(data.message)
+    };
 		return (data.data);
 	} catch (error) {
 		if (error instanceof Error) {

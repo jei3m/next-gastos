@@ -2,7 +2,6 @@ import {
   CreateTransaction,
   EditTransactionPayload,
 } from "@/types/transactions.types";
-import { revalidateTransactions } from "../actions/transactions.actions";
 
 export const createTransaction = async(transaction: CreateTransaction) => {
   try {
@@ -12,9 +11,9 @@ export const createTransaction = async(transaction: CreateTransaction) => {
       body: JSON.stringify(transaction)
     });
     const data = await res.json();
-    if(!res.ok) throw Error(data.message);
-    // Expire cache tags
-    revalidateTransactions();
+    if (!data.success) {
+      throw Error(data.message)
+    };
     return(data.data);
   } catch (error) {
     if (error instanceof Error) {
@@ -31,12 +30,11 @@ export const fetchTransactions = async(
   try {
     const res = await fetch(`/api/transactions?accountID=${selectedAccountID}&page=${page}`, {
       method: 'GET',
-      next:{
-        tags: ['transactions'],
-        revalidate: 3600 // 1hr
-      }
     })
     const data = await res.json();
+    if (!data.success) {
+      throw Error(data.message)
+    };
     return(data.data);
   } catch (error) {
     if (error instanceof Error) {
@@ -52,12 +50,11 @@ export const fetchTransactionByID = async(
   try {
     const res = await fetch(`/api/transactions/${id}`, {
       method: 'GET',
-      next:{
-        tags: [`transaction-${id}`],
-        revalidate: 3600 // 1hr
-      }
     });
     const data = await res.json();
+    if (!data.success) {
+      throw Error(data.message)
+    };
     return(data.data);
   } catch (error) {
     if (error instanceof Error) {
@@ -73,12 +70,11 @@ export const fetchTransactionsCount = async(
   try {
     const res = await fetch(`/api/transactions/count?accountID=${selectedAccountID}`, {
       method: 'GET',
-      next:{
-        tags: ['transaction-count'],
-        revalidate: 3600 // 1hr
-      }
     });
     const data = await res.json();
+    if (!data.success) {
+      throw Error(data.message)
+    };
     return(data.data);
   } catch (error) {
     if (error instanceof Error) {
@@ -99,9 +95,9 @@ export const editTransactions = async(
       body: JSON.stringify(transaction)
     });
     const data = await res.json();
-    if (!res.ok) throw Error(data.message);
-    // Expire cache tags
-    revalidateTransactions(id);
+    if (!data.success) {
+      throw Error(data.message)
+    };
     return(data.data);
   } catch (error) {
     if (error instanceof Error){
@@ -118,9 +114,9 @@ export const deleteTransaction = async(id: string) => {
       headers: {'Content-Type': 'application/json'},
     });
     const data = await res.json();
-    if (!res.ok) throw Error(data.message);
-    // Expire cache tags
-    revalidateTransactions(id);
+    if (!data.success) {
+      throw Error(data.message)
+    };
     return(data.data);
   } catch (error) {
     if (error instanceof Error){

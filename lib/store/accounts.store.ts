@@ -1,15 +1,14 @@
 import { CreateAccount, EditAccount } from "@/types/accounts.types";
-import { revalidateAccounts } from "../actions/accounts.actions";
 
 export const fetchAccounts = async () => {
 	try {
 		const res = await fetch('/api/accounts', {
 			method: 'GET',
-			next: {
-				tags: ['accounts']
-			}
 		});
 		const data = await res.json();
+		if (!data.success) {
+      throw Error(data.message)
+    };
 		return (data.data)
 	} catch (error) {
 		if (error instanceof Error) {
@@ -23,11 +22,11 @@ export const fetchAccountByID = async (id: string) => {
 	try {
 		const res = await fetch(`/api/accounts/${id}`, {
 			method: 'GET',
-			next: {
-				tags: [`account-${id}`]
-			}
 		});
 		const data = await res.json();
+		if (!data.success) {
+      throw Error(data.message)
+    };
 		return (data.data)
 	} catch (error) {
 		if (error instanceof Error) {
@@ -45,9 +44,9 @@ export const createAccount = async (account: CreateAccount) => {
 			body: JSON.stringify(account)
 		});
 		const data = await res.json();
-		if (!res.ok) throw Error(data.message);
-		// Expire cache tags
-		revalidateAccounts();
+		if (!data.success) {
+      throw Error(data.message)
+    };
 		return data.data;
 	} catch (error) {
 		if (error instanceof Error) {
@@ -65,9 +64,9 @@ export const editAccount = async (id: string, account: EditAccount) => {
 			body: JSON.stringify(account)
 		});
 		const data = await res.json();
-		if (!res.ok) throw Error(data.message);
-		// Expire cache tags
-		revalidateAccounts(id);
+		if (!data.success) {
+      throw Error(data.message)
+    };
 		return data.data;
 	} catch (error) {
 		if (error instanceof Error) {
@@ -84,9 +83,9 @@ export const deleteAccount = async (id: string) => {
 			headers: { 'Content-Type': 'application/json' },
 		});
 		const data = await res.json();
-		if (!res.ok) throw Error(data.message);
-		// Expire cache tags
-		revalidateAccounts(id);
+		if (!data.success) {
+      throw Error(data.message)
+    };
 		return data.data;
 	} catch (error) {
 		if (error instanceof Error) {
