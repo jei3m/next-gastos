@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useMemo, useState } from 'react';
+import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -12,11 +12,11 @@ import { DateRange } from 'react-day-picker';
 
 interface DateTransactionCardProps {
   onDateRangeChange?: (dateStart: string, dateEnd: string, dateDisplay: string) => void;
-  content?: ReactNode
+  content?: ReactNode,
+  isScrolled: boolean
 };
 
-function DateSelectCard({ content, onDateRangeChange }: DateTransactionCardProps) {
-  const [isScrolled, setIsScrolled] = useState(false);
+function DateSelectCard({ content, onDateRangeChange, isScrolled }: DateTransactionCardProps) {
   const [activeTab, setActiveTab] = useState('weekly');
   const [currentDate, setCurrentDate] = useState(new Date());
   const newDate = new Date(currentDate);
@@ -194,16 +194,6 @@ function DateSelectCard({ content, onDateRangeChange }: DateTransactionCardProps
       onDateRangeChange(dateStart, dateEnd, dateDisplay);
     }
   }, [dateStart, dateEnd, dateDisplay, onDateRangeChange]);
-
-  // Set isScrolled
-  useEffect(() => {
-    const onScroll = () => {
-      setIsScrolled(window.scrollY > 40);
-    };
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
 
   return (
       <section
