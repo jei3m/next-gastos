@@ -25,15 +25,15 @@ const Toaster = ({ ...props }: ToasterProps) => {
       toastOptions={{
         style: {
           background: "var(--normal-bg)",
-          color: "var(--normal-text)",
-          border: "2px solid var(--normal-border)",
+          color: "white",
+          border: "2px solid black",
         },
         classNames: {
-          toast: "bg-popover text-popover-foreground border-border",
-          success: "!bg-[oklch(79.76%_0.2044_153.08)] text-white",
-          error: "!bg-[oklch(62.82%_0.204_26.71)] text-white",
-          warning: "!bg-[oklch(62.82%_0.204_26.71)] text-white",
-          info: "!bg-[oklch(62.82%_0.132_231.6)] text-white",
+          toast: "bg-popover text-popover-foreground",
+          success: "!bg-[oklch(79.76%_0.2044_153.08)]",
+          error: "!bg-[oklch(62.82%_0.204_26.71)]",
+          warning: "!bg-[oklch(62.82%_0.204_26.71)]",
+          info: "!bg-[oklch(62.82%_0.132_231.6)]",
         }
       }}
       className="toaster group"
