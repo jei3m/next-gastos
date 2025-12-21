@@ -2,6 +2,7 @@ import {
 	CreateCategory,
 	EditCategory
 } from "@/types/categories.types";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const fetchCategories = async (
 	filter: string | null,
@@ -69,6 +70,7 @@ export const createCategory = async (category: CreateCategory) => {
 };
 
 export const editCategory = async (id: string, category: EditCategory) => {
+	const queryClient = useQueryClient();
 	try {
 		const res = await fetch(`/api/categories/${id}`, {
 			method: 'PUT',
@@ -79,6 +81,9 @@ export const editCategory = async (id: string, category: EditCategory) => {
     if (!data.success) {
       throw Error(data.message)
     };
+		queryClient.invalidateQueries({
+			queryKey: ['categories'],
+		});
 		return (data.data);
 	} catch (error) {
 		if (error instanceof Error) {
