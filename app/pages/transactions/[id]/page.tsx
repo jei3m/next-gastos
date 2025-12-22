@@ -44,6 +44,7 @@ import {
 
 export default function EditTransactionForm() {
   const [datePickerOpen, setDatePickerOpen] = useState<boolean>(false);
+  const [transactionDate, setTransactionDate] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<string>("");
   const router = useRouter();
@@ -84,7 +85,6 @@ export default function EditTransactionForm() {
       refCategoriesID: "",
     }
   });
-  const transactionDate = form.getValues('date');
 
   async function onSubmit(values: z.infer<typeof transactionSchema>) {
     setIsLoading(true);
@@ -182,7 +182,7 @@ export default function EditTransactionForm() {
       form.setValue('type', transaction.type);
     };
     form.setValue('time', transaction.time);
-    form.setValue('date', transaction.date);
+    setTransactionDate(transaction.date)
     form.setValue('refCategoriesID', transaction.refCategoriesID);
   }, [form, transaction, categories]);
 
@@ -340,7 +340,7 @@ export default function EditTransactionForm() {
                     <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
                       <PopoverTrigger asChild>
                         <Button
-                            disabled={isLoading}
+                          disabled={isLoading}
                           variant="outline"
                           id="date"
                           className="justify-between font-normal border-2 bg-white text-[16px]"
