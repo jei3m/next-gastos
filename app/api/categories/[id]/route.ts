@@ -108,7 +108,7 @@ export async function DELETE(
 			resultDelete[1][0].response
 		);
 
-		if (parsedData.responseMessage !== 200) {
+		if (parsedData.responseCode !== 200) {
 			return fail(
 				parsedData.responseCode,
 				parsedData.responseMessage
