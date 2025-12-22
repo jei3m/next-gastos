@@ -83,9 +83,9 @@ export const getCategories = () => {
             LEFT JOIN category_details cd 
                 ON c.id = cd.ref_categories_id
                 AND c.ref_user_id = cd.ref_user_id
-            INNER JOIN sum_income si
+            LEFT JOIN sum_income si
                 ON c.ref_user_id = si.ref_user_id 
-            INNER JOIN sum_expense se
+            LEFT JOIN sum_expense se
                 ON c.ref_user_id = se.ref_user_id 
             WHERE
                 c.ref_user_id = :userID
