@@ -232,6 +232,7 @@ function DateSelectCard({ content, onDateRangeChange, isScrolled }: DateTransact
                   <div className='p-0 flex flex-col'>
                     <Calendar
                       mode="range"
+                      disabled={(date) => date > new Date()}
                       selected={dateRange}
                       onSelect={setDateRange}
                     />
