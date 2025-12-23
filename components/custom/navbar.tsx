@@ -72,7 +72,11 @@ function Navbar() {
 					justify-between
 					items-center
 					bg-white border-black
-					${isMobile ? 'border-b-2 rounded-none' : 'border-2 rounded-lg mt-2'}
+					${
+						isMobile 
+							? 'border-b-2 rounded-none' 
+							: 'border-2 rounded-lg mt-2'
+					}
 				`}
 			>
 				<Link href={'/pages/transactions'}
