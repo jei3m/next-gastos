@@ -111,10 +111,6 @@ export default function EditCategory() {
 		editCategoryMutation(values)
 	};
 
-	const handleDelete = (id: string) => {
-		deleteCategoryMutation(id);
-	};
-
 	// Fetch category data
 	const { data, isPending, error: categoryError } = useQuery(
 		categoryByIDQueryOptions(id)
@@ -162,7 +158,7 @@ export default function EditCategory() {
 							<Button
 								variant="destructive"
 								className="border-2"
-								onClick={() => handleDelete(id)}
+								onClick={() => deleteCategoryMutation(id)}
 							>
 								Yes, I&apos;m sure
 							</Button>
