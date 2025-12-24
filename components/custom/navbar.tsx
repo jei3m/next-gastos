@@ -66,6 +66,7 @@ function Navbar() {
 		<div className={`${isMobile ? 'px-0' : 'px-3'} max-w-[600px]`}>
 			<nav
 				className={`
+					h-[50px]
 					p-2
 					w-full
 					flex
