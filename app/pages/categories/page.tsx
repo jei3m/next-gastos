@@ -17,20 +17,20 @@ import {
 } from 'lucide-react';
 import { TypographyH4 } from '@/components/custom/typography';
 import { Button } from '@/components/ui/button';
-import { fetchCategories } from '@/lib/store/categories.store';
-import { toast } from 'sonner';
 import { useAccount } from '@/context/account-context';
 import DateSelectCard from '@/components/custom/date-select-card';
 import PulseLoader from '@/components/custom/pulse-loader';
 import { formatAmount } from '@/utils/format-amount';
 import CategoryCard from '@/components/categories/category-card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useQuery } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { categoryQueryOptions } from '@/lib/tq-options/categories.tq.options';
 
 export default function Categories() {
 	const [isScrolled, setIsScrolled] = useState(false);
   const [dateStart, setDateStart] = useState<string>('');
   const [dateEnd, setDateEnd] = useState<string>('');
-	const [isLoading, setIsLoading] = useState(false);
 	const [categoryType, setCategoryType] = useState('expense');
 	const [categories, setCategories] = useState<Category[]>([]);
 	const [totalIncome, setTotalIncome] = useState<string>("0.00");
@@ -64,28 +64,23 @@ export default function Categories() {
     return total.toFixed(2);
   };
 
-	// Fetch categories when categoryType, router, or selectedAccountID changes
+	const { data, isPending, error } = useQuery(
+		categoryQueryOptions(
+			categoryType,
+			selectedAccountID!,
+			dateStart,
+			dateEnd
+		)
+	);
+
 	useEffect(() => {
-		if (selectedAccountID && categoryType && dateStart && dateEnd) {
-			setIsLoading(true);
-			fetchCategories(categoryType, selectedAccountID, dateStart, dateEnd)
-				.then((categories) => {
-					setTotalIncome(categories[0]?.totalIncome || "0.00");
-					setTotalExpense(categories[0]?.totalExpense || "0.00");
-					setCategories(categories[0]?.details || []);
-				})
-				.catch((error) => {
-					if (error instanceof Error) {
-						toast.error(error.message)
-					} else {
-						toast.error('Failed to Fetch Categories')
-					};
-				})
-				.finally(() => {
-					setIsLoading(false);
-				})
-		}
-	}, [selectedAccountID, categoryType, dateStart, dateEnd]);
+		if (error) {
+			toast.error(error.message);
+		};
+		setCategories(data?.[0]?.details);
+		setTotalIncome(data?.[0]?.totalIncome || "0.00");
+		setTotalExpense(data?.[0]?.totalExpense || "0.00");
+	}, [data, error]);
 
   // Set isScrolled
   useEffect(() => {
@@ -112,7 +107,7 @@ export default function Categories() {
 						</h3>
 						<h1 className='text-2xl font-extrabold'>
 							{
-								isLoading
+								isPending
 									? <Skeleton className='h-[30px] w-[140px] bg-gray-300' />
 									: `PHP ${formatAmount(calculateBalance())}`
 							}
@@ -134,7 +129,7 @@ export default function Categories() {
 								</div>
 								<div className='text-2xl font-bold'>
 									{
-										isLoading
+										isPending
 											? <Skeleton className='h-[30px] w-[100px] bg-green-300' />
 											: `${formatAmount(totalIncome)}`
 									}
@@ -156,7 +151,7 @@ export default function Categories() {
 								</div>
 								<div className='text-2xl font-bold'>
 									{
-										isLoading
+										isPending
 											? <Skeleton className='h-[30px] w-[100px] bg-red-300' />
 											: `${formatAmount(totalExpense)}`
 									}
@@ -191,15 +186,15 @@ export default function Categories() {
 						</TabsList>
 					</div>
 				</Tabs>
-				{isLoading ? (
+				{isPending ? (
 					<PulseLoader/>
 				): (
 					<>
 						{categories && categories.length > 0 ? (
 							<>
-								{categories.map((category, index) => (
+								{categories.map((category: Category) => (
 									<CategoryCard 
-										key={index}
+										key={category.id}
 										category={category}
 									/>
 								))}
