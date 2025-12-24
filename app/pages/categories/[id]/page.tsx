@@ -3,7 +3,6 @@ import { useState, useEffect, createElement } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { fetchSession } from "@/utils/session";
 import {
 	Select,
 	SelectContent,
@@ -40,31 +39,23 @@ import {
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { editCategory, fetchCategoryByID, deleteCategory } from "@/lib/tq-functions/categories.tq.functions";
+import { editCategory, deleteCategory } from "@/lib/tq-functions/categories.tq.functions";
 import { editCategorySchema } from "@/lib/schema/categories.schema";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { icons } from "@/lib/icons";
 import { SquareDashed } from "lucide-react";
 import { Trash2 } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { categoryByIDQueryOptions } from "@/lib/tq-options/categories.tq.options";
 
 export default function EditCategory() {
 	const [isLoading, setIsLoading] = useState(false);
 	const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-	const [error, setError] = useState("");
 	const router = useRouter();
 	const params = useParams();
+	const queryClient = useQueryClient();
 	const id = params.id as string;
-
-	// Validate user session
-	useEffect(() => {
-		fetchSession()
-			.then(({ session }) => {
-				if (!session) {
-					router.push('/auth/login');
-				}
-			})
-	}, [router]);
 
 	const form = useForm<z.infer<typeof editCategorySchema>>({
 		resolver: zodResolver(editCategorySchema),
@@ -75,57 +66,72 @@ export default function EditCategory() {
 		}
 	});
 
+	const { mutate: editCategoryMutation } = useMutation({
+		mutationFn: (values: z.infer<typeof editCategorySchema>) => editCategory(id, values),
+		onMutate: () => {
+			setIsLoading(true);
+		},
+		onSuccess: (data) => {
+			queryClient.invalidateQueries({
+				queryKey: categoryByIDQueryOptions(id).queryKey,
+			});
+			toast.success(data.responseMessage);
+			form.reset();
+			router.push('/pages/categories');
+		},
+		onError: (error) => {
+			toast.error(error.message);
+		},
+		onSettled: () => {
+			setIsLoading(false);
+		}
+	});
+
+	const { mutate: deleteCategoryMutation } = useMutation({
+		mutationFn: (id: string) => deleteCategory(id),
+		onMutate: () => {
+			setIsLoading(true);    
+		},
+		onSuccess: (data) => {
+			queryClient.invalidateQueries({
+				queryKey: categoryByIDQueryOptions(id).queryKey,
+			});
+			toast.success(data.responseMessage);
+			router.push('/pages/categories');
+		},
+		onError: (error) => {
+			toast.error(error.message);
+		},
+		onSettled: () => {
+			setIsLoading(false);
+		}
+	});
+
 	async function onSubmit(values: z.infer<typeof editCategorySchema>) {
-		setIsLoading(true);
-		editCategory(id, values)
-			.then((category) => {
-				toast.success(category.responseMessage);
-				router.push('/pages/categories');
-			})
-			.catch((error) => {
-				toast.error(error.message);
-			})
-			.finally(() => {
-				setIsLoading(false);
-			})
+		editCategoryMutation(values)
 	};
 
 	const handleDelete = (id: string) => {
-		setIsLoading(true);
-		deleteCategory(id)
-			.then((category) => {
-				toast.success(category.responseMessage);
-				router.push('/pages/categories');
-			})
-			.catch((error) => {
-				setError(error.message);
-				setIsLoading(false);
-			})
-			.finally(() => {
-				setIsLoading(false);
-			})
+		deleteCategoryMutation(id);
 	};
 
-	// Fetch category data and populate the form
+	// Fetch category data
+	const { data, isPending, error: categoryError } = useQuery(
+		categoryByIDQueryOptions(id)
+	);
+
+	// Populate the form
 	useEffect(() => {
-		setIsLoading(true);
-		fetchCategoryByID(id)
-			.then((category) => {
-				if (category && category.length > 0) {
-					form.reset({
-						name: category[0].name,
-						type: category[0].type,
-						icon: category[0].icon
-					});
-				}
-				setIsLoading(false);
-			})
-			.catch((error) => {
-				toast.error(error.message);
-				setError(error.message);
-				setIsLoading(false);
-			})
-	}, [id, form]);
+		if (categoryError) {
+			toast.error(categoryError.message);
+		};
+		if (!data || isPending) return;
+		form.reset({
+			name: data.name,
+			type: data.type,
+			icon: data.icon
+		});
+	}, [categoryError, data, isPending]);
 
 	return (
 		<main className='flex flex-col space-y-4 p-3'>
@@ -134,7 +140,7 @@ export default function EditCategory() {
 					Edit Category
 				</TypographyH3>
 				<Dialog>
-					<DialogTrigger className="text-red-500" disabled={isLoading}>
+					<DialogTrigger className="text-red-500" disabled={isLoading || isPending}>
 						<Trash2 size={20}/>
 					</DialogTrigger>
 					<DialogContent
@@ -261,16 +267,11 @@ export default function EditCategory() {
 							</FormItem>
 						)}
 					/>
-					{error &&
-						<div className="text-red-500 font-medium">
-							{error}
-						</div>
-					}
 					<div className='flex flex-row justify-between'>
 						<Button
 							onClick={() => router.back()}
 							className="bg-red-500 border-2 hover:none"
-							disabled={isLoading}
+							disabled={isLoading || isPending}
 							type="button"
 						>
 							Cancel
@@ -278,7 +279,7 @@ export default function EditCategory() {
 						<Button
 							className="border-2"
 							type="submit"
-							disabled={isLoading}
+							disabled={isLoading || isPending}
 						>
 							{isLoading ? "Submitting..." : "Update"}
 						</Button>
