@@ -9,7 +9,7 @@ export default function TransactionsLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <Suspense fallback={<Loader/>}>
-      <div className="max-w-[600px] m-auto">
+      <div className="max-w-[700px] m-auto">
         <Navbar/>
         {children}
         <Toaster
@@ -19,7 +19,7 @@ export default function TransactionsLayout({
         <Dock
           showLabels={true}
         />
-      </div>      
+      </div>
     </Suspense>
   );
 };
