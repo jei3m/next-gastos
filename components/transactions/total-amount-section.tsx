@@ -4,8 +4,8 @@ import { Separator } from "../ui/separator";
 import { Skeleton } from "../ui/skeleton";
 import { ArrowDownLeft, ArrowUpRight } from "lucide-react";
 import { Button } from "../ui/button";
-import { useRouter } from "next/navigation";
 import { Account } from "@/types/accounts.types";
+import Link from "next/link";
 
 interface TotalAmountSectionProps {
   isScrolled: boolean,
@@ -20,8 +20,6 @@ export default function TotalAmountSection({
   account,
   isMobile
 }: TotalAmountSectionProps){
-
-  const router = useRouter();
 
   return (
     <section
@@ -77,26 +75,19 @@ export default function TotalAmountSection({
           </div>
           {!isScrolled && (
             <div className='w-full flex flex-row justify-center space-x-2'>
-              <Button
-                className='w-[50%] flex flex-row -space-x-1'
-                onClick={() => router.push(`/pages/transactions/add?type=income`)}
-              >
-                <ArrowDownLeft strokeWidth={3}/>
-                <span>
-                  Income
-                </span>
-              </Button>
-              <Button
-                variant='destructive'
-                className='w-[50%] flex flex-row -space-x-1'
-                onClick={() => router.push(`/pages/transactions/add?type=expense`)}
-              >
-                <ArrowUpRight strokeWidth={3}/>
-                <span>
-                  Expense
-                </span>
-              </Button>
-            </div>              
+              <Link href={`/pages/transactions/add?type=income`} className='w-full'>
+                <Button className='w-full flex flex-row -space-x-1'>
+                  <ArrowDownLeft strokeWidth={3}/>
+                  <span>Income</span>
+                </Button>              
+              </Link>
+              <Link href={`/pages/transactions/add?type=expense`} className='w-full'>
+                <Button variant='destructive' className='w-full flex flex-row -space-x-1'>
+                  <ArrowUpRight strokeWidth={3}/>
+                  <span>Expense</span>
+                </Button>
+              </Link>
+            </div>         
           )}
         </CardContent>
       </Card> 
