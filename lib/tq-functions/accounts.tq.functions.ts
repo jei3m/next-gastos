@@ -1,5 +1,4 @@
 import { CreateAccount, EditAccount } from "@/types/accounts.types";
-import { useQueryClient } from "@tanstack/react-query";
 
 export const fetchAccounts = async () => {
 	try {
@@ -28,7 +27,7 @@ export const fetchAccountByID = async (id: string) => {
 		if (!data.success) {
       throw Error(data.message)
     };
-		return (data.data)
+		return (data.data[0])
 	} catch (error) {
 		if (error instanceof Error) {
 			throw Error(error.message)
@@ -38,7 +37,6 @@ export const fetchAccountByID = async (id: string) => {
 };
 
 export const createAccount = async (account: CreateAccount) => {
-	const queryClient = useQueryClient();
 	try {
 		const res = await fetch('/api/accounts', {
 			method: 'POST',
@@ -49,9 +47,6 @@ export const createAccount = async (account: CreateAccount) => {
 		if (!data.success) {
       throw Error(data.message)
     };
-		queryClient.invalidateQueries({
-			queryKey: ['accounts'],
-		});
 		return data.data;
 	} catch (error) {
 		if (error instanceof Error) {
@@ -62,7 +57,6 @@ export const createAccount = async (account: CreateAccount) => {
 };
 
 export const editAccount = async (id: string, account: EditAccount) => {
-	const queryClient = useQueryClient();
 	try {
 		const res = await fetch(`/api/accounts/${id}`, {
 			method: 'PUT',
@@ -73,9 +67,6 @@ export const editAccount = async (id: string, account: EditAccount) => {
 		if (!data.success) {
       throw Error(data.message)
     };
-		queryClient.invalidateQueries({
-			queryKey: [ 'accounts', `account-${id}`],
-		});
 		return data.data;
 	} catch (error) {
 		if (error instanceof Error) {
@@ -86,7 +77,6 @@ export const editAccount = async (id: string, account: EditAccount) => {
 };
 
 export const deleteAccount = async (id: string) => {
-	const queryClient = useQueryClient();
 	try {
 		const res = await fetch(`/api/accounts/${id}`, {
 			method: 'DELETE',
@@ -96,9 +86,6 @@ export const deleteAccount = async (id: string) => {
 		if (!data.success) {
       throw Error(data.message)
     };
-		queryClient.invalidateQueries({
-			queryKey: [ 'accounts', `account-${id}`],
-		});
 		return data.data;
 	} catch (error) {
 		if (error instanceof Error) {
