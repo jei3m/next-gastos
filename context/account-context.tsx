@@ -11,13 +11,13 @@ import {
   setAccountIDInStorage 
 } from '@/utils/account';
 import { Account } from '@/types/accounts.types';
-import { fetchAccounts } from '@/lib/store/accounts.store';
-import { toast } from 'sonner';
+import { QueryObserverResult, useQuery } from '@tanstack/react-query';
+import { accountsQueryOptions } from '@/lib/tq-options/accounts.tq.options';
 
 type AccountContextType = {
   selectedAccountID: string | null;
   setSelectedAccount: (uuid: string) => void;
-  refetchAccountsData: () => Promise<void>;
+  refetchAccountsData: () => Promise<QueryObserverResult>;
   isAccountsLoading: boolean;
   accounts: Account[]
 };
@@ -26,30 +26,13 @@ const AccountContext = createContext<AccountContextType | undefined>(undefined);
 
 export function AccountProvider({ children }: { children: ReactNode }) {
   const [selectedAccountID, setSelectedAccountID] = useState<string | null>(null);
-  const [accounts, setAccounts] = useState<Account[]>([]);
-	const [isAccountsLoading, setIsAccountsLoading] = useState(true);
 
-  const fetchAccountsData = async () => {
-    setIsAccountsLoading(true);
-    await fetchAccounts()
-      .then((data) => {
-        setAccounts(data);
-      })
-      .catch((error) => {
-        toast.error(error.message);
-      })
-      .finally(() => {
-        setIsAccountsLoading(false);
-      });
-  };
-  
-  // Fetch on initial load
-  useEffect(() => {
-    fetchAccountsData()
-  },[]);
+  const { data: accounts, isPending: isAccountsLoading, refetch} = useQuery(
+    accountsQueryOptions()
+  );
 
   const refetchAccountsData = () => {
-    return fetchAccountsData()
+    return refetch();
   };
 
   useEffect(() => {

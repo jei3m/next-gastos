@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { DockItem, DockProps } from '@/types/dock.types';
 import { 
   ArrowLeftRight, 
+  Landmark, 
   Tags
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -15,6 +16,11 @@ const dockItems: DockItem[] = [
     label: 'transactions', 
     icon: ArrowLeftRight, 
     route:'/pages/transactions' 
+  },
+  {
+    label: 'accounts', 
+    icon: Landmark, 
+    route:'/pages/accounts' 
   },
   { 
     label: 'categories', 

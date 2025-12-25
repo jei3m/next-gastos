@@ -35,7 +35,7 @@ export const fetchTransactions = async(
     if (!data.success) {
       throw Error(data.message)
     };
-    return(data.data);
+    return(data);
   } catch (error) {
     if (error instanceof Error) {
       throw Error(error.message)
@@ -75,7 +75,7 @@ export const fetchTransactionsCount = async(
     if (!data.success) {
       throw Error(data.message)
     };
-    return(data.data);
+    return(data.data?.[0].count);
   } catch (error) {
     if (error instanceof Error) {
       throw Error(error.message)
@@ -84,7 +84,7 @@ export const fetchTransactionsCount = async(
   }
 };
 
-export const editTransactions = async(
+export const editTransaction = async(
   id: string,
   transaction: EditTransactionPayload
 ) => {

@@ -1,25 +1,17 @@
 "use client";
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { TypographyH4 } from '@/components/custom/typography';
-import { fetchTransactions, fetchTransactionsCount } from '@/lib/store/transactions.store';
-import { Transaction } from '@/types/transactions.types';
-import { toast } from 'sonner';
 import { useAccount } from '@/context/account-context';
 import PulseLoader from '@/components/custom/pulse-loader';
-import { fetchAccountByID } from '@/lib/store/accounts.store';
-import { Account } from '@/types/accounts.types';
 import TransactionCard from '@/components/transactions/transaction-card';
 import TotalAmountSection from '@/components/transactions/total-amount-section';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { transactionsInfiniteQueryOptions } from '@/lib/tq-options/transactions.tq.options';
+import { accountByIDQueryOptions } from '@/lib/tq-options/accounts.tq.options';
 
 export default function Transactions() {
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
-  const [account, setAccount] = useState<Account>();
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [transactionsCount, setTransactionsCount] = useState<number>(0);
-  const [page, setPage] = useState<number>(1);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isMoreLoading, setIsMoreLoading] = useState<boolean>(false);
   const isMobile = useIsMobile();
   const { selectedAccountID } = useAccount();
 
@@ -30,84 +22,43 @@ export default function Transactions() {
 		setIsScrolled(false);
   }, []);
 
-  // Fetch Account Data
-  useEffect(() => {
-    if (selectedAccountID) {
-      const fetchInitialDetails = async() => {
-        try {
-          setIsLoading(true);
-          const [accountData, transactionCountData] = await Promise.all([
-            fetchAccountByID(selectedAccountID),
-            fetchTransactionsCount(selectedAccountID)
-          ]);
-          setAccount(accountData[0]);
-          setTransactionsCount(transactionCountData[0].count);   
-        } catch (error) {
-          if (error instanceof Error) {
-            toast.error(error.message)
-          } else {
-            toast.error('Failed to Fetch Account Details')
-          };
-        } finally {
-          setIsLoading(false);
-        }
-      };
-      fetchInitialDetails();
-    }
-  }, [selectedAccountID]);
+  const { data: account, isPending: isAccountLoading } = useQuery(
+    accountByIDQueryOptions(
+      selectedAccountID!
+    )
+  );
 
-  // Fetch Transactions
-  useEffect(() => {
-    if (selectedAccountID && page) {
-      setIsMoreLoading(true);
-      fetchTransactions(selectedAccountID, page)
-        .then((data) => {
-          setTransactions((prev) => {
-            const combinedData = [...prev, ...data]; 
-            const uniqueData = new Set();
-            // Remove duplicates accdg to transaction.date
-            return combinedData.filter(transaction => {
-              if (uniqueData.has(transaction.date)) {
-                return false;
-              };
-              uniqueData.add(transaction.date);
-              return true;
-            })
-          });            
-        })
-        .catch((error) => {
-          if (error instanceof Error) {
-            toast.error(error.message)
-          };
-        })
-        .finally(() => {
-          setIsMoreLoading(false);
-        })
-    }
-  }, [selectedAccountID, page]);
+  const { 
+    data: transactionsData, 
+    hasNextPage, 
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useInfiniteQuery(
+    transactionsInfiniteQueryOptions(
+      selectedAccountID!
+    )
+  );
 
-  // Reset state when selectedAccountID changes
-  useEffect(() => {
-    setTransactions([]);
-    setPage(1);
-  }, [selectedAccountID]);
+  const transactions = useMemo(() => {
+    return transactionsData?.pages?.flatMap((item) => item.data)
+  }, [transactionsData]);
 
   // Handle scroll for pagination
   useEffect(() => {
     const handleScroll = () => {
-      if (isLoading || transactions.length >= transactionsCount) return;
+      if (isFetchingNextPage || !hasNextPage) return;
       
       const scrollPosition = window.innerHeight + document.documentElement.scrollTop;
       const scrollHeight = document.documentElement.scrollHeight;
       const isBottomReached = scrollPosition + 1 >= scrollHeight;
       
       if (isBottomReached) {
-        setPage((prev) => prev + 1);
+        fetchNextPage();
       };
     }; 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [isLoading, transactions, transactionsCount]);
+  }, [isFetchingNextPage, hasNextPage]);
 
   // Set isScrolled
   useEffect(() => {
@@ -125,7 +76,7 @@ export default function Transactions() {
     `}>
       {/* Total Amount Section */}
       <TotalAmountSection 
-        isLoading={isLoading}
+        isLoading={isAccountLoading}
         isScrolled={isScrolled}
         account={account}
         isMobile={isMobile}
@@ -136,7 +87,7 @@ export default function Transactions() {
         <TypographyH4>
           Recent Transactions
         </TypographyH4>
-        {isLoading || !account ? (
+        {isAccountLoading ? (
           <PulseLoader/>
         ):(
           <>
@@ -148,7 +99,7 @@ export default function Transactions() {
                     key={index}
                   />
                 ))}
-                {isMoreLoading && (
+                {isFetchingNextPage && (
                   <PulseLoader className='mt-0'/>
                 )}
               </>

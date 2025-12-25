@@ -66,13 +66,18 @@ function Navbar() {
 		<div className={`${isMobile ? 'px-0' : 'px-3'} max-w-[600px]`}>
 			<nav
 				className={`
+					h-[50px]
 					p-2
 					w-full
 					flex
 					justify-between
 					items-center
 					bg-white border-black
-					${isMobile ? 'border-b-2 rounded-none' : 'border-2 rounded-lg mt-2'}
+					${
+						isMobile 
+							? 'border-b-2 rounded-none' 
+							: 'border-2 rounded-lg mt-2'
+					}
 				`}
 			>
 				<Link href={'/pages/transactions'}
@@ -117,35 +122,15 @@ function Navbar() {
 								<>
 									{accounts && (
 										<>
-											{accounts.map((account, index) => (
-												<ContextMenu key={index}>
-													<ContextMenuTrigger>
-														<SelectItem value={account.id}>
-															{account.name}
-														</SelectItem>
-													</ContextMenuTrigger>
-													<ContextMenuContent className='bg-primary rounded-md'>
-														<ContextMenuItem 
-															className="flex items-center px-2 py-1 text-sm cursor-pointer hover:bg-gray-100 rounded-sm"
-																onClick={() => handleEdit(account.id)}
-															>
-															<Edit className="mr-2 h-4 w-4" />
-															Edit
-														</ContextMenuItem>
-													</ContextMenuContent>
-												</ContextMenu>
+											{accounts.map((account) => (
+												<SelectItem key={account.id} value={account.id}>
+													{account.name}
+												</SelectItem>
 											))}										
 										</>
 									)}
 								</>
 							}
-							<Button
-								onClick={handleNewAccount}
-								className='w-full text-white'
-								disabled={isAccountsLoading}
-							>
-								<PlusIcon className='-mr-1' /> New Account
-							</Button>
 						</SelectGroup>
 					</SelectContent>
 				</Select>
