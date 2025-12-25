@@ -17,6 +17,7 @@ export function accountByIDQueryOptions(
 ) {
   return queryOptions({
     queryKey: [
+      'accounts',
       `account-${selectedAccountID}`,
     ],
     queryFn: () => {
