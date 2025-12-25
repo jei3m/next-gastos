@@ -78,7 +78,7 @@ export default function Transactions() {
       <TotalAmountSection 
         isLoading={isAccountLoading}
         isScrolled={isScrolled}
-        account={account?.[0]}
+        account={account}
         isMobile={isMobile}
       />
 
