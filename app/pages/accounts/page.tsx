@@ -109,60 +109,62 @@ export default function Accounts() {
         </TypographyH4>
         {isAccountsLoading || !accounts ? (
           <PulseLoader/>
-        ): (
+        ):(
           <>
-            {accounts.map((account: Account) => (
-              <Link
-                href={`/pages/accounts/${account.id}`}
-                key={account.id}
-              >
-                <Card className='border-2'>
-                  <CardHeader>
-                    <div className='flex flex-rows items-center justify-between'>
-                      <div className='text-xl font-bold'>
-                        {
-                          isAccountsLoading 
-                            ? <Skeleton className='h-4 w-[140px] bg-gray-300' /> 
-                            : account?.name
-                        }
+            <div className="grid md:grid-cols-2 gap-2">
+              {accounts.map((account: Account) => (
+                <Link
+                  href={`/pages/accounts/${account.id}`}
+                  key={account.id}
+                >
+                  <Card className='border-2 h-full'>
+                    <CardHeader>
+                      <div className='flex flex-rows items-center justify-between'>
+                        <div className='text-xl font-bold'>
+                          {
+                            isAccountsLoading 
+                              ? <Skeleton className='h-4 w-[140px] bg-gray-300' /> 
+                              : account?.name
+                          }
+                        </div>
+                        <div className='text-md text-gray-600 font-normal'>
+                          {
+                            isAccountsLoading 
+                              ? <Skeleton className='h-4 w-[140px] bg-gray-300' />
+                              : account?.type
+                          }
+                        </div>
                       </div>
-                      <div className='text-md text-gray-600 font-normal'>
-                        {
-                          isAccountsLoading 
-                            ? <Skeleton className='h-4 w-[140px] bg-gray-300' />
-                            : account?.type
-                        }
+                    </CardHeader>
+                    <Separator className='-mt-2'/>
+                    <CardContent className='space-y-2'>
+                      <div className='flex flex-col'>
+                        <h3 className='text-gray-600 font-normal text-lg'>
+                          Balance
+                        </h3>
+                        {isAccountsLoading ? (
+                          <h1 className='text-2xl font-extrabold flex'>
+                            <Skeleton className='h-10 w-[50%] bg-gray-300'/>
+                          </h1>               
+                        ):(
+                          <h1 className='text-2xl font-extrabold'>
+                            PHP {formatAmount(account?.totalBalance)}
+                          </h1> 
+                        )}
                       </div>
-                    </div>
-                  </CardHeader>
-                  <Separator className='-mt-2'/>
-                  <CardContent className='space-y-2'>
-                    <div className='flex flex-col'>
-                      <h3 className='text-gray-600 font-normal text-lg'>
-                        Balance
-                      </h3>
-                      {isAccountsLoading ? (
-                        <h1 className='text-2xl font-extrabold flex'>
-                          <Skeleton className='h-10 w-[50%] bg-gray-300'/>
-                        </h1>               
-                      ):(
-                        <h1 className='text-2xl font-extrabold'>
-                          PHP {formatAmount(account?.totalBalance)}
-                        </h1> 
-                      )}
-                    </div>
-                  </CardContent>
-                  <Separator />
-                  <CardFooter className="-mb-2 break-all">
-                    {account.description}
-                  </CardFooter>
-                </Card>              
-              </Link>
-            ))}
+                    </CardContent>
+                    <Separator />
+                    <CardFooter className="-mb-2 break-all">
+                      {account.description}
+                    </CardFooter>
+                  </Card>              
+                </Link>
+              ))}
+            </div>
             <Button onClick={() => router.push('/pages/accounts/add')}>
               <PlusIcon size={40} className='-mr-1'/> Add New Account
             </Button>
-          </>        
+          </>
         )}        
       </section>
     </main>

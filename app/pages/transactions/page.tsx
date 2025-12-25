@@ -71,9 +71,7 @@ export default function Transactions() {
   }, []);
 
   return (
-    <main className={`flex flex-col space-y-2 min-h-screen
-      ${isMobile ? 'pb-18' : 'pb-20'}
-    `}>
+    <main className={`flex flex-col space-y-2 min-h-screen pb-18`}>
       {/* Total Amount Section */}
       <TotalAmountSection 
         isLoading={isAccountLoading}
@@ -92,17 +90,18 @@ export default function Transactions() {
         ):(
           <>
             {transactions && transactions.length > 0 ? (
-              <>
+              <div className='grid md:grid-cols-2 gap-2'>
                 {transactions.map((transaction, index) => (
                   <TransactionCard 
                     transaction={transaction}
+                    isMobile={isMobile}
                     key={index}
                   />
                 ))}
                 {isFetchingNextPage && (
                   <PulseLoader className='mt-0'/>
                 )}
-              </>
+              </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-10">
                 <TypographyH4 className='text-gray-400 font-semibold text-center'>

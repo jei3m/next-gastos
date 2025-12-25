@@ -191,14 +191,14 @@ export default function Categories() {
 				): (
 					<>
 						{categories && categories.length > 0 ? (
-							<>
+							<div className='grid md:grid-cols-2 gap-2'>
 								{categories.map((category: Category) => (
 									<CategoryCard 
 										key={category.id}
 										category={category}
 									/>
 								))}
-							</>
+							</div>
 						) : (
 							<div className="flex flex-col items-center justify-center py-10">
 								<TypographyH4 className='text-gray-400 font-semibold text-center'>
