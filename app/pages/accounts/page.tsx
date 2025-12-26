@@ -67,14 +67,14 @@ export default function Accounts() {
         transition-all duration-150
         ease-in-out
         ${
-          isScrolled
+          isScrolled && isMobile
             ? 'sticky top-0 z-10'
             : 'pt-2 px-3'
         }
       `}>
         <Card className={`
             ${
-              isScrolled
+              isScrolled && isMobile
                 ? `-mt-2 ${isMobile ? 'border-0 rounded-none' : 'border-2'}` 
                 : 'border-2 mt-0'
             }
