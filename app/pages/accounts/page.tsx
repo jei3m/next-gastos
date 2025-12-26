@@ -120,7 +120,7 @@ export default function Accounts() {
                   <Card className='border-2 h-full'>
                     <CardHeader>
                       <div className='flex flex-rows items-center justify-between'>
-                        <div className='text-xl font-bold'>
+                        <div className='text-lg font-bold'>
                           {
                             isAccountsLoading 
                               ? <Skeleton className='h-4 w-[140px] bg-gray-300' /> 
@@ -153,17 +153,10 @@ export default function Accounts() {
                         )}
                       </div>
                     </CardContent>
-                    <Separator />
-                    <CardFooter className="-mb-2 break-all">
-                      {account.description}
-                    </CardFooter>
                   </Card>              
                 </Link>
               ))}
             </div>
-            <Button onClick={() => router.push('/pages/accounts/add')}>
-              <PlusIcon size={40} className='-mr-1'/> Add New Account
-            </Button>
           </>
         )}        
       </section>
