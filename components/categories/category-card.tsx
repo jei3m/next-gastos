@@ -7,11 +7,13 @@ import { formatAmount } from '@/utils/format-amount';
 import Link from 'next/link';
 
 interface CategoryCardProps {
-  category: Category
+  category: Category,
+  hideAmount: boolean
 };
 
 export default function CategoryCard({
-  category
+  category,
+  hideAmount
 }: CategoryCardProps) {
 
   // Convert string to React component
@@ -45,22 +47,24 @@ export default function CategoryCard({
               </TypographyH5>									
             </div>
           </div>
-          <div className='text-right'>
-            <CardDescription>
-              Total Amount:
-            </CardDescription>	
-            <CardTitle
-              className={`
-                ${
-                  isExpense(category.type)
-                    ? 'text-red-500'
-                    : 'text-primary'
-                }
-              `}
-            >
-              PHP {isExpense(category.type) ? '-' : '+'}{formatAmount(category.totalAmount) ?? 0.00}
-            </CardTitle>										
-          </div>
+          {!hideAmount && (
+            <div className='text-right'>
+              <CardDescription>
+                Total Amount:
+              </CardDescription>	
+              <CardTitle
+                className={`
+                  ${
+                    isExpense(category.type)
+                      ? 'text-red-500'
+                      : 'text-primary'
+                  }
+                `}
+              >
+                PHP {isExpense(category.type) ? '-' : '+'}{formatAmount(category.totalAmount) ?? 0.00}
+              </CardTitle>										
+            </div>            
+          )}
         </CardContent>
       </Card>
     </Link>
