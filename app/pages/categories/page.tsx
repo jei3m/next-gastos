@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { categoryTypes } from '@/lib/data';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Category } from '@/types/categories.types';
@@ -13,7 +12,6 @@ import {
 import {
 	ArrowDown,
 	ArrowUp,
-	PlusIcon
 } from 'lucide-react';
 import { TypographyH4 } from '@/components/custom/typography';
 import { Button } from '@/components/ui/button';
