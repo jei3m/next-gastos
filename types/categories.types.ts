@@ -4,6 +4,7 @@ export interface Category {
     type: string,
     amount: number,
     icon: string,
+    description: string,
     totalAmount: number,
     refUserID: string,
     refAccountsID: string,
