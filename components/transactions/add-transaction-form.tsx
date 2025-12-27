@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Key, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,7 +23,6 @@ import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { transactionSchema } from "@/lib/schema/transactions.schema";
-import { fetchCategories } from "@/lib/tq-functions/categories.tq.functions";
 import { useAccount } from "@/context/account-context";
 import { Category } from "@/types/categories.types";
 import { toast } from "sonner";
@@ -38,16 +37,19 @@ import {
   TimePicker, 
   timeStringToDate 
 } from "@/components/custom/timepicker";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { CreateTransaction } from "@/types/transactions.types";
+import { transactionsInfiniteQueryOptions } from "@/lib/tq-options/transactions.tq.options";
+import { categoryQueryOptions } from "@/lib/tq-options/categories.tq.options";
 
 export default function AddTransactionForm() {
   const [datePickerOpen, setDatePickerOpen] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<string>("");
-  const [categories, setCategories] = useState<Category[]>([]);
   const router = useRouter();
   const searchParams = useSearchParams();
   const transactionTypeParam = searchParams.get('type');
   const { selectedAccountID  } = useAccount();
+  const queryClient = useQueryClient();
 
   const form = useForm<z.infer<typeof transactionSchema>>({
     resolver: zodResolver(transactionSchema),
@@ -57,33 +59,46 @@ export default function AddTransactionForm() {
       type: "",
       time: new Date().toTimeString().substring(0, 5),
       date: new Date().toLocaleDateString('en-CA'), // Use 'en-CA' locale which formats as YYYY-MM-DD
-      refCategoriesID: ""
+      refCategoriesID: "",
+      refAccountsID: ""
     }
   });
   const transactionDate = form.getValues('date');
 
+  const { data: categoriesData, isPending: isCategoriesPending } = useQuery(
+    categoryQueryOptions(
+      activeTab,
+      selectedAccountID!
+    )
+  );
+  const categories = useMemo(() => {
+    return categoriesData?.[0]?.details;
+  }, [categoriesData]);
+
+  const { 
+    mutate: createTransactionMutation, 
+    isPending: isTransactionPending 
+  } = useMutation({
+    mutationFn: (transactionData: CreateTransaction) => createTransaction(transactionData),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: transactionsInfiniteQueryOptions(selectedAccountID!).queryKey
+      });
+      form.reset();
+      toast.success(data.responseMessage);
+      router.push('/pages/transactions');
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    }
+  });
+
   async function onSubmit(values: z.infer<typeof transactionSchema>) {
-    setIsLoading(true);
     const transactionData = {
       ...values,
       amount: parseFloat(values.amount) // Convert string to number
     };
-    createTransaction(transactionData)
-      .then((transaction) => {
-        router.push('/pages/transactions');
-        form.reset();
-        toast.success(transaction.responseMessage);
-      })
-      .catch((error) => {
-        if(error instanceof Error) {
-          toast.error(error.message);
-          return;
-        };
-        toast.error('Failed to Create Transaction');
-      })
-      .finally(() => {
-        setIsLoading(false);
-      })
+    createTransactionMutation(transactionData);
   };
 
   // Set initial tab value and form value from url param
@@ -109,25 +124,15 @@ export default function AddTransactionForm() {
     }
   }, [activeTab, form]);
 
+  // Set refAccountsID
   useEffect(() => {
     if (!selectedAccountID) return;
-    setIsLoading(true);
-    form.setValue('refAccountsID', selectedAccountID);
-    if (activeTab) {
-      fetchCategories(activeTab, selectedAccountID)
-        .then((categories) => {
-          setCategories(categories[0]?.details);
-        })
-        .catch((error) => {
-          if (error instanceof Error) {
-            toast.error(error.message);
-          }
-        })
-        .finally(() => {
-          setIsLoading(false);
-        })
-    }
-  },[form, activeTab, selectedAccountID]);
+    form.setValue('refAccountsID', selectedAccountID)
+  }, [selectedAccountID])
+
+  const isLoading = useMemo(() => {
+    return isCategoriesPending || isTransactionPending;
+  }, [isCategoriesPending, isTransactionPending]);
 
   return (
     <main className='flex flex-col space-y-4 p-3'>
@@ -194,7 +199,7 @@ export default function AddTransactionForm() {
                     <SelectContent className="border-2">
                       {categories && (
                         <>
-                          {categories.map((category, index) => (
+                          {categories.map((category: Category, index: Key) => (
                             <SelectItem key={index} value={category.id}>
                               {category.name}
                             </SelectItem>
