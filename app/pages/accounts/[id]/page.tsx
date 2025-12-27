@@ -55,6 +55,10 @@ export default function EditAccount() {
   const id = params.id as string;
   const queryClient = useQueryClient();
 
+  const { data: account, isPending } = useQuery(
+		accountByIDQueryOptions(id)
+	);
+
   const form = useForm<z.infer<typeof createAccountSchema>>({
     resolver: zodResolver(createAccountSchema),
     defaultValues: {
@@ -97,10 +101,6 @@ export default function EditAccount() {
     editAccountMutation(values);
   };
 
-  const { data: account, isPending } = useQuery(
-		accountByIDQueryOptions(id)
-	);
-
   useEffect(() => {
     if (!account || isPending) return;
     form.reset({
@@ -108,7 +108,7 @@ export default function EditAccount() {
       type: account.type.toLowerCase() || "",
       description: account.description || "",
     });
-  }, [account, isPending]);
+  }, [account, isPending, form]);
 
   const isDisabled = isEditPending || isDeletePending || isPending;
 
@@ -184,7 +184,11 @@ export default function EditAccount() {
                   Account Type
                 </FormLabel>
                 <FormControl>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select 
+                    onValueChange={field.onChange} 
+                    value={field.value}
+                    disabled={isDisabled}
+                  >
                     <SelectTrigger className="w-[180px] bg-white border-2 border-black w-full h-9">
                       <SelectValue placeholder="Select Account Type..." />
                     </SelectTrigger>
