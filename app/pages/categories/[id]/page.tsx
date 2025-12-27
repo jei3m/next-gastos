@@ -123,27 +123,17 @@ export default function EditCategory() {
 		form.reset({
 			name: data.name,
 			icon: data.icon,
+			type: data.type  || 'expense',
 			description: data.description || '',
 		});
-		setActiveTab(data?.type?.toLowerCase());
 	}, [categoryError, data, isPending]);
 
-  // Set form value from Tab Selector
-  useEffect(() => {
-    if (
-      activeTab
-      && (activeTab === 'income'
-      || activeTab === 'expense')
-    ) {
-      form.setValue('type', activeTab);
-    }
-  }, [activeTab, form]);
-
 	useEffect(() => {
-		if (form.formState.errors.type?.message) {
-			toast.error(form.formState.errors.type?.message)
-		}
-	}, [form.formState.errors.type?.message]);
+		if (form?.formState?.errors?.type?.message) {
+			toast.error(form?.formState?.errors?.type?.message);
+			console.error(form?.formState?.errors?.type?.message);
+		};
+	}, [form?.formState?.errors?.type?.message]);
 
 	return (
 		<main className='flex flex-col space-y-4 p-3'>
@@ -182,29 +172,37 @@ export default function EditCategory() {
 					</DialogContent>
 				</Dialog>
 			</div>
-
-			<Tabs value={activeTab} onValueChange={setActiveTab} className="-mt-1">
-				<TabsList className='bg-white border-2 w-full h-10'>
-					{transactionTypes.map((type, index) => (
-						<TabsTrigger
-							value={type.toLowerCase()}
-							key={index}
-							className={`text-md
-								${
-									activeTab === 'expense'
-										? 'data-[state=active]:bg-red-400'
-										: 'data-[state=active]:bg-green-300'
-								}`
-							}
-						>
-							{type}
-						</TabsTrigger>
-					))}
-				</TabsList>
-			</Tabs>
-
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(onSubmit)} className='flex flex-col space-y-4'>
+					<FormField 
+						control={form.control}
+						name="type"
+						render={({ field }) => (
+							<FormItem>
+								<FormControl>
+									<Tabs value={field.value.toLowerCase()} onValueChange={field.onChange} className="-mt-1">
+										<TabsList className='bg-white border-2 w-full h-10'>
+											{transactionTypes.map((type, index) => (
+												<TabsTrigger
+													value={type.toLowerCase()}
+													key={index}
+													className={`text-md
+														${
+															field.value.toLowerCase() === 'expense'
+																? 'data-[state=active]:bg-red-400'
+																: 'data-[state=active]:bg-green-300'
+														}`
+													}
+												>
+													{type}
+												</TabsTrigger>
+											))}
+										</TabsList>
+									</Tabs>
+								</FormControl>
+							</FormItem>
+						)} 
+					/>
 					<FormField
 						control={form.control}
 						name="icon"
