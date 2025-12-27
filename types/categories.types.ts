@@ -12,11 +12,14 @@ export interface Category {
 
 export interface CreateCategory {
     name: string,
-    type: string
+    type: string,
+    icon: string,
+    description: string,
 };
 
 export interface EditCategory {
     name: string,
     type: string,
-    icon: string
+    icon: string,
+    description: string,
 };
