@@ -151,6 +151,20 @@ BEGIN
                     LEAVE main;
                 END IF;
 
+                -- Validate existing transactions
+                IF EXISTS(
+                    SELECT 1
+                    FROM transactions
+                    WHERE ref_categories_id = p_id
+                    LIMIT 1
+                ) THEN
+                    SET p_response = JSON_OBJECT(
+                        'responseCode', 409,
+                        'responseMessage', 'Cannot delete category with associated transactions.'
+                    );
+                    LEAVE main;
+                END IF;
+
                 -- DELETE Statement
                 DELETE FROM 
                     categories
