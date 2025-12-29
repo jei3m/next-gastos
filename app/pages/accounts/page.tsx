@@ -84,18 +84,16 @@ export default function Accounts() {
   }, []);
 
   return (
-		<main className={`flex flex-col space-y-2 min-h-screen
-      ${isMobile ? 'pb-15' : 'pb-18'}
-    `}>
-      <section className={`
-        transition-all duration-150
-        ease-in-out
-        ${
+		<main className={cn(
+      'flex flex-col space-y-2 min-h-screen',
+      isMobile ? "pb-20" : "pb-4"
+    )}>
+      <section className={cn(
+        'transition-all duration-150 ease-in-out',
           isScrolled && isMobile
             ? 'sticky top-0 z-10'
             : 'pt-2 px-3 flex md:flex-col lg:flex-row gap-2'
-        }
-      `}>
+      )}>
         {/* Total Net Worth Card */}
         <Card className={cn(
             isScrolled && isMobile
