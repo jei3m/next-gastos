@@ -11,7 +11,8 @@ import { connection } from '@/utils/db';
 import {
 	createTransaction,
   getTransactions,
-  getTransactionsCount
+  getTransactionsCount,
+  transferTransaction
 } from '@/lib/sql/transactions/transactions.sql';
 import { RowDataPacket } from 'mysql2';
 
@@ -26,10 +27,12 @@ export async function POST(req: NextRequest) {
       date,
       refAccountsID,
       refCategoriesID,
+      transferToAccountID,
     } = await req.json();
+    const isTransfer = type === 'transfer';
 
     const [resultCreate] = await db.query<responseRow[]>(
-      createTransaction(),
+      isTransfer ? transferTransaction() : createTransaction(),
       {
         actionType: 'create',
         id: crypto.randomUUID(),
@@ -41,6 +44,7 @@ export async function POST(req: NextRequest) {
         date,
         refAccountsID,
         refCategoriesID,
+        transferToAccountID,
       }
     );
 
