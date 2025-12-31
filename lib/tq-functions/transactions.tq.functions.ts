@@ -24,11 +24,16 @@ export const createTransaction = async(transaction: CreateTransaction) => {
 };
 
 export const fetchTransactions = async(
-  selectedAccountID: string,
-  page: number,
+  selectedAccountID: string | null,
+  page: string,
 ) => {
   try {
-    const res = await fetch(`/api/transactions?accountID=${selectedAccountID}&page=${page}`, {
+    const params = new URLSearchParams();
+
+    if (selectedAccountID) params.append('accountID', selectedAccountID);
+    if (page) params.append('page', page);
+
+    const res = await fetch(`/api/transactions?${params.toString() || ''}`, {
       method: 'GET',
     })
     const data = await res.json();
