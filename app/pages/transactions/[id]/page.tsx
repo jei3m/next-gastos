@@ -48,7 +48,6 @@ export default function EditTransactionForm() {
   const [datePickerOpen, setDatePickerOpen] = useState<boolean>(false);
   const [transactionDate, setTransactionDate] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isInitialized, setIsInitialized] = useState(false);
   const router = useRouter();
   const { selectedAccountID  } = useAccount();
   const queryClient = useQueryClient();
@@ -149,7 +148,10 @@ export default function EditTransactionForm() {
 
   // Set form values
   useEffect(() => {
-    if (!transaction || !selectedAccountID) return;
+    if (!transaction || !categories || !selectedAccountID) return;
+    if (!form.getValues('type')) {
+      form.setValue('type', transaction.type);
+    };
     setTransactionDate(transaction.date);
     form.reset({
       'type': transaction.type,
@@ -159,8 +161,7 @@ export default function EditTransactionForm() {
       'refCategoriesID': transaction.refCategoriesID,
       'refAccountsID': selectedAccountID
     });
-    setIsInitialized(true);
-  }, [form, transaction, selectedAccountID]);
+  }, [form, transaction, categories, selectedAccountID]);
 
   return (
     <main className='flex flex-col space-y-4 p-3'>
@@ -186,21 +187,13 @@ export default function EditTransactionForm() {
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Tabs 
-                    value={field.value.toLowerCase()} 
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                      if (isInitialized) {
-                        form.setValue('refCategoriesID', "");
-                      };
-                    }} 
-                    className="-mt-1"
-                  >
+                  <Tabs value={field.value.toLowerCase()} onValueChange={field.onChange} className="-mt-1">
                     <TabsList className='bg-white border-2 w-full h-10'>
                       {transactionTypes.map((category, index) => (
                         <TabsTrigger
                           value={category.toLowerCase()}
                           key={index}
+                          disabled={true}
                           className={`text-md
                             ${
                               field.value.toLowerCase() === 'expense'
@@ -269,6 +262,7 @@ export default function EditTransactionForm() {
                           ))}
                         </>
                       )}
+
                     </SelectContent>
                   </Select>
                 </FormControl>
