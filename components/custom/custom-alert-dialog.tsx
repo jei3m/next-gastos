@@ -32,8 +32,7 @@ export default function CustomAlertDialog({
 }: AlertDialogProps) {
   return (
     <AlertDialog>
-      <AlertDialogTrigger
-        className="text-red-500"
+      <AlertDialogTrigger asChild
         disabled={isDisabled}
       >
         {trigger}
