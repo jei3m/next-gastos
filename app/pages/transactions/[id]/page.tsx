@@ -33,7 +33,6 @@ import { ChevronDownIcon, Trash2 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { transactionTypes } from "@/lib/data";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { EditTransactionPayload } from "@/types/transactions.types";
 import { 
   dateToTimeString, 
@@ -43,12 +42,12 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { categoryQueryOptions } from "@/lib/tq-options/categories.tq.options";
 import { transactionByIDQueryOptions } from "@/lib/tq-options/transactions.tq.options";
+import CustomAlertDialog from "@/components/custom/custom-alert-dialog";
 
 export default function EditTransactionForm() {
   const [datePickerOpen, setDatePickerOpen] = useState<boolean>(false);
   const [transactionDate, setTransactionDate] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<string>("");
   const router = useRouter();
   const { selectedAccountID  } = useAccount();
   const queryClient = useQueryClient();
@@ -75,6 +74,7 @@ export default function EditTransactionForm() {
       refCategoriesID: "",
     }
   });
+  const transactionType = form.watch('type');
 
   const { mutate: editTransactionMutation } = useMutation({
     mutationFn: (transactionData: EditTransactionPayload) => editTransaction(id, transactionData),
@@ -126,17 +126,6 @@ export default function EditTransactionForm() {
     editTransactionMutation(transactionData);
   };
 
-  // Set form value from Tab Selector
-  useEffect(() => {
-    if (
-      activeTab
-      && (activeTab === 'income'
-      || activeTab === 'expense')
-    ) {
-      form.setValue('type', activeTab);
-    }
-  }, [activeTab, form]);
-
   // Fetch transaction data
   const { data: transactionData } = useQuery(
     transactionByIDQueryOptions(id)
@@ -146,18 +135,10 @@ export default function EditTransactionForm() {
     return transactionData?.[0];
   }, [transactionData])
 
-  useEffect(() => {
-    if (!transaction) {
-      return;
-    } else {
-      setActiveTab(transaction.type);
-    };
-  }, [transaction, setActiveTab]);
-
   // Fetch categories
   const { data: categoriesData } = useQuery(
     categoryQueryOptions(
-      activeTab!,
+      transactionType!,
       selectedAccountID!
     )
   );
@@ -168,15 +149,18 @@ export default function EditTransactionForm() {
   // Set form values
   useEffect(() => {
     if (!transaction || !categories || !selectedAccountID) return;
-    form.setValue('note', transaction.note);
-    form.setValue('amount', transaction.amount);
     if (!form.getValues('type')) {
       form.setValue('type', transaction.type);
     };
-    form.setValue('time', transaction.time);
-    setTransactionDate(transaction.date)
-    form.setValue('refCategoriesID', transaction.refCategoriesID);
-    form.setValue('refAccountsID', selectedAccountID);
+    setTransactionDate(transaction.date);
+    form.reset({
+      'type': transaction.type,
+      'note': transaction.note,
+      'amount': transaction.amount,
+      'time': transaction.time,
+      'refCategoriesID': transaction.refCategoriesID,
+      'refAccountsID': selectedAccountID
+    });
   }, [form, transaction, categories, selectedAccountID]);
 
   return (
@@ -185,60 +169,49 @@ export default function EditTransactionForm() {
         <TypographyH3>
           Edit Transaction
         </TypographyH3>
-        <Dialog>
-          <DialogTrigger className="text-red-500" disabled={isLoading}>
-            <Trash2 size={24}/>
-          </DialogTrigger>
-          <DialogContent
-            className="border-2 bg-primary [&>button]:hidden"
-            onOpenAutoFocus={(e) => e.preventDefault()}
-          >
-            <DialogHeader className="text-left">
-              <DialogTitle>Are you sure?</DialogTitle>
-              <DialogDescription className="text-gray-800">
-                This action cannot be undone. It will be permanently deleted.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter className="flex flex-row justify-between">
-              <DialogClose asChild>
-                <Button variant="outline" className="border-2">
-                  Cancel
-                </Button>
-              </DialogClose>
-              <Button
-                variant="destructive"
-                className="border-2"
-                onClick={() => deleteTransactionMutation(id)}
-              >
-                Yes, I&apos;m sure
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <CustomAlertDialog 
+          isDisabled={isLoading}
+          trigger={<Trash2 size={24}/>}
+          title="Are you sure?"
+          description='This action cannot be undone. It will be permanently deleted.'
+          confirmMessage="Yes, I&apos;m sure"
+          onConfirm={() => deleteTransactionMutation(id)}
+        />
       </div>
-
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="-mt-1">
-        <TabsList className='bg-white border-2 w-full h-10'>
-          {transactionTypes.map((category, index) => (
-            <TabsTrigger
-              value={category.toLowerCase()}
-              key={index}
-              disabled={true}
-              className={`text-md
-                ${
-                  activeTab === 'expense'
-                    ? 'data-[state=active]:bg-red-400'
-                    : 'data-[state=active]:bg-green-300'
-                }`
-              }
-            >
-              {category}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col space-y-4">
+          <FormField
+            control={form.control}
+            name="type"
+            disabled={isLoading}
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Tabs value={field.value.toLowerCase()} onValueChange={field.onChange} className="-mt-1">
+                    <TabsList className='bg-white border-2 w-full h-10'>
+                      {transactionTypes.map((category, index) => (
+                        <TabsTrigger
+                          value={category.toLowerCase()}
+                          key={index}
+                          disabled={true}
+                          className={`text-md
+                            ${
+                              field.value.toLowerCase() === 'expense'
+                                ? 'data-[state=active]:bg-red-400'
+                                : 'data-[state=active]:bg-green-300'
+                            }`
+                          }
+                        >
+                          {category}
+                        </TabsTrigger>
+                      ))}
+                    </TabsList>
+                  </Tabs>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name="amount"
