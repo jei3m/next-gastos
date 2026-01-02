@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, Key } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,15 +43,20 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { categoryQueryOptions } from "@/lib/tq-options/categories.tq.options";
 import { transactionByIDQueryOptions } from "@/lib/tq-options/transactions.tq.options";
 import CustomAlertDialog from "@/components/custom/custom-alert-dialog";
+import { Account } from "@/types/accounts.types";
 
 export default function EditTransactionForm() {
   const [datePickerOpen, setDatePickerOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
-  const { selectedAccountID  } = useAccount();
+  const { selectedAccountID, accounts  } = useAccount();
   const queryClient = useQueryClient();
   const params = useParams();
   const id = params.id as string;
+
+  const filteredAccounts = accounts?.filter((account: Account) => 
+    account.id !== selectedAccountID
+  ) || [];
 
   useEffect(() => {
     fetchSession()
@@ -71,6 +76,7 @@ export default function EditTransactionForm() {
       time: new Date().toTimeString().substring(0, 5),
       date: new Date().toISOString().split('T')[0],
       refCategoriesID: "",
+      refTransferToAccountsID: "",
     }
   });
   const transactionType = form.watch('type');
@@ -147,18 +153,18 @@ export default function EditTransactionForm() {
 
   // Set form values
   useEffect(() => {
-    if (!transaction || !categories || !selectedAccountID) return;
-    if (!form.getValues('type')) {
-      form.setValue('type', transaction.type);
-    };
+    if (!transaction || !selectedAccountID) return;
+    if (!transaction.isTransfer && !categories) return;
     form.reset({
-      'type': transaction.type,
+      'type': transaction.isTransfer ? 'transfer' : transaction.type,
       'note': transaction.note,
       'amount': transaction.amount,
+      'transferFee': transaction.transferFee,
       'time': transaction.time,
       'date': transaction.date,
       'refCategoriesID': transaction.refCategoriesID,
-      'refAccountsID': selectedAccountID
+      'refAccountsID': selectedAccountID,
+      'refTransferToAccountsID': transaction.refTransferToAccountsID || ""
     });
   }, [form, transaction, categories, selectedAccountID]);
 
@@ -195,7 +201,7 @@ export default function EditTransactionForm() {
                           disabled={true}
                           className={`text-md
                             ${
-                              field.value.toLowerCase() === 'expense'
+                              field.value.toLowerCase() === 'expense' || field.value.toLowerCase() === 'transfer'
                                 ? 'data-[state=active]:bg-red-400'
                                 : 'data-[state=active]:bg-green-300'
                             }`
@@ -237,38 +243,96 @@ export default function EditTransactionForm() {
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="refCategoriesID"
-            disabled={isLoading}
-            render={({ field }) => (
-              <FormItem className="-space-y-1">
-                <FormLabel className="text-md font-medium">
-                  Category
-                </FormLabel>
-                <FormControl>
-                  <Select onValueChange={field.onChange} value={field.value} disabled={isLoading}>
-                    <SelectTrigger className="w-[180px] bg-white border-2 border-black w-full h-9">
-                      <SelectValue placeholder="Select Category..." />
-                    </SelectTrigger>
-                    <SelectContent className="border-2">
-                      {categories && (
-                        <>
-                          {categories.map((category: Category) => (
-                            <SelectItem key={category.id} value={category.id}>
-                              {category.name}
-                            </SelectItem>
-                          ))}
-                        </>
-                      )}
+          {form.watch('type') !== 'transfer' ? (
+            <FormField
+              control={form.control}
+              name="refCategoriesID"
+              disabled={isLoading}
+              render={({ field }) => (
+                <FormItem className="-space-y-1">
+                  <FormLabel className="text-md font-medium">
+                    Category
+                  </FormLabel>
+                  <FormControl>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={isLoading}>
+                      <SelectTrigger className="w-[180px] bg-white border-2 border-black w-full h-9">
+                        <SelectValue placeholder="Select Category..." />
+                      </SelectTrigger>
+                      <SelectContent className="border-2">
+                        {categories && (
+                          <>
+                            {categories.map((category: Category) => (
+                              <SelectItem key={category.id} value={category.id}>
+                                {category.name}
+                              </SelectItem>
+                            ))}
+                          </>
+                        )}
 
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          ):(
+            <div className="flex gap-2 items-center w-full">
+              <FormField
+                control={form.control}
+                name="refTransferToAccountsID"
+                render={({ field }) => (
+                  <FormItem className="flex-2">
+                    <FormLabel className="-mb-1 text-md font-medium">
+                      Transfer to
+                    </FormLabel>
+                    <FormControl>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <SelectTrigger className="w-[180px] bg-white border-2 border-black w-full h-9 rounded-lg">
+                          <SelectValue placeholder="Select Account..." />
+                        </SelectTrigger>
+                        <SelectContent className="border-2">
+                          {accounts && (
+                            <>
+                              {filteredAccounts.map((account: Account, index: Key) => (
+                                <SelectItem key={index} value={account.id}>
+                                  {account.name}
+                                </SelectItem>
+                              ))}
+                            </>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="transferFee"
+                render={({ field }) => (
+                  <FormItem className="flex-2">
+                    <FormLabel className="-mb-1 text-md font-medium">
+                      Transfer Fee
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        required
+                        placeholder="0.00"
+                        {...field}
+                        className="h-9 rounded-lg border-2 border-black bg-white"
+                        type="number"
+                        inputMode="decimal"
+                        pattern="[0-9\.]*"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />            
+            </div>
+          )}
           <FormField
             control={form.control}
             name="note"
