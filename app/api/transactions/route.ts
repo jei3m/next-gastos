@@ -22,12 +22,13 @@ export async function POST(req: NextRequest) {
     const {
       note,
       amount,
+      transferFee,
       type,
       time,
       date,
       refAccountsID,
       refCategoriesID,
-      transferToAccountID,
+      refTransferToAccountsID,
     } = await req.json();
     const isTransfer = type === 'transfer';
 
@@ -39,12 +40,13 @@ export async function POST(req: NextRequest) {
         userID: await fetchUserID(),
         note,
         amount,
+        transferFee,
         type,
         time,
         date,
         refAccountsID,
         refCategoriesID,
-        transferToAccountID,
+        refTransferToAccountsID,
       }
     );
 
