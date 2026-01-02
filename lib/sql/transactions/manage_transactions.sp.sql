@@ -8,6 +8,7 @@ CREATE PROCEDURE `manage_transactions`(
 	IN p_id CHAR(36),
 	IN p_note VARCHAR(30),
 	IN p_amount DECIMAL(12,2),
+	IN p_transfer_fee DECIMAL(12,2),
 	IN p_type ENUM('income', 'expense'),
     IN p_time TIME,
     IN p_date DATE,
@@ -20,7 +21,7 @@ CREATE PROCEDURE `manage_transactions`(
 main: BEGIN
 
     DECLARE v_affected_rows INT;
-    DECLARE v_total_balance, v_amount DECIMAL(12,2);
+    DECLARE v_total_balance, v_amount, v_total_amount DECIMAL(12,2);
     DECLARE v_ref_accounts_id CHAR(36);
     DECLARE v_original_type ENUM('income', 'expense');
     DECLARE v_new_balance DECIMAL(12,2);
@@ -108,7 +109,7 @@ main: BEGIN
 		WHEN 'update' THEN
             -- Get original transaction details
             SELECT
-                amount,
+                (amount + transfer_fee),
                 type,
                 ref_accounts_id
             INTO
@@ -144,9 +145,10 @@ main: BEGIN
             LIMIT 1;
 
             -- Calculate v_new_balance
+            SET v_total_amount = p_amount + p_transfer_fee;
             SET v_new_balance = v_total_balance
                                 - (v_amount * CASE WHEN v_original_type = 'income' THEN 1 ELSE -1 END)
-                                + (p_amount * CASE WHEN p_type = 'income' THEN 1 ELSE -1 END);
+                                + (v_total_amount * CASE WHEN p_type = 'income' THEN 1 ELSE -1 END);
 
             -- Validate new total_balance
             IF v_new_balance < 0 THEN
@@ -162,6 +164,7 @@ main: BEGIN
 			SET
 				note = p_note,
 				amount = p_amount,
+                transfer_fee = p_transfer_fee,
 				type = p_type,
                 time = p_time,
                 date = p_date,
@@ -199,7 +202,7 @@ main: BEGIN
 		WHEN 'delete' THEN
             -- Get transaction details
             SELECT
-                amount,
+                (amount + transfer_fee),
                 type,
                 ref_accounts_id
             INTO
