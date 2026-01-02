@@ -46,7 +46,6 @@ import CustomAlertDialog from "@/components/custom/custom-alert-dialog";
 
 export default function EditTransactionForm() {
   const [datePickerOpen, setDatePickerOpen] = useState<boolean>(false);
-  const [transactionDate, setTransactionDate] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
   const { selectedAccountID  } = useAccount();
@@ -152,12 +151,12 @@ export default function EditTransactionForm() {
     if (!form.getValues('type')) {
       form.setValue('type', transaction.type);
     };
-    setTransactionDate(transaction.date);
     form.reset({
       'type': transaction.type,
       'note': transaction.note,
       'amount': transaction.amount,
       'time': transaction.time,
+      'date': transaction.date,
       'refCategoriesID': transaction.refCategoriesID,
       'refAccountsID': selectedAccountID
     });
@@ -311,14 +310,14 @@ export default function EditTransactionForm() {
                           id="date"
                           className="justify-between font-normal border-2 bg-white text-[16px]"
                         >
-                          {transactionDate ? new Date(transactionDate).toLocaleDateString() : "Select date"}
+                          {field.value ? new Date(field.value).toLocaleDateString() : "Select date"}
                           <ChevronDownIcon />
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto overflow-hidden p-0" align="start">
                         <Calendar
                           mode="single"
-                          selected={transactionDate ? new Date(transactionDate) : undefined}
+                          selected={field.value ? new Date(field.value) : undefined}
                           captionLayout="dropdown"
                           disabled={(date) => date > new Date()}
                           onSelect={(date) => {
