@@ -13,11 +13,14 @@ export interface TransactionDetails {
   time: string,
   type: string,
   amount: number,
+  transferFee?: number,
+  isTransfer?: boolean,
   category: string
 }
 
 export interface CreateTransaction {
   amount: number,
+  transferFee: number,
   type: string,
   time: string,
   date: string,
@@ -41,9 +44,10 @@ export interface EditTransaction {
 export interface EditTransactionPayload {
   amount: number,
   note: string;
-  type: "" | "income" | "expense",
-  refCategoriesID: string,
+  type: "" | "income" | "expense" | "transfer",
+  refCategoriesID?: string,
   refAccountsID: string,
   date: string,
   time: string,
+  refTransferToAccountsID?: string,
 };
