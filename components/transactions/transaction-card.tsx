@@ -91,23 +91,23 @@ function TransactionCard({
         {transaction.details.map((detail: TransactionDetails, index: number) => (
           <Link key={index} href={`transactions/${detail.id}`}>
             <div className='space-y-3 flex flex-row items-center justify-between'>
-                <div className='flex flex-col text-sm'>
-                  <span>
-                    {detail.category}
-                  </span>
-                  <span className='text-gray-600'>
-                    {detail.note}
-                  </span>
-                </div>
-                <span className={`text-sm ${detail.type === 'income' ? 'text-primary' : 'text-red-500'}`}>
-                  PHP
-                  {
-                    detail.type === 'income'
-                      ? ' +'
-                      : ' -'
-                  }
-                  {formatAmount(detail.amount) }
-                </span>                      
+              <div className='flex flex-col text-sm'>
+                <span>
+                  {detail.category}
+                </span>
+                <span className='text-gray-600'>
+                  {detail.note}
+                </span>
+              </div>
+              <span className={`text-sm ${detail.type === 'income' ? 'text-primary' : 'text-red-500'}`}>
+                PHP
+                {
+                  detail.type === 'income'
+                    ? ' +'
+                    : ' -'
+                }
+                {formatAmount(detail.amount) }
+              </span>                      
             </div>
           </Link>
         ))}

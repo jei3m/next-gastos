@@ -1,6 +1,7 @@
 import {
   CreateTransaction,
   EditTransactionPayload,
+  Transaction,
 } from "@/types/transactions.types";
 
 export const createTransaction = async(transaction: CreateTransaction) => {
@@ -40,7 +41,16 @@ export const fetchTransactions = async(
     if (!data.success) {
       throw Error(data.message)
     };
-    return(data);
+
+    const sortedData = JSON.parse(JSON.stringify(data));
+    // Sort by time (newest to oldest)
+    sortedData.data.forEach((transaction: Transaction) => {
+      transaction.details.sort((a, b) => {
+        return b.time.localeCompare(a.time);
+      })
+    });
+
+    return(sortedData);
   } catch (error) {
     if (error instanceof Error) {
       throw Error(error.message)
