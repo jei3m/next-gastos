@@ -25,6 +25,10 @@ interface TransactionCardProps {
 function TransactionCard({
   transaction
 }: TransactionCardProps) {
+  // Sort by time (newest to oldest)
+  const sortedDetails = transaction.details.sort((a, b) => 
+    b.time.localeCompare(a.time)
+  );
   return (
     <Card className='border-2'>
       <CardHeader>
@@ -88,26 +92,26 @@ function TransactionCard({
       </CardHeader>
       <div className='w-full border-t border-gray-300' />
       <CardContent className='-mb-4'>
-        {transaction.details.map((detail: TransactionDetails, index: number) => (
+        {sortedDetails.map((detail: TransactionDetails, index: number) => (
           <Link key={index} href={`transactions/${detail.id}`}>
             <div className='space-y-3 flex flex-row items-center justify-between'>
-                <div className='flex flex-col text-sm'>
-                  <span>
-                    {detail.category}
-                  </span>
-                  <span className='text-gray-600'>
-                    {detail.note}
-                  </span>
-                </div>
-                <span className={`text-sm ${detail.type === 'income' ? 'text-primary' : 'text-red-500'}`}>
-                  PHP
-                  {
-                    detail.type === 'income'
-                      ? ' +'
-                      : ' -'
-                  }
-                  {formatAmount(detail.amount) }
-                </span>                      
+              <div className='flex flex-col text-sm'>
+                <span>
+                  {detail.category}
+                </span>
+                <span className='text-gray-600'>
+                  {detail.note}
+                </span>
+              </div>
+              <span className={`text-sm ${detail.type === 'income' ? 'text-primary' : 'text-red-500'}`}>
+                PHP
+                {
+                  detail.type === 'income'
+                    ? ' +'
+                    : ' -'
+                }
+                {formatAmount(detail.amount) }
+              </span>                      
             </div>
           </Link>
         ))}
