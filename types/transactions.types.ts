@@ -1,3 +1,10 @@
+export interface TransactionData {
+  success:     boolean;
+  hasMore:     boolean;
+  currentPage: number;
+  data:        Transaction[];
+};
+
 export interface Transaction {
   date: string,
   total: string,
