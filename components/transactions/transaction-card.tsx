@@ -25,10 +25,6 @@ interface TransactionCardProps {
 function TransactionCard({
   transaction
 }: TransactionCardProps) {
-  // Sort by time (newest to oldest)
-  const sortedDetails = transaction.details.sort((a, b) => 
-    b.time.localeCompare(a.time)
-  );
   return (
     <Card className='border-2'>
       <CardHeader>
@@ -92,7 +88,7 @@ function TransactionCard({
       </CardHeader>
       <div className='w-full border-t border-gray-300' />
       <CardContent className='-mb-4'>
-        {sortedDetails.map((detail: TransactionDetails, index: number) => (
+        {transaction.details.map((detail: TransactionDetails, index: number) => (
           <Link key={index} href={`transactions/${detail.id}`}>
             <div className='space-y-3 flex flex-row items-center justify-between'>
               <div className='flex flex-col text-sm'>
