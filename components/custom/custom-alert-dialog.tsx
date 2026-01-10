@@ -10,6 +10,7 @@ import {
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
 import { Button } from "../ui/button";
+import { Loader2 } from "lucide-react";
 
 interface AlertDialogProps {
   isDisabled: boolean;
@@ -17,7 +18,7 @@ interface AlertDialogProps {
   title: string;
   description: ReactNode;
   body?: ReactNode;
-  confirmMessage: string;
+  confirmMessage: ReactNode;
   type?: "button" | "submit";
   onConfirm: () => void;
 };
@@ -56,17 +57,22 @@ export default function CustomAlertDialog({
         )}
         <AlertDialogFooter className="flex flex-row justify-between">
           <AlertDialogCancel asChild>
-            <Button variant="outline" className="border-2">
+            <Button 
+              variant="outline" 
+              className="border-2"
+              disabled={isDisabled}
+            >
               Cancel
             </Button>
           </AlertDialogCancel>
           <Button 
             variant="destructive" 
-            className="border-2"
+            className="border-2 space-x-2"
             type={type || "button"}
             onClick={onConfirm}
+            disabled={isDisabled}
           >
-            {confirmMessage}
+            {isDisabled && <Loader2 className="animate-spin"/>}{confirmMessage}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
