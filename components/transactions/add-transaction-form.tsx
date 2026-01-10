@@ -131,7 +131,7 @@ export default function AddTransactionForm() {
     return transactionType !== 'transfer'
     ? isCategoriesPending || isTransactionPending
     : isTransactionPending;
-  }, [isCategoriesPending, isTransactionPending]);
+  }, [transactionType, isCategoriesPending, isTransactionPending]);
 
   return (
     <main className='flex flex-col space-y-4 p-3'>
@@ -405,7 +405,7 @@ export default function AddTransactionForm() {
                     <li>To edit a transferred transaction, you must update it separately in both accounts</li>
                   </ul>
                 </>}
-                confirmMessage="Confirm"
+                confirmMessage={isLoading ? 'Confirming...' : 'Confirm'}
                 type="submit"
                 onConfirm={form.handleSubmit(onSubmit)}
               />
