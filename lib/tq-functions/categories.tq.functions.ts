@@ -5,19 +5,20 @@ import {
 } from "@/types/categories.types";
 
 export const fetchCategories = async (
-  filter: string | null,
+  type: string | null,
   accountID: string | null,
-  dateStart?: string,
-  dateEnd?: string
+  dateStart?: string | null,
+  dateEnd?: string | null,
+	filter?: string
 ) => {
   try {
-    // Create URLSearchParams object
     const params = new URLSearchParams();
     
-    if (filter) params.append('filter', filter);
+    if (type) params.append('type', type);
     if (accountID) params.append('accountID', accountID);
     if (dateStart) params.append('dateStart', dateStart);
     if (dateEnd) params.append('dateEnd', dateEnd);
+    if (filter) params.append('filter', filter);
     
     const res = await fetch(`/api/categories?${params.toString() || ''}`, {
       method: 'GET',
@@ -25,25 +26,30 @@ export const fetchCategories = async (
         'Content-Type': 'application/json',
       },
     });
-    
     const data = await res.json();
     
     if (!data.success) {
       throw new Error(data.message);
     };
 
-		const sortedData = JSON.parse(JSON.stringify(data.data));
-		// Sort category details by name
-		sortedData.forEach((category: CategoryData) => {
-			category.details.sort((a, b) => {
-				return a.name.localeCompare(b.name);
-			})
-		});
+    if (filter === 'list') {
+      return data.data
+    } else {
+			const sortedData = JSON.parse(JSON.stringify(data.data));
+			sortedData.forEach((category: CategoryData) => {
+				if (category.details) {
+					category.details.sort((a, b) => {
+						return a.name.localeCompare(b.name);
+					})
+				}
+			});
+    	return sortedData;
+		};
 
-    return sortedData;
   } catch (error) {
+    console.error('fetchCategories error:', error);
     if (error instanceof Error) {
-      throw error; // Just re-throw the existing error
+      throw error;
     }
     throw new Error('Failed to Fetch Categories');
   }
