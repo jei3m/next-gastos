@@ -1,16 +1,16 @@
-"use client";
-import { useState, useEffect, useMemo, Key } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+'use client';
+import { useState, useEffect, useMemo, Key } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { TypographyH3 } from "@/components/custom/typography";
+} from '@/components/ui/select';
+import { TypographyH3 } from '@/components/custom/typography';
 import {
   Form,
   FormControl,
@@ -18,67 +18,86 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { editTransactionSchema } from "@/lib/schema/transactions.schema";
-import { useAccount } from "@/context/account-context";
-import { Category } from "@/types/categories.types";
-import { toast } from "sonner";
-import { deleteTransaction, editTransaction } from "@/lib/tq-functions/transactions.tq.functions";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { ChevronDownIcon, Trash2 } from "lucide-react";
-import { Calendar } from "@/components/ui/calendar";
-import { transactionTypes } from "@/lib/data";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { EditTransactionPayload } from "@/types/transactions.types";
-import { 
-  dateToTimeString, 
-  TimePicker, 
-  timeStringToDate 
-} from "@/components/custom/time-picker";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { categoryQueryOptions } from "@/lib/tq-options/categories.tq.options";
-import { transactionByIDQueryOptions } from "@/lib/tq-options/transactions.tq.options";
-import CustomAlertDialog from "@/components/custom/custom-alert-dialog";
-import { Account } from "@/types/accounts.types";
+} from '@/components/ui/form';
+import z from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { editTransactionSchema } from '@/lib/schema/transactions.schema';
+import { useAccount } from '@/context/account-context';
+import { Category } from '@/types/categories.types';
+import { toast } from 'sonner';
+import {
+  deleteTransaction,
+  editTransaction,
+} from '@/lib/tq-functions/transactions.tq.functions';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { ChevronDownIcon, Trash2 } from 'lucide-react';
+import { Calendar } from '@/components/ui/calendar';
+import { transactionTypes } from '@/lib/data';
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+} from '@/components/ui/tabs';
+import { EditTransactionPayload } from '@/types/transactions.types';
+import {
+  dateToTimeString,
+  TimePicker,
+  timeStringToDate,
+} from '@/components/custom/time-picker';
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
+import { categoryQueryOptions } from '@/lib/tq-options/categories.tq.options';
+import { transactionByIDQueryOptions } from '@/lib/tq-options/transactions.tq.options';
+import CustomAlertDialog from '@/components/custom/custom-alert-dialog';
+import { Account } from '@/types/accounts.types';
 
 export default function EditTransactionForm() {
-  const [datePickerOpen, setDatePickerOpen] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [datePickerOpen, setDatePickerOpen] =
+    useState<boolean>(false);
   const router = useRouter();
-  const { selectedAccountID, accounts  } = useAccount();
+  const { selectedAccountID, accounts } = useAccount();
   const queryClient = useQueryClient();
   const params = useParams();
   const id = params.id as string;
 
-  const filteredAccounts = accounts?.filter((account: Account) => 
-    account.id !== selectedAccountID
-  ) || [];
+  const filteredAccounts =
+    accounts?.filter(
+      (account: Account) => account.id !== selectedAccountID
+    ) || [];
 
-  const form = useForm<z.infer<typeof editTransactionSchema>>({
+  const form = useForm<
+    z.infer<typeof editTransactionSchema>
+  >({
     resolver: zodResolver(editTransactionSchema),
     defaultValues: {
-      note: "",
-      amount: "0.00",
-      type: "",
+      note: '',
+      amount: '0.00',
+      type: '',
       time: new Date().toTimeString().substring(0, 5),
       date: new Date().toISOString().split('T')[0],
-      refCategoriesID: "",
-      refTransferToAccountsID: "",
-    }
+      refCategoriesID: '',
+      refTransferToAccountsID: '',
+    },
   });
   const transactionType = form.watch('type');
 
-  const { mutate: editTransactionMutation } = useMutation({
-    mutationFn: (transactionData: EditTransactionPayload) => editTransaction(id, transactionData),
-    onMutate: () => {
-      setIsLoading(true);
-    },
+  const {
+    mutate: editTransactionMutation,
+    isPending: IsEditTransactionPending,
+  } = useMutation({
+    mutationFn: (transactionData: EditTransactionPayload) =>
+      editTransaction(id, transactionData),
     onSuccess: (data) => {
       queryClient.invalidateQueries({
-        queryKey: transactionByIDQueryOptions(id).queryKey
+        queryKey: transactionByIDQueryOptions(id).queryKey,
       });
       toast.success(data.responseMessage);
       form.reset();
@@ -87,19 +106,16 @@ export default function EditTransactionForm() {
     onError: (error) => {
       toast.error(error.message);
     },
-    onSettled: () => {
-      setIsLoading(false);
-    }
   });
 
-  const { mutate: deleteTransactionMutation } = useMutation({
+  const {
+    mutate: deleteTransactionMutation,
+    isPending: isDeleteTransactionPending,
+  } = useMutation({
     mutationFn: (id: string) => deleteTransaction(id),
-    onMutate: () => {
-      setIsLoading(true);
-    },
     onSuccess: (data) => {
       queryClient.invalidateQueries({
-        queryKey: transactionByIDQueryOptions(id).queryKey
+        queryKey: transactionByIDQueryOptions(id).queryKey,
       });
       toast.success(data.responseMessage);
       form.reset();
@@ -108,30 +124,33 @@ export default function EditTransactionForm() {
     onError: (error) => {
       toast.error(error.message);
     },
-    onSettled: () => {
-      setIsLoading(false);
-    }
   });
 
-  async function onSubmit(values: z.infer<typeof editTransactionSchema>) {
+  async function onSubmit(
+    values: z.infer<typeof editTransactionSchema>
+  ) {
     const transactionData = {
       ...values,
-      amount: parseFloat(values.amount)
+      amount: parseFloat(values.amount),
     };
     editTransactionMutation(transactionData);
-  };
+  }
 
   // Fetch transaction data
-  const { data: transactionData } = useQuery(
-    transactionByIDQueryOptions(id)
-  );
+  const {
+    data: transactionData,
+    isPending: isTransactionPending,
+  } = useQuery(transactionByIDQueryOptions(id));
 
   const transaction = useMemo(() => {
     return transactionData?.[0];
-  }, [transactionData])
+  }, [transactionData]);
 
   // Fetch categories
-  const { data: categoriesData } = useQuery(
+  const {
+    data: categoriesData,
+    isPending: isCategoriesPending,
+  } = useQuery(
     categoryQueryOptions(
       transactionType!,
       selectedAccountID!,
@@ -148,39 +167,71 @@ export default function EditTransactionForm() {
   useEffect(() => {
     if (!transaction || !selectedAccountID) return;
     if (
-      (transaction.isTransfer && !accounts)
-      && (!transaction.isTransfer && !categories)
-    ) return;
+      transaction.isTransfer &&
+      !accounts &&
+      !transaction.isTransfer &&
+      !categories
+    )
+      return;
     form.reset({
-      'type': transaction.isTransfer ? 'transfer' : transaction.type,
-      'note': transaction.note,
-      'amount': transaction.amount,
-      'transferFee': transaction.transferFee,
-      'time': transaction.time,
-      'date': transaction.date,
-      'refCategoriesID': transaction.refCategoriesID,
-      'refAccountsID': selectedAccountID,
-      'refTransferToAccountsID': transaction.refTransferToAccountsID || ""
+      type: transaction.isTransfer
+        ? 'transfer'
+        : transaction.type,
+      note: transaction.note,
+      amount: transaction.amount,
+      transferFee: transaction.transferFee,
+      time: transaction.time,
+      date: transaction.date,
+      refCategoriesID: transaction.refCategoriesID,
+      refAccountsID: selectedAccountID,
+      refTransferToAccountsID:
+        transaction.refTransferToAccountsID || '',
     });
-  }, [form, transaction, categories, accounts, selectedAccountID]);
+  }, [
+    form,
+    transaction,
+    categories,
+    accounts,
+    selectedAccountID,
+  ]);
+
+  const isLoading = useMemo(() => {
+    return transactionType !== 'transfer'
+      ? isCategoriesPending ||
+          isTransactionPending ||
+          IsEditTransactionPending ||
+          isDeleteTransactionPending
+      : isTransactionPending ||
+          IsEditTransactionPending ||
+          isDeleteTransactionPending;
+  }, [
+    transactionType,
+    isCategoriesPending,
+    isTransactionPending,
+    IsEditTransactionPending,
+    isDeleteTransactionPending,
+  ]);
 
   return (
-    <main className='flex flex-col space-y-4 p-3'>
+    <main className="flex flex-col space-y-4 p-3">
       <div className="flex justify-between items-center">
-        <TypographyH3>
-          Edit Transaction
-        </TypographyH3>
-        <CustomAlertDialog 
+        <TypographyH3>Edit Transaction</TypographyH3>
+        <CustomAlertDialog
           isDisabled={isLoading}
-          trigger={<Trash2 size={24} className="text-red-500" />}
+          trigger={
+            <Trash2 size={24} className="text-red-500" />
+          }
           title="Are you sure?"
-          description='This action cannot be undone. It will be permanently deleted.'
-          confirmMessage="Yes, I&apos;m sure"
+          description="This action cannot be undone. It will be permanently deleted."
+          confirmMessage="Yes, I'm sure"
           onConfirm={() => deleteTransactionMutation(id)}
         />
       </div>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col space-y-4">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="flex flex-col space-y-4"
+        >
           <FormField
             control={form.control}
             name="type"
@@ -188,24 +239,32 @@ export default function EditTransactionForm() {
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Tabs value={field.value.toLowerCase()} onValueChange={field.onChange} className="-mt-1">
-                    <TabsList className='bg-white border-2 w-full h-10'>
-                      {transactionTypes.map((category, index) => (
-                        <TabsTrigger
-                          value={category.toLowerCase()}
-                          key={index}
-                          disabled={true}
-                          className={`text-md
+                  <Tabs
+                    value={field.value.toLowerCase()}
+                    onValueChange={field.onChange}
+                    className="-mt-1"
+                  >
+                    <TabsList className="bg-white border-2 w-full h-10">
+                      {transactionTypes.map(
+                        (category, index) => (
+                          <TabsTrigger
+                            value={category.toLowerCase()}
+                            key={index}
+                            disabled={true}
+                            className={`text-md
                             ${
-                              field.value.toLowerCase() === 'expense' || field.value.toLowerCase() === 'transfer'
+                              field.value.toLowerCase() ===
+                                'expense' ||
+                              field.value.toLowerCase() ===
+                                'transfer'
                                 ? 'data-[state=active]:bg-red-400'
                                 : 'data-[state=active]:bg-green-300'
-                            }`
-                          }
-                        >
-                          {category}
-                        </TabsTrigger>
-                      ))}
+                            }`}
+                          >
+                            {category}
+                          </TabsTrigger>
+                        )
+                      )}
                     </TabsList>
                   </Tabs>
                 </FormControl>
@@ -250,21 +309,29 @@ export default function EditTransactionForm() {
                     Category
                   </FormLabel>
                   <FormControl>
-                    <Select onValueChange={field.onChange} value={field.value} disabled={isLoading}>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      disabled={isLoading}
+                    >
                       <SelectTrigger className="w-[180px] bg-white border-2 border-black w-full h-9">
                         <SelectValue placeholder="Select Category..." />
                       </SelectTrigger>
                       <SelectContent className="border-2">
                         {categories && (
                           <>
-                            {categories.map((category: Category) => (
-                              <SelectItem key={category.id} value={category.id}>
-                                {category.name}
-                              </SelectItem>
-                            ))}
+                            {categories.map(
+                              (category: Category) => (
+                                <SelectItem
+                                  key={category.id}
+                                  value={category.id}
+                                >
+                                  {category.name}
+                                </SelectItem>
+                              )
+                            )}
                           </>
                         )}
-
                       </SelectContent>
                     </Select>
                   </FormControl>
@@ -272,7 +339,7 @@ export default function EditTransactionForm() {
                 </FormItem>
               )}
             />
-          ):(
+          ) : (
             <div className="flex gap-2 items-center w-full">
               <FormField
                 control={form.control}
@@ -283,18 +350,29 @@ export default function EditTransactionForm() {
                       Transfer to
                     </FormLabel>
                     <FormControl>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
                         <SelectTrigger className="w-[180px] bg-white border-2 border-black w-full h-9 rounded-lg">
                           <SelectValue placeholder="Select Account..." />
                         </SelectTrigger>
                         <SelectContent className="border-2">
                           {accounts && (
                             <>
-                              {filteredAccounts.map((account: Account, index: Key) => (
-                                <SelectItem key={index} value={account.id}>
-                                  {account.name}
-                                </SelectItem>
-                              ))}
+                              {filteredAccounts.map(
+                                (
+                                  account: Account,
+                                  index: Key
+                                ) => (
+                                  <SelectItem
+                                    key={index}
+                                    value={account.id}
+                                  >
+                                    {account.name}
+                                  </SelectItem>
+                                )
+                              )}
                             </>
                           )}
                         </SelectContent>
@@ -326,7 +404,7 @@ export default function EditTransactionForm() {
                     <FormMessage />
                   </FormItem>
                 )}
-              />            
+              />
             </div>
           )}
           <FormField
@@ -362,7 +440,10 @@ export default function EditTransactionForm() {
                     Date
                   </FormLabel>
                   <FormControl>
-                    <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+                    <Popover
+                      open={datePickerOpen}
+                      onOpenChange={setDatePickerOpen}
+                    >
                       <PopoverTrigger asChild>
                         <Button
                           disabled={isLoading}
@@ -370,25 +451,43 @@ export default function EditTransactionForm() {
                           id="date"
                           className="justify-between font-normal border-2 bg-white text-[16px]"
                         >
-                          {field.value ? new Date(field.value).toLocaleDateString() : "Select date"}
+                          {field.value
+                            ? new Date(
+                                field.value
+                              ).toLocaleDateString()
+                            : 'Select date'}
                           <ChevronDownIcon />
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+                      <PopoverContent
+                        className="w-auto overflow-hidden p-0"
+                        align="start"
+                      >
                         <Calendar
                           mode="single"
-                          selected={field.value ? new Date(field.value) : undefined}
+                          selected={
+                            field.value
+                              ? new Date(field.value)
+                              : undefined
+                          }
                           captionLayout="dropdown"
-                          disabled={(date) => date > new Date()}
+                          disabled={(date) =>
+                            date > new Date()
+                          }
                           onSelect={(date) => {
                             if (date) {
-                              const year = date.getFullYear();
-                              const month = String(date.getMonth() + 1).padStart(2, '0');
-                              const day = String(date.getDate()).padStart(2, '0');
+                              const year =
+                                date.getFullYear();
+                              const month = String(
+                                date.getMonth() + 1
+                              ).padStart(2, '0');
+                              const day = String(
+                                date.getDate()
+                              ).padStart(2, '0');
                               const formattedDate = `${year}-${month}-${day}`;
                               field.onChange(formattedDate);
                             }
-                            setDatePickerOpen(false)
+                            setDatePickerOpen(false);
                           }}
                         />
                       </PopoverContent>
@@ -411,7 +510,8 @@ export default function EditTransactionForm() {
                       value={timeStringToDate(field.value)}
                       onChange={(date) => {
                         if (date) {
-                          const timeString = dateToTimeString(date);
+                          const timeString =
+                            dateToTimeString(date);
                           field.onChange(timeString);
                         }
                       }}
@@ -423,7 +523,7 @@ export default function EditTransactionForm() {
               )}
             />
           </div>
-          <div className='flex flex-row justify-between'>
+          <div className="flex flex-row justify-between">
             <Button
               onClick={() => router.back()}
               className="bg-red-500 border-2 hover:none"
@@ -444,4 +544,4 @@ export default function EditTransactionForm() {
       </Form>
     </main>
   );
-};
+}
