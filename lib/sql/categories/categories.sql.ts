@@ -1,5 +1,5 @@
 export const createCategory = () => {
-    return `CALL manage_categories
+  return `CALL manage_categories
             (
                 :actionType,
                 :id,
@@ -10,11 +10,11 @@ export const createCategory = () => {
                 :description,
                 @response
             );
-            SELECT @response AS response;`
+            SELECT @response AS response;`;
 };
 
 export const getCategories = () => {
-    return `WITH 
+  return `WITH 
                 sum_income AS (
                     SELECT
                         ref_user_id,
@@ -61,6 +61,8 @@ export const getCategories = () => {
                     GROUP BY
                         ref_categories_id,
                         ref_user_id
+                    ORDER BY
+                        amount DESC
                 )
             SELECT
                 c.type,
@@ -82,7 +84,7 @@ export const getCategories = () => {
                 :accountID AS refAccountsID
             FROM 
                 v_categories_table c
-            LEFT JOIN category_details cd 
+            JOIN category_details cd 
                 ON c.id = cd.ref_categories_id
                 AND c.ref_user_id = cd.ref_user_id
             LEFT JOIN sum_income si
@@ -91,7 +93,7 @@ export const getCategories = () => {
                 ON c.ref_user_id = se.ref_user_id 
             WHERE
                 c.ref_user_id = :userID
-                AND (:filter IS NULL OR c.type = :filter)
+                AND (:type IS NULL OR c.type = :type)
             GROUP BY
                 c.type,
                 si.total_income,
@@ -99,8 +101,26 @@ export const getCategories = () => {
                 c.ref_user_id;`;
 };
 
+export const getCategoriesList = () => {
+  return `SELECT
+                id,
+                name,
+                type,
+                icon,
+                description,
+                ref_accounts_id AS refAccountsID,
+                ref_user_id AS refUserID
+            FROM
+                v_categories_table
+            WHERE
+                ref_user_id = :userID
+                AND type = :type
+            ORDER BY
+                name ASC;`;
+};
+
 export const getCategoryByID = () => {
-    return `SELECT
+  return `SELECT
                 id,
                 name,
                 type,
@@ -111,11 +131,11 @@ export const getCategoryByID = () => {
                 v_categories
             WHERE
                 refUserID = :userID
-                AND id = :id;`
+                AND id = :id;`;
 };
 
 export const updateCategory = () => {
-    return `CALL manage_categories
+  return `CALL manage_categories
             (
                 :actionType,
                 :id,
@@ -126,11 +146,11 @@ export const updateCategory = () => {
                 :description,
                 @response
             );
-            SELECT @response AS response;`
+            SELECT @response AS response;`;
 };
 
 export const deleteCategory = () => {
-    return `CALL manage_categories
+  return `CALL manage_categories
             (
                 :actionType,
                 :id,
@@ -141,5 +161,5 @@ export const deleteCategory = () => {
                 NULL,
                 @response
             );
-            SELECT @response AS response;`
+            SELECT @response AS response;`;
 };

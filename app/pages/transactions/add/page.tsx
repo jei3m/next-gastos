@@ -1,4 +1,4 @@
-import AddTransactionForm from '@/components/transactions/add-transaction-form'
+import AddTransactionForm from '@/components/transactions/add-transaction-form';
 import { Suspense } from 'react';
 
 function AddTransactionPage() {
@@ -6,7 +6,7 @@ function AddTransactionPage() {
     <Suspense fallback={<></>}>
       <AddTransactionForm />
     </Suspense>
-  )
+  );
 }
 
 export default AddTransactionPage;

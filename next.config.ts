@@ -24,6 +24,6 @@ export default withPWA({
   dest: 'public',
   disable: isDev,
   workboxOptions: {
-    mode: 'production',   // disables workbox logging
+    mode: 'production', // disables workbox logging
   },
 })(nextConfig);

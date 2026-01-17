@@ -22,9 +22,9 @@ import {
   Landmark,
   HeartPulse,
   ShoppingCart,
-	Ellipsis,
+  Ellipsis,
   ArrowDownUp,
-} from "lucide-react";
+} from 'lucide-react';
 
 // Define types or interface
 export type IconType = string;
@@ -34,191 +34,197 @@ export interface IconData {
   name: string;
   icon: React.ComponentType<any>;
   type: IconType;
-};
+}
 
-export type IconKey = (typeof icons)[number]["id"];
+export type IconKey = (typeof icons)[number]['id'];
 
 // Array of icon objects with their types
 export const icons: IconData[] = [
   // Expenses
   {
-    id: "food",
-    name: "Food",
+    id: 'food',
+    name: 'Food',
     icon: Utensils,
-    type: "expense",
+    type: 'expense',
   },
   {
-    id: "car",
-    name: "Car",
+    id: 'car',
+    name: 'Car',
     icon: Car,
-    type: "expense",
+    type: 'expense',
   },
   {
-    id: "shopping",
-    name: "Shopping",
+    id: 'shopping',
+    name: 'Shopping',
     icon: ShoppingBag,
-    type: "expense",
+    type: 'expense',
   },
   {
-    id: "groceries",
-    name: "Groceries",
+    id: 'groceries',
+    name: 'Groceries',
     icon: ShoppingCart,
-    type: "expense",
+    type: 'expense',
   },
   {
-    id: "health",
-    name: "Health",
+    id: 'health',
+    name: 'Health',
     icon: Heart,
-    type: "expense",
+    type: 'expense',
   },
   {
-    id: "education",
-    name: "Education",
+    id: 'education',
+    name: 'Education',
     icon: BookOpen,
-    type: "expense",
+    type: 'expense',
   },
   {
-    id: "travel",
-    name: "Travel",
+    id: 'travel',
+    name: 'Travel',
     icon: Plane,
-    type: "expense",
+    type: 'expense',
   },
   {
-    id: "rent",
-    name: "Rent",
+    id: 'rent',
+    name: 'Rent',
     icon: HomeIcon,
-    type: "expense",
+    type: 'expense',
   },
   {
-    id: "insurance",
-    name: "Insurance",
+    id: 'insurance',
+    name: 'Insurance',
     icon: Shield,
-    type: "expense",
+    type: 'expense',
   },
   {
-    id: "phone",
-    name: "Phone",
+    id: 'phone',
+    name: 'Phone',
     icon: Phone,
-    type: "expense",
+    type: 'expense',
   },
   {
-    id: "fitness",
-    name: "Fitness",
+    id: 'fitness',
+    name: 'Fitness',
     icon: Dumbbell,
-    type: "expense",
+    type: 'expense',
   },
   {
-    id: "healthcare",
-    name: "Healthcare",
+    id: 'healthcare',
+    name: 'Healthcare',
     icon: HeartPulse,
-    type: "expense",
+    type: 'expense',
   },
   {
-    id: "transfer",
-    name: "Transfer",
+    id: 'transfer',
+    name: 'Transfer',
     icon: ArrowDownUp,
-    type: "expense",
+    type: 'expense',
   },
   {
-    id: "coffee",
-    name: "Coffee",
+    id: 'coffee',
+    name: 'Coffee',
     icon: Coffee,
-    type: "expense",
+    type: 'expense',
   },
   {
-    id: "repairs",
-    name: "Repairs",
+    id: 'repairs',
+    name: 'Repairs',
     icon: Wrench,
-    type: "expense",
+    type: 'expense',
   },
-	{
-		id: "ellipsis",
-    name: "Ellipsis",
-		icon: Ellipsis,
-		type: "expense"
-	},
+  {
+    id: 'ellipsis',
+    name: 'Ellipsis',
+    icon: Ellipsis,
+    type: 'expense',
+  },
 
   // Income
   {
-    id: "transfer",
-    name: "Transfer",
+    id: 'transfer',
+    name: 'Transfer',
     icon: ArrowDownUp,
-    type: "income",
+    type: 'income',
   },
-  { 
-		id: "gift", 
-		name: "Gift", 
-		icon: Gift, 
-		type: "income", 
-	},
   {
-    id: "investment",
-    name: "Investment",
+    id: 'gift',
+    name: 'Gift',
+    icon: Gift,
+    type: 'income',
+  },
+  {
+    id: 'investment',
+    name: 'Investment',
     icon: TrendingUp,
-    type: "income",
+    type: 'income',
   },
   {
-    id: "business",
-    name: "Business",
+    id: 'business',
+    name: 'Business',
     icon: Building,
-    type: "income",
+    type: 'income',
   },
   {
-    id: "savings",
-    name: "Savings",
+    id: 'savings',
+    name: 'Savings',
     icon: PiggyBank,
-    type: "income",
+    type: 'income',
   },
-  { 
-		id: "cash", 
-		name: "Cash", 
-		icon: Coins, 
-		type: "income", 
-	},
   {
-    id: "works",
-    name: "Freelance",
+    id: 'cash',
+    name: 'Cash',
+    icon: Coins,
+    type: 'income',
+  },
+  {
+    id: 'works',
+    name: 'Freelance',
     icon: Briefcase,
-    type: "income",
+    type: 'income',
   },
   {
-    id: "receipt",
-    name: "Refund",
+    id: 'receipt',
+    name: 'Refund',
     icon: Receipt,
-    type: "income",
+    type: 'income',
   },
   {
-    id: "wallet",
-    name: "Wallet",
+    id: 'wallet',
+    name: 'Wallet',
     icon: Wallet,
-    type: "income",
+    type: 'income',
   },
   {
-    id: "professional",
-    name: "Professional",
+    id: 'professional',
+    name: 'Professional',
     icon: Landmark,
-    type: "income",
+    type: 'income',
   },
   {
-    id: "heart",
-    name: "Heart",
+    id: 'heart',
+    name: 'Heart',
     icon: Heart,
-    type: "income",
+    type: 'income',
   },
-	{
-		id: "ellipsis",
-    name: "Ellipsis",
-		icon: Ellipsis,
-		type: "income"
-	},
+  {
+    id: 'ellipsis',
+    name: 'Ellipsis',
+    icon: Ellipsis,
+    type: 'income',
+  },
 ];
 
 // Helper functions to get icons by type
-export const getIconsByType = (type: IconType): IconData[] => {
-  return icons.filter((icon) => icon.type.toLowerCase() === type.toLowerCase());
+export const getIconsByType = (
+  type: IconType
+): IconData[] => {
+  return icons.filter(
+    (icon) => icon.type.toLowerCase() === type.toLowerCase()
+  );
 };
 
 // Get icon by ID
-export const getIconById = (id: string): IconData | undefined => {
+export const getIconById = (
+  id: string
+): IconData | undefined => {
   return icons.find((icon) => icon.id === id);
 };

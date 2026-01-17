@@ -1,24 +1,28 @@
-"use client";
-import { useState, createElement } from "react";
+'use client';
+import { useState, createElement } from 'react';
 import {
   Drawer,
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "@/components/ui/drawer";
+} from '@/components/ui/drawer';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Card } from "@/components/ui/card";
-import { SquareDashed } from "lucide-react";
-import { getIconById, getIconsByType, IconData } from "@/lib/icons";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { cn } from "@/lib/utils";
+} from '@/components/ui/dialog';
+import { Card } from '@/components/ui/card';
+import { SquareDashed } from 'lucide-react';
+import {
+  getIconById,
+  getIconsByType,
+  IconData,
+} from '@/lib/icons';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 interface IconPickerProps {
   value: string;
@@ -41,15 +45,27 @@ export default function IconPicker({
 
   const renderIcon = (iconId: string | undefined) => {
     if (!iconId) {
-      return <SquareDashed size={previewSize} className="text-gray-400" />;
+      return (
+        <SquareDashed
+          size={previewSize}
+          className="text-gray-400"
+        />
+      );
     }
 
     const iconData = getIconById(iconId);
     if (!iconData) {
-      return <SquareDashed size={previewSize} className="text-gray-400" />;
+      return (
+        <SquareDashed
+          size={previewSize}
+          className="text-gray-400"
+        />
+      );
     }
 
-    return createElement(iconData.icon, { size: previewSize });
+    return createElement(iconData.icon, {
+      size: previewSize,
+    });
   };
 
   const renderContent = () => (
@@ -64,13 +80,17 @@ export default function IconPicker({
               setIsOpen(false);
             }}
           >
-            <Card 
+            <Card
               className={cn(
-                "text-white border-2 w-full flex justify-center items-center cursor-pointer",
-                type.toLowerCase() === 'expense' ? 'bg-red-500' : 'bg-primary'
+                'text-white border-2 w-full flex justify-center items-center cursor-pointer',
+                type.toLowerCase() === 'expense'
+                  ? 'bg-red-500'
+                  : 'bg-primary'
               )}
-              >
-              {createElement(iconData.icon, { size: iconSize })}
+            >
+              {createElement(iconData.icon, {
+                size: iconSize,
+              })}
             </Card>
           </div>
         ))}
@@ -79,7 +99,7 @@ export default function IconPicker({
   );
 
   const renderTrigger = () => (
-    <div className='h-28 w-28 rounded-xl border-2 border-black bg-white cursor-pointer flex items-center justify-center'>
+    <div className="h-28 w-28 rounded-xl border-2 border-black bg-white cursor-pointer flex items-center justify-center">
       {renderIcon(value)}
     </div>
   );
@@ -101,7 +121,7 @@ export default function IconPicker({
         </Drawer>
       </div>
     );
-  };
+  }
 
   // Desktop: Use Dialog
   return (
@@ -110,16 +130,18 @@ export default function IconPicker({
         <DialogTrigger asChild>
           {renderTrigger()}
         </DialogTrigger>
-        <DialogContent 
+        <DialogContent
           className="min-w-[700px] max-h-[80vh] p-4"
           onOpenAutoFocus={(e) => e.preventDefault()}
         >
           <DialogHeader>
-            <DialogTitle className="text-xl">Select an Icon</DialogTitle>
+            <DialogTitle className="text-xl">
+              Select an Icon
+            </DialogTitle>
           </DialogHeader>
           {renderContent()}
         </DialogContent>
       </Dialog>
     </div>
   );
-};
+}

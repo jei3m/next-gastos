@@ -1,15 +1,18 @@
-"use client";
-import { TypographyH4, TypographyH5 } from "@/components/custom/typography";
-import { Separator } from "@/components/ui/separator";
-import { createAuthClient } from "better-auth/react";
-import { Button } from "@/components/ui/button";
+'use client';
+import {
+  TypographyH4,
+  TypographyH5,
+} from '@/components/custom/typography';
+import { Separator } from '@/components/ui/separator';
+import { createAuthClient } from 'better-auth/react';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 import {
   CalendarDays,
   User,
@@ -18,40 +21,45 @@ import {
   CircleAlert,
   CheckCircle,
   XCircle,
-} from "lucide-react";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { cn } from "@/lib/utils";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useAccount } from "@/context/account-context";
-import PulseLoader from "@/components/custom/pulse-loader";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Account } from "@/types/accounts.types";
-import Link from "next/link";
-import { categoryQueryOptions } from "@/lib/tq-options/categories.tq.options";
-import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
-import { TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { categoryTypes } from "@/lib/data";
-import { Tabs } from "@radix-ui/react-tabs";
-import { Category } from "@/types/categories.types";
-import CategoryCard from "@/components/categories/category-card";
-import { Badge } from "@/components/ui/badge";
+} from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { useAccount } from '@/context/account-context';
+import PulseLoader from '@/components/custom/pulse-loader';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Account } from '@/types/accounts.types';
+import Link from 'next/link';
+import { categoryQueryOptions } from '@/lib/tq-options/categories.tq.options';
+import { useQuery } from '@tanstack/react-query';
+import { useMemo, useState } from 'react';
+import {
+  TabsList,
+  TabsTrigger,
+} from '@/components/ui/tabs';
+import { categoryTypes } from '@/lib/data';
+import { Tabs } from '@radix-ui/react-tabs';
+import { Category } from '@/types/categories.types';
+import CategoryCard from '@/components/categories/category-card';
+import { Badge } from '@/components/ui/badge';
 
 const authClient = createAuthClient();
 
 export default function Settings() {
-  const [activeTab, setActiveTab] = useState<string>("expense");
+  const [activeTab, setActiveTab] =
+    useState<string>('expense');
   const { data: session } = authClient.useSession();
   const isMobile = useIsMobile();
   const router = useRouter();
-  const { accounts, isAccountsLoading, selectedAccountID } = useAccount();
+  const { accounts, isAccountsLoading, selectedAccountID } =
+    useAccount();
 
   const handleLogout = async () => {
     authClient.signOut({
       fetchOptions: {
         onSuccess: () => {
-          router.push("/auth/login");
+          router.push('/auth/login');
         },
       },
     });
@@ -60,31 +68,47 @@ export default function Settings() {
   const formatDate = (dateString: string | Date) => {
     try {
       const date =
-        typeof dateString === "string" ? new Date(dateString) : dateString;
-      return date.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
+        typeof dateString === 'string'
+          ? new Date(dateString)
+          : dateString;
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
       });
     } catch {
-      return "N/A";
+      return 'N/A';
     }
   };
 
   // Fetch categories
-  const { data: categoriesData, isPending: isCategoriesLoading } = useQuery(
-    categoryQueryOptions(activeTab!, selectedAccountID!)
+  const {
+    data: categoriesData,
+    isPending: isCategoriesLoading,
+  } = useQuery(
+    categoryQueryOptions(
+      activeTab!,
+      selectedAccountID!,
+      null,
+      null,
+      'list'
+    )
   );
   const categories = useMemo(() => {
-    return categoriesData?.[0]?.details;
+    return categoriesData;
   }, [categoriesData]);
 
   return (
-    <main className={cn("space-y-6 px-3 mx-auto", isMobile ? "pb-20" : "pb-4")}>
+    <main
+      className={cn(
+        'space-y-6 px-3 mx-auto',
+        isMobile ? 'pb-20' : 'pb-4'
+      )}
+    >
       {/* User Section */}
-      <section className={cn("space-y-4")}>
+      <section className={cn('space-y-4')}>
         {/* Profile Card */}
-        <Card className={cn("border-2 mt-4")}>
+        <Card className={cn('border-2 mt-4')}>
           <CardHeader className="pb-4">
             <CardTitle className="text-lg flex justify-between">
               <div className="flex gap-2 items-center">
@@ -110,7 +134,10 @@ export default function Settings() {
               <div className="flex flex-col items-center justify-center">
                 <Image
                   alt="Profile Picture"
-                  src={session?.user?.image || "/icons/icons-96x96.png"}
+                  src={
+                    session?.user?.image ||
+                    '/icons/icons-96x96.png'
+                  }
                   width={80}
                   height={80}
                   className="rounded-full border-2 md:-mr-2"
@@ -131,7 +158,7 @@ export default function Settings() {
                   Name
                 </div>
                 <div className="text-foreground font-medium">
-                  {session?.user?.name || "N/A"}
+                  {session?.user?.name || 'N/A'}
                 </div>
               </div>
               <div className="space-y-1 text-left">
@@ -158,7 +185,7 @@ export default function Settings() {
                   )}
                 </div>
                 <div className="text-foreground font-medium">
-                  {session?.user?.email || "N/A"}
+                  {session?.user?.email || 'N/A'}
                 </div>
               </div>
             </div>
@@ -173,7 +200,7 @@ export default function Settings() {
               <div className="text-foreground font-medium">
                 {session?.user?.createdAt
                   ? formatDate(session.user.createdAt)
-                  : "N/A"}
+                  : 'N/A'}
               </div>
             </div>
             <div className="space-y-1">
@@ -184,7 +211,7 @@ export default function Settings() {
               <div className="text-foreground font-medium">
                 {session?.session?.expiresAt
                   ? formatDate(session.session.expiresAt)
-                  : "N/A"}
+                  : 'N/A'}
               </div>
             </div>
           </CardFooter>
@@ -192,8 +219,10 @@ export default function Settings() {
       </section>
 
       {/* Accounts Section */}
-      <section className={cn("space-y-4")}>
-        <TypographyH5 className="font-semibold text-lg">Accounts</TypographyH5>
+      <section className={cn('space-y-4')}>
+        <TypographyH5 className="font-semibold text-lg">
+          Accounts
+        </TypographyH5>
         <Separator className="-mt-2 bg-muted-foreground" />
         {isAccountsLoading ? (
           <PulseLoader />
@@ -202,7 +231,10 @@ export default function Settings() {
             {accounts && accounts.length > 0 ? (
               <div className="grid md:grid-cols-2 gap-2">
                 {accounts.map((account: Account) => (
-                  <Link href={`/pages/accounts/${account.id}`} key={account.id}>
+                  <Link
+                    href={`/pages/accounts/${account.id}`}
+                    key={account.id}
+                  >
                     <Card className="border-2 h-full">
                       <CardHeader>
                         <div className="flex flex-rows items-center justify-between">
@@ -229,20 +261,24 @@ export default function Settings() {
                     </Card>
                   </Link>
                 ))}
-              </div>              
-            ):(
-							<div className="flex flex-col items-center justify-center py-10">
-								<TypographyH4 className='text-gray-400 font-semibold text-center'>
-									No Accounts
-								</TypographyH4>
-								<p className="text-gray-500 text-sm text-center">
-									Start by adding your first account
-								</p>
-							</div>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-10">
+                <TypographyH4 className="text-gray-400 font-semibold text-center">
+                  No Accounts
+                </TypographyH4>
+                <p className="text-gray-500 text-sm text-center">
+                  Start by adding your first account
+                </p>
+              </div>
             )}
-            <Link className="w-full" href={"/pages/accounts/add"}>
+            <Link
+              className="w-full"
+              href={'/pages/accounts/add'}
+            >
               <Button className="w-full">
-                <PlusIcon size={40} className="-mr-1" /> Add New Account
+                <PlusIcon size={40} className="-mr-1" /> Add
+                New Account
               </Button>
             </Link>
           </>
@@ -250,8 +286,11 @@ export default function Settings() {
       </section>
 
       {/* Categories Section */}
-      <section className={cn("space-y-4")}>
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
+      <section className={cn('space-y-4')}>
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+        >
           <div className="flex justify-between items-center">
             <TypographyH4 className="font-semibold text-lg">
               Categories
@@ -265,9 +304,9 @@ export default function Settings() {
                   value={type.toLowerCase()}
                   key={index}
                   className={`${
-                    type === "Expense"
-                      ? "data-[state=active]:bg-red-400"
-                      : "data-[state=active]:bg-green-300"
+                    type === 'Expense'
+                      ? 'data-[state=active]:bg-red-400'
+                      : 'data-[state=active]:bg-green-300'
                   }`}
                 >
                   {type}
@@ -292,19 +331,23 @@ export default function Settings() {
                   />
                 ))}
               </div>
-            ):(
-							<div className="flex flex-col items-center justify-center py-10">
-								<TypographyH4 className='text-gray-400 font-semibold text-center'>
-									No Categories
-								</TypographyH4>
-								<p className="text-gray-500 text-sm text-center">
-									Start by adding your first category
-								</p>
-							</div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-10">
+                <TypographyH4 className="text-gray-400 font-semibold text-center">
+                  No Categories
+                </TypographyH4>
+                <p className="text-gray-500 text-sm text-center">
+                  Start by adding your first category
+                </p>
+              </div>
             )}
-            <Link className="w-full" href={"/pages/categories/add"}>
+            <Link
+              className="w-full"
+              href={'/pages/categories/add'}
+            >
               <Button className="w-full">
-                <PlusIcon size={40} className="-mr-1" /> Add New Category
+                <PlusIcon size={40} className="-mr-1" /> Add
+                New Category
               </Button>
             </Link>
           </>
@@ -312,4 +355,4 @@ export default function Settings() {
       </section>
     </main>
   );
-};
+}

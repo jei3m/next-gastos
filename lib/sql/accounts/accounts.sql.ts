@@ -1,5 +1,5 @@
 export const createAccounts = () => {
-    return `CALL manage_accounts
+  return `CALL manage_accounts
             (
                 :actionType,
                 :id,
@@ -13,7 +13,7 @@ export const createAccounts = () => {
 };
 
 export const getAccounts = () => {
-    return `SELECT 
+  return `SELECT 
                 id,
                 name,
                 type,
@@ -23,11 +23,11 @@ export const getAccounts = () => {
                 v_accounts
             WHERE
                 ref_user_id = :userID
-            ORDER BY name ASC;`
+            ORDER BY name ASC;`;
 };
 
 export const getAccountByID = () => {
-    return `SELECT 
+  return `SELECT 
                 id,
                 id,
                 name,
@@ -39,11 +39,11 @@ export const getAccountByID = () => {
             WHERE
                 ref_user_id = :userID
                 AND id = :id
-            LIMIT 1;`
+            LIMIT 1;`;
 };
 
 export const updateAccount = () => {
-    return `CALL manage_accounts
+  return `CALL manage_accounts
             (
                 :actionType,
                 :id,
@@ -57,7 +57,7 @@ export const updateAccount = () => {
 };
 
 export const deleteAccount = () => {
-    return `CALL manage_accounts
+  return `CALL manage_accounts
             (
                 :actionType,
                 :id,

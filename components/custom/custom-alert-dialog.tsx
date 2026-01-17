@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode } from 'react';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -8,9 +8,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "../ui/alert-dialog";
-import { Button } from "../ui/button";
-import { Loader2 } from "lucide-react";
+} from '../ui/alert-dialog';
+import { Button } from '../ui/button';
+import { Loader2 } from 'lucide-react';
 
 interface AlertDialogProps {
   isDisabled: boolean;
@@ -19,9 +19,9 @@ interface AlertDialogProps {
   description: ReactNode;
   body?: ReactNode;
   confirmMessage: ReactNode;
-  type?: "button" | "submit";
+  type?: 'button' | 'submit';
   onConfirm: () => void;
-};
+}
 
 export default function CustomAlertDialog({
   isDisabled,
@@ -31,13 +31,11 @@ export default function CustomAlertDialog({
   body,
   confirmMessage,
   type,
-  onConfirm
+  onConfirm,
 }: AlertDialogProps) {
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild
-        disabled={isDisabled}
-      >
+      <AlertDialogTrigger asChild disabled={isDisabled}>
         {trigger}
       </AlertDialogTrigger>
       <AlertDialogContent
@@ -50,32 +48,31 @@ export default function CustomAlertDialog({
             {description}
           </AlertDialogDescription>
         </AlertDialogHeader>
-        {body && (
-          <div className="text-sm">
-            {body}
-          </div>
-        )}
+        {body && <div className="text-sm">{body}</div>}
         <AlertDialogFooter className="flex flex-row justify-between">
           <AlertDialogCancel asChild>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="border-2"
               disabled={isDisabled}
             >
               Cancel
             </Button>
           </AlertDialogCancel>
-          <Button 
-            variant="destructive" 
+          <Button
+            variant="destructive"
             className="border-2 space-x-2"
-            type={type || "button"}
+            type={type || 'button'}
             onClick={onConfirm}
             disabled={isDisabled}
           >
-            {isDisabled && <Loader2 className="animate-spin"/>}{confirmMessage}
+            {isDisabled && (
+              <Loader2 className="animate-spin" />
+            )}
+            {confirmMessage}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
   );
-};
+}

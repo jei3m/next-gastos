@@ -1,5 +1,5 @@
 export const createTransaction = () => {
-    return `CALL manage_transactions
+  return `CALL manage_transactions
             (
                 :actionType,
                 :id,
@@ -18,7 +18,7 @@ export const createTransaction = () => {
 };
 
 export const getTransactions = () => {
-    return `SELECT
+  return `SELECT
                 date,
                 total,
                 totalIncome,
@@ -36,7 +36,7 @@ export const getTransactions = () => {
 };
 
 export const getTransactionByID = () => {
-    return `SELECT
+  return `SELECT
                 id,
                 note,
                 amount,
@@ -56,7 +56,7 @@ export const getTransactionByID = () => {
 };
 
 export const getTransactionsCount = () => {
-    return `SELECT
+  return `SELECT
                 COUNT(date) AS count
             FROM
                 v_transactions
@@ -66,7 +66,7 @@ export const getTransactionsCount = () => {
 };
 
 export const updateTransaction = () => {
-    return `CALL manage_transactions
+  return `CALL manage_transactions
             (
                 :actionType,
                 :id,
@@ -85,7 +85,7 @@ export const updateTransaction = () => {
 };
 
 export const deleteTransaction = () => {
-    return `CALL manage_transactions
+  return `CALL manage_transactions
             (
                 :actionType,
                 :id,
@@ -104,7 +104,7 @@ export const deleteTransaction = () => {
 };
 
 export const transferTransaction = () => {
-    return `CALL transfer_transaction
+  return `CALL transfer_transaction
             (
                 :actionType,
                 :id,
