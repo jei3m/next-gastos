@@ -1,60 +1,48 @@
-import { 
-  infiniteQueryOptions, 
-  queryOptions 
-} from "@tanstack/react-query";
-import { 
-  fetchTransactionByID, 
-  fetchTransactions, 
-  fetchTransactionsCount 
-} from "../tq-functions/transactions.tq.functions";
+import {
+  infiniteQueryOptions,
+  queryOptions,
+} from '@tanstack/react-query';
+import {
+  fetchTransactionByID,
+  fetchTransactions,
+  fetchTransactionsCount,
+} from '../tq-functions/transactions.tq.functions';
 
 export function transactionsInfiniteQueryOptions(
   selectedAccountID: string | null
 ) {
   return infiniteQueryOptions({
     queryKey: ['transactions', selectedAccountID],
-    queryFn: ({ pageParam }) => 
+    queryFn: ({ pageParam }) =>
       fetchTransactions(selectedAccountID, pageParam),
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
       return lastPage.hasMore
         ? lastPage.currentPage + 1
-        : undefined
+        : undefined;
     },
-    retry: false
-  })
-};
+    retry: false,
+  });
+}
 
-export function transactionByIDQueryOptions(
-  id: string,
-) {
+export function transactionByIDQueryOptions(id: string) {
   return queryOptions({
-    queryKey: [
-      'transactions',
-      `transaction-${id}`,
-    ],
+    queryKey: ['transactions', `transaction-${id}`],
     queryFn: () => {
-      return fetchTransactionByID(
-        id!
-      );
+      return fetchTransactionByID(id!);
     },
-    enabled: !!id
-  })
-};
+    enabled: !!id,
+  });
+}
 
 export function transactionsCountQueryOptions(
-  selectedAccountID: string,
+  selectedAccountID: string
 ) {
   return queryOptions({
-    queryKey: [
-      'transactionsCount',
-      selectedAccountID,
-    ],
+    queryKey: ['transactionsCount', selectedAccountID],
     queryFn: () => {
-      return fetchTransactionsCount(
-        selectedAccountID!
-      );
+      return fetchTransactionsCount(selectedAccountID!);
     },
-    enabled: !!selectedAccountID
-  })
-};
+    enabled: !!selectedAccountID,
+  });
+}

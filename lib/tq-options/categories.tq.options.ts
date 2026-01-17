@@ -1,6 +1,9 @@
-"use client";
-import { queryOptions } from "@tanstack/react-query";
-import { fetchCategories, fetchCategoryByID } from "../tq-functions/categories.tq.functions";
+'use client';
+import { queryOptions } from '@tanstack/react-query';
+import {
+  fetchCategories,
+  fetchCategoryByID,
+} from '../tq-functions/categories.tq.functions';
 
 export function categoryQueryOptions(
   categoryType: string,
@@ -16,7 +19,7 @@ export function categoryQueryOptions(
       selectedAccountID,
       dateStart,
       dateEnd,
-      filter
+      filter,
     ],
     queryFn: () => {
       return fetchCategories(
@@ -29,20 +32,15 @@ export function categoryQueryOptions(
     },
     enabled: !!categoryType && !!selectedAccountID,
     retry: false,
-  })
-};
+  });
+}
 
-export function categoryByIDQueryOptions(
-  id: string
-) {
+export function categoryByIDQueryOptions(id: string) {
   return queryOptions({
-    queryKey: [
-      'categories',
-      `category-${id}`
-    ],
+    queryKey: ['categories', `category-${id}`],
     queryFn: () => {
-      return fetchCategoryByID(id)
+      return fetchCategoryByID(id);
     },
-    enabled: !!id
-  })
-};
+    enabled: !!id,
+  });
+}
