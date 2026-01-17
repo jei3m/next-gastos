@@ -3,7 +3,7 @@ import crypto from 'crypto';
 import { connection, db } from "@/utils/db";
 import { success, fail } from "@/utils/helpers";
 import { responseRow } from "@/types/response.types";
-import { createCategory, getCategories } from "@/lib/sql/categories/categories.sql";
+import { createCategory, getCategories, getCategoriesList } from "@/lib/sql/categories/categories.sql";
 import { fetchUserID } from "@/lib/auth/auth-session";
 
 export async function POST(req: NextRequest) {
@@ -62,17 +62,20 @@ export async function GET(request: Request) {
 		const accountID = url.searchParams.get('accountID');
 		const dateStart = url.searchParams.get('dateStart');
 		const dateEnd = url.searchParams.get('dateEnd');
+		const type = url.searchParams.get('type');
 
 		if (!accountID) {
 			throw Error("There is no selected account");
 		};
 
 		const [selectQuery] = await db.query(
-			getCategories(),
+			filter === 'list'
+				? getCategoriesList()
+				: getCategories(),
 			{
 				userID: await fetchUserID(),
 				accountID,
-				filter,
+				type,
 				dateStart,
 				dateEnd,
 			}
