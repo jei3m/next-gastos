@@ -91,12 +91,30 @@ export const getCategories = () => {
                 ON c.ref_user_id = se.ref_user_id 
             WHERE
                 c.ref_user_id = :userID
-                AND (:filter IS NULL OR c.type = :filter)
+                AND (:type IS NULL OR c.type = :type)
             GROUP BY
                 c.type,
                 si.total_income,
                 se.total_expense,
                 c.ref_user_id;`;
+};
+
+export const getCategoriesList = () => {
+    return `SELECT
+                id,
+                name,
+                type,
+                icon,
+                description,
+                ref_accounts_id AS refAccountsID,
+                ref_user_id AS refUserID
+            FROM
+                v_categories_table
+            WHERE
+                ref_user_id = :userID
+                AND type = :type
+            ORDER BY
+                name ASC;`
 };
 
 export const getCategoryByID = () => {
