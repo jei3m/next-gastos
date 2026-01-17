@@ -1,17 +1,17 @@
-"use client";
-import { useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+'use client';
+import { useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { TypographyH3 } from "@/components/custom/typography";
+} from '@/components/ui/select';
+import { TypographyH3 } from '@/components/custom/typography';
 import {
   Form,
   FormControl,
@@ -19,35 +19,39 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from '@/components/ui/form';
 import {
   createAccountSchema,
   updateAccountSchema,
-} from "@/lib/schema/acccounts.schema";
+} from '@/lib/schema/acccounts.schema';
 import {
   deleteAccount,
   editAccount,
-} from "@/lib/tq-functions/accounts.tq.functions";
-import z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { Trash2 } from "lucide-react";
-import { toast } from "sonner";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+} from '@/lib/tq-functions/accounts.tq.functions';
+import z from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import {
   accountByIDQueryOptions,
   accountsQueryOptions,
-} from "@/lib/tq-options/accounts.tq.options";
-import { 
-  AlertDialogFooter, 
-  AlertDialogHeader, 
-  AlertDialogTitle, 
-  AlertDialog, 
-  AlertDialogCancel, 
-  AlertDialogTrigger, 
-  AlertDialogContent
-} from "@/components/ui/alert-dialog";
-import { AlertDialogDescription } from "@radix-ui/react-alert-dialog";
+} from '@/lib/tq-options/accounts.tq.options';
+import {
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogTrigger,
+  AlertDialogContent,
+} from '@/components/ui/alert-dialog';
+import { AlertDialogDescription } from '@radix-ui/react-alert-dialog';
 
 export default function EditAccount() {
   const router = useRouter();
@@ -56,61 +60,74 @@ export default function EditAccount() {
   const queryClient = useQueryClient();
 
   const { data: account, isPending } = useQuery(
-		accountByIDQueryOptions(id)
-	);
+    accountByIDQueryOptions(id)
+  );
 
-  const form = useForm<z.infer<typeof createAccountSchema>>({
-    resolver: zodResolver(createAccountSchema),
-    defaultValues: {
-      name: "",
-      type: "",
-      description: "",
+  const form = useForm<z.infer<typeof createAccountSchema>>(
+    {
+      resolver: zodResolver(createAccountSchema),
+      defaultValues: {
+        name: '',
+        type: '',
+        description: '',
+      },
+    }
+  );
+
+  const {
+    mutate: editAccountMutation,
+    isPending: isEditPending,
+  } = useMutation({
+    mutationFn: (
+      values: z.infer<typeof updateAccountSchema>
+    ) => editAccount(id, values),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: accountByIDQueryOptions(id!).queryKey,
+      });
+      toast.success(data.responseMessage);
+      form.reset();
+      router.push('/pages/accounts');
+    },
+    onError: (error) => {
+      toast.error(error.message);
     },
   });
 
-	const { mutate: editAccountMutation, isPending: isEditPending } = useMutation({
-		mutationFn: (values: z.infer<typeof updateAccountSchema>) => editAccount(id, values),
-		onSuccess: (data) => {
-			queryClient.invalidateQueries({
-				queryKey: accountByIDQueryOptions(id!).queryKey,
-			});
-			toast.success(data.responseMessage);
-			form.reset();
-			router.push("/pages/accounts");
-		},
-		onError: (error) => {
-			toast.error(error.message);
-		},
-	});
+  const {
+    mutate: deleteAccountMutation,
+    isPending: isDeletePending,
+  } = useMutation({
+    mutationFn: (id: string) => deleteAccount(id),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: accountsQueryOptions().queryKey,
+      });
+      toast.success(data.responseMessage);
+      router.push('/pages/accounts');
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
 
-	const { mutate: deleteAccountMutation, isPending: isDeletePending } = useMutation({
-		mutationFn: (id: string) => deleteAccount(id),
-		onSuccess: (data) => {
-			queryClient.invalidateQueries({
-				queryKey: accountsQueryOptions().queryKey,
-			});
-			toast.success(data.responseMessage);
-			router.push("/pages/accounts");
-		},
-		onError: (error) => {
-			toast.error(error.message);
-		},
-	});
-
-  async function onSubmit(values: z.infer<typeof updateAccountSchema>) {
+  async function onSubmit(
+    values: z.infer<typeof updateAccountSchema>
+  ) {
     editAccountMutation(values);
-  };
+  }
 
   useEffect(() => {
     if (!account || isPending) return;
     form.reset({
-      name: account.name || "",
-      type: account.type.toLowerCase() || "",
-      description: account.description || "",
+      name: account.name || '',
+      type: account.type.toLowerCase() || '',
+      description: account.description || '',
     });
   }, [account, isPending, form]);
 
-  const isDisabled = isEditPending || isDeletePending || isPending;
+  const isDisabled =
+    isEditPending || isDeletePending || isPending;
 
   return (
     <main className="flex flex-col m-auto space-y-4 p-3">
@@ -119,7 +136,10 @@ export default function EditAccount() {
           Edit Account
         </TypographyH3>
         <AlertDialog>
-          <AlertDialogTrigger className="text-red-500" disabled={isDisabled}>
+          <AlertDialogTrigger
+            className="text-red-500"
+            disabled={isDisabled}
+          >
             <Trash2 size={20} />
           </AlertDialogTrigger>
           <AlertDialogContent
@@ -127,17 +147,25 @@ export default function EditAccount() {
             onOpenAutoFocus={(e) => e.preventDefault()}
           >
             <AlertDialogHeader className="text-left">
-              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogTitle>
+                Are you sure?
+              </AlertDialogTitle>
               <AlertDialogDescription className="text-gray-800">
-                This will permanently delete this account, and all transactions linked to this account.
-                <br/>
-                <br/>
-                <span className="font-semibold text-md">This action cannot be undone.</span>
+                This will permanently delete this account,
+                and all transactions linked to this account.
+                <br />
+                <br />
+                <span className="font-semibold text-md">
+                  This action cannot be undone.
+                </span>
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter className="flex flex-row justify-between">
               <AlertDialogCancel asChild>
-                <Button variant="outline" className="border-2">
+                <Button
+                  variant="outline"
+                  className="border-2"
+                >
                   Cancel
                 </Button>
               </AlertDialogCancel>
@@ -187,8 +215,8 @@ export default function EditAccount() {
                   Account Type
                 </FormLabel>
                 <FormControl>
-                  <Select 
-                    onValueChange={field.onChange} 
+                  <Select
+                    onValueChange={field.onChange}
                     value={field.value}
                     disabled={isDisabled}
                   >
@@ -196,8 +224,12 @@ export default function EditAccount() {
                       <SelectValue placeholder="Select Account Type..." />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="cash">Cash</SelectItem>
-                      <SelectItem value="digital">Digital</SelectItem>
+                      <SelectItem value="cash">
+                        Cash
+                      </SelectItem>
+                      <SelectItem value="digital">
+                        Digital
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </FormControl>
@@ -234,8 +266,11 @@ export default function EditAccount() {
             >
               Cancel
             </Button>
-            <Button className="border-2" disabled={isDisabled}>
-              {isDisabled ? "Submitting..." : "Submit"}
+            <Button
+              className="border-2"
+              disabled={isDisabled}
+            >
+              {isDisabled ? 'Submitting...' : 'Submit'}
             </Button>
           </div>
         </form>

@@ -49,15 +49,11 @@ const authClient = createAuthClient();
 export default function Settings() {
   const [activeTab, setActiveTab] =
     useState<string>('expense');
-  const { data: session } =
-    authClient.useSession();
+  const { data: session } = authClient.useSession();
   const isMobile = useIsMobile();
   const router = useRouter();
-  const {
-    accounts,
-    isAccountsLoading,
-    selectedAccountID,
-  } = useAccount();
+  const { accounts, isAccountsLoading, selectedAccountID } =
+    useAccount();
 
   const handleLogout = async () => {
     authClient.signOut({
@@ -69,9 +65,7 @@ export default function Settings() {
     });
   };
 
-  const formatDate = (
-    dateString: string | Date
-  ) => {
+  const formatDate = (dateString: string | Date) => {
     try {
       const date =
         typeof dateString === 'string'
@@ -172,8 +166,7 @@ export default function Settings() {
                   <div className="text-sm font-medium text-muted-foreground">
                     Email
                   </div>
-                  {session?.user
-                    ?.emailVerified ? (
+                  {session?.user?.emailVerified ? (
                     <Badge
                       variant="outline"
                       className="text-green-600 border-green-200 bg-green-50"
@@ -206,9 +199,7 @@ export default function Settings() {
               </div>
               <div className="text-foreground font-medium">
                 {session?.user?.createdAt
-                  ? formatDate(
-                      session.user.createdAt
-                    )
+                  ? formatDate(session.user.createdAt)
                   : 'N/A'}
               </div>
             </div>
@@ -219,9 +210,7 @@ export default function Settings() {
               </div>
               <div className="text-foreground font-medium">
                 {session?.session?.expiresAt
-                  ? formatDate(
-                      session.session.expiresAt
-                    )
+                  ? formatDate(session.session.expiresAt)
                   : 'N/A'}
               </div>
             </div>
@@ -241,39 +230,37 @@ export default function Settings() {
           <>
             {accounts && accounts.length > 0 ? (
               <div className="grid md:grid-cols-2 gap-2">
-                {accounts.map(
-                  (account: Account) => (
-                    <Link
-                      href={`/pages/accounts/${account.id}`}
-                      key={account.id}
-                    >
-                      <Card className="border-2 h-full">
-                        <CardHeader>
-                          <div className="flex flex-rows items-center justify-between">
-                            <div className="text-xl font-bold">
-                              {isAccountsLoading ? (
-                                <Skeleton className="h-4 w-[140px] bg-gray-300" />
-                              ) : (
-                                account?.name
-                              )}
-                            </div>
-                            <div className="text-md text-gray-600 font-normal">
-                              {isAccountsLoading ? (
-                                <Skeleton className="h-4 w-[140px] bg-gray-300" />
-                              ) : (
-                                account?.type
-                              )}
-                            </div>
+                {accounts.map((account: Account) => (
+                  <Link
+                    href={`/pages/accounts/${account.id}`}
+                    key={account.id}
+                  >
+                    <Card className="border-2 h-full">
+                      <CardHeader>
+                        <div className="flex flex-rows items-center justify-between">
+                          <div className="text-xl font-bold">
+                            {isAccountsLoading ? (
+                              <Skeleton className="h-4 w-[140px] bg-gray-300" />
+                            ) : (
+                              account?.name
+                            )}
                           </div>
-                        </CardHeader>
-                        <Separator className="-mt-2" />
-                        <CardContent className="space-y-2 break-all">
-                          {account.description}
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  )
-                )}
+                          <div className="text-md text-gray-600 font-normal">
+                            {isAccountsLoading ? (
+                              <Skeleton className="h-4 w-[140px] bg-gray-300" />
+                            ) : (
+                              account?.type
+                            )}
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <Separator className="-mt-2" />
+                      <CardContent className="space-y-2 break-all">
+                        {account.description}
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-10">
@@ -281,8 +268,7 @@ export default function Settings() {
                   No Accounts
                 </TypographyH4>
                 <p className="text-gray-500 text-sm text-center">
-                  Start by adding your first
-                  account
+                  Start by adding your first account
                 </p>
               </div>
             )}
@@ -291,11 +277,8 @@ export default function Settings() {
               href={'/pages/accounts/add'}
             >
               <Button className="w-full">
-                <PlusIcon
-                  size={40}
-                  className="-mr-1"
-                />{' '}
-                Add New Account
+                <PlusIcon size={40} className="-mr-1" /> Add
+                New Account
               </Button>
             </Link>
           </>
@@ -316,21 +299,19 @@ export default function Settings() {
               defaultValue="expense"
               className="border-black border-2 p-1"
             >
-              {categoryTypes.map(
-                (type, index) => (
-                  <TabsTrigger
-                    value={type.toLowerCase()}
-                    key={index}
-                    className={`${
-                      type === 'Expense'
-                        ? 'data-[state=active]:bg-red-400'
-                        : 'data-[state=active]:bg-green-300'
-                    }`}
-                  >
-                    {type}
-                  </TabsTrigger>
-                )
-              )}
+              {categoryTypes.map((type, index) => (
+                <TabsTrigger
+                  value={type.toLowerCase()}
+                  key={index}
+                  className={`${
+                    type === 'Expense'
+                      ? 'data-[state=active]:bg-red-400'
+                      : 'data-[state=active]:bg-green-300'
+                  }`}
+                >
+                  {type}
+                </TabsTrigger>
+              ))}
             </TabsList>
           </div>
         </Tabs>
@@ -339,19 +320,16 @@ export default function Settings() {
           <PulseLoader />
         ) : (
           <>
-            {categories &&
-            categories.length > 0 ? (
+            {categories && categories.length > 0 ? (
               <div className="grid md:grid-cols-2 gap-2">
-                {categories.map(
-                  (category: Category) => (
-                    <CategoryCard
-                      key={category.id}
-                      category={category}
-                      hideAmount={true}
-                      showDescription={true}
-                    />
-                  )
-                )}
+                {categories.map((category: Category) => (
+                  <CategoryCard
+                    key={category.id}
+                    category={category}
+                    hideAmount={true}
+                    showDescription={true}
+                  />
+                ))}
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-10">
@@ -359,8 +337,7 @@ export default function Settings() {
                   No Categories
                 </TypographyH4>
                 <p className="text-gray-500 text-sm text-center">
-                  Start by adding your first
-                  category
+                  Start by adding your first category
                 </p>
               </div>
             )}
@@ -369,11 +346,8 @@ export default function Settings() {
               href={'/pages/categories/add'}
             >
               <Button className="w-full">
-                <PlusIcon
-                  size={40}
-                  className="-mr-1"
-                />{' '}
-                Add New Category
+                <PlusIcon size={40} className="-mr-1" /> Add
+                New Category
               </Button>
             </Link>
           </>
