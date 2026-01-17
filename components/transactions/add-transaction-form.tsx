@@ -88,7 +88,7 @@ export default function AddTransactionForm() {
 
   const { 
     mutate: createTransactionMutation, 
-    isPending: isTransactionPending 
+    isPending: isCreateTransactionPending 
   } = useMutation({
     mutationFn: (transactionData: CreateTransaction) => createTransaction(transactionData),
     onSuccess: (data) => {
@@ -132,9 +132,9 @@ export default function AddTransactionForm() {
 
   const isLoading = useMemo(() => {
     return transactionType !== 'transfer'
-    ? isCategoriesPending || isTransactionPending
-    : isTransactionPending;
-  }, [transactionType, isCategoriesPending, isTransactionPending]);
+    ? isCategoriesPending || isCreateTransactionPending
+    : isCreateTransactionPending;
+  }, [transactionType, isCategoriesPending, isCreateTransactionPending]);
 
   return (
     <main className='flex flex-col space-y-4 p-3'>
@@ -155,6 +155,7 @@ export default function AddTransactionForm() {
                         <TabsTrigger
                           value={type.toLowerCase()}
                           key={index}
+                          disabled={isLoading}
                           className={`text-md
                             ${
                               field.value.toLowerCase() === 'expense' || field.value.toLowerCase() === 'transfer'
@@ -176,6 +177,7 @@ export default function AddTransactionForm() {
           <FormField
             control={form.control}
             name="amount"
+            disabled={isLoading}
             render={({ field }) => (
               <FormItem className="-space-y-1">
                 <FormLabel className="text-md font-medium">
@@ -206,7 +208,7 @@ export default function AddTransactionForm() {
                     Category
                   </FormLabel>
                   <FormControl>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={isLoading}>
                       <SelectTrigger className="w-[180px] bg-white border-2 border-black w-full h-9">
                         <SelectValue placeholder="Select Category..." />
                       </SelectTrigger>
@@ -238,7 +240,7 @@ export default function AddTransactionForm() {
                       Transfer to
                     </FormLabel>
                     <FormControl>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={isLoading}>
                         <SelectTrigger className="w-[180px] bg-white border-2 border-black w-full h-9 rounded-lg">
                           <SelectValue placeholder="Select Account..." />
                         </SelectTrigger>
@@ -262,6 +264,7 @@ export default function AddTransactionForm() {
               <FormField
                 control={form.control}
                 name="transferFee"
+                disabled={isLoading}
                 render={({ field }) => (
                   <FormItem className="flex-2">
                     <FormLabel className="-mb-1 text-md font-medium">
@@ -287,6 +290,7 @@ export default function AddTransactionForm() {
           <FormField
             control={form.control}
             name="note"
+            disabled={isLoading}
             render={({ field }) => (
               <FormItem className="-space-y-1">
                 <FormLabel className="text-md font-medium">
@@ -319,6 +323,7 @@ export default function AddTransactionForm() {
                     <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
                       <PopoverTrigger asChild>
                         <Button
+                          disabled={isLoading}
                           variant="outline"
                           id="date"
                           className="justify-between font-normal border-2 bg-white text-[16px]"
@@ -368,6 +373,7 @@ export default function AddTransactionForm() {
                           field.onChange(timeString);
                         }
                       }}
+                      disabled={isLoading}
                     />
                   </FormControl>
                   <FormMessage />
