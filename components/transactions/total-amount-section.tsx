@@ -16,6 +16,8 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import AddTransactionForm from '@/components/transactions/add-transaction-form';
+import { useLocalStorage } from '@/hooks/use-local-storage';
+import { Eye, EyeOff } from 'lucide-react';
 
 interface TotalAmountSectionProps {
   isScrolled: boolean;
@@ -34,6 +36,10 @@ export default function TotalAmountSection({
     useState<'income' | 'expense'>('income');
   const [isAddDialogOpen, setIsAddDialogOpen] =
     useState<boolean>(false);
+  const [hideBalance, setHideBalance] = useLocalStorage(
+    'hideBalance',
+    false
+  );
   return (
     <section
       className={`
@@ -76,9 +82,23 @@ export default function TotalAmountSection({
         <Separator className="-mt-2" />
         <CardContent className="space-y-2">
           <div className="flex flex-col">
-            <h3 className="text-gray-600 font-normal text-lg">
-              Balance
-            </h3>
+            <div className="flex flex-row items-center">
+              <h3 className="text-gray-600 font-normal text-lg">
+                Balance
+              </h3>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setHideBalance(!hideBalance)}
+                className="h-8 w-8 text-gray-600"
+              >
+                {hideBalance ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
             {isLoading ? (
               <h1 className="text-2xl font-extrabold flex">
                 <Skeleton className="h-10 w-[50%] bg-gray-300" />
@@ -86,7 +106,11 @@ export default function TotalAmountSection({
             ) : (
               <h1 className="text-2xl font-extrabold">
                 PHP{' '}
-                {formatAmount(account?.totalBalance || 0)}
+                {hideBalance
+                  ? '********'
+                  : formatAmount(
+                      account?.totalBalance || 0
+                    )}
               </h1>
             )}
           </div>
