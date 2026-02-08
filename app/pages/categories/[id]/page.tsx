@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/form';
 import z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import {
   editCategory,
   deleteCategory,
@@ -53,6 +53,11 @@ export default function EditCategory() {
       icon: '',
       description: '',
     },
+  });
+
+  const transactionType = useWatch({
+    control: form.control,
+    name: 'type',
   });
 
   const { mutate: editCategoryMutation } = useMutation({
@@ -123,7 +128,7 @@ export default function EditCategory() {
       type: data.type || 'expense',
       description: data.description || '',
     });
-  }, [categoryError, data, isPending]);
+  }, [categoryError, data, isPending, form]);
 
   useEffect(() => {
     if (form?.formState?.errors?.type?.message) {
@@ -208,7 +213,7 @@ export default function EditCategory() {
                   <IconPicker
                     value={field.value}
                     onChange={field.onChange}
-                    type={form.watch('type')}
+                    type={transactionType}
                   />
                 </FormControl>
                 <FormMessage className="text-center" />
