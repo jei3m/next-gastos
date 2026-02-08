@@ -1,6 +1,9 @@
 'use client';
-import { useEffect, useMemo } from 'react';
-import { TypographyH4 } from '@/components/custom/typography';
+import { createElement, useEffect, useMemo } from 'react';
+import {
+  TypographyH4,
+  TypographyH5,
+} from '@/components/custom/typography';
 import { useAccount } from '@/context/account-context';
 import PulseLoader from '@/components/custom/pulse-loader';
 import TransactionCard from '@/components/transactions/transaction-card';
@@ -12,7 +15,21 @@ import {
   useRouter,
   useSearchParams,
 } from 'next/navigation';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, SquareDashed } from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { getIconById } from '@/lib/icons';
+import { formatAmount } from '@/utils/format-amount';
+import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useScrollState } from '@/hooks/use-scroll-state';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 export default function Transactions() {
   const { selectedAccountID } = useAccount();
@@ -23,6 +40,8 @@ export default function Transactions() {
   const dateStart =
     searchParams.get('dateStart') || undefined;
   const dateEnd = searchParams.get('dateEnd') || undefined;
+  const isScrolled = useScrollState();
+  const isMobile = useIsMobile();
 
   // Scroll to top on load
   useEffect(() => {
@@ -44,6 +63,20 @@ export default function Transactions() {
       dateEnd
     )
   );
+
+  const category = useMemo(() => {
+    return (
+      transactionsData?.pages[0]?.categoryDetails[0] || {
+        id: '',
+        name: '',
+        type: '',
+        icon: '',
+        description: '',
+        refUserID: '',
+        amount: 0,
+      }
+    );
+  }, [transactionsData]);
 
   const transactions = useMemo(() => {
     return transactionsData?.pages?.flatMap(
@@ -73,10 +106,91 @@ export default function Transactions() {
       window.removeEventListener('scroll', handleScroll);
   }, [isFetchingNextPage, hasNextPage]);
 
+  const isExpense = (type: string) => {
+    return type === 'Expense';
+  };
+
   return (
     <main
       className={`flex flex-col space-y-2 min-h-screen pb-18`}
     >
+      {/* Category Details Section */}
+      <section
+        className={cn(
+          'transition-all duration-150 ease-in-out',
+          isScrolled && isMobile
+            ? 'sticky top-0 z-10'
+            : 'pt-2 px-3'
+        )}
+      >
+        <Card
+          className={cn(
+            'border-2',
+            isScrolled && isMobile
+              ? `${isMobile ? 'border-0 rounded-none' : 'border-2'}`
+              : 'border-2 mt-0'
+          )}
+        >
+          <CardHeader className="flex flex-row justify-between items-center">
+            <div className="flex flex-row space-x-2 items-center">
+              <div
+                className={cn(
+                  'p-1.5 rounded-lg border-2',
+                  !category.type
+                    ? 'bg-white'
+                    : isExpense(category.type)
+                      ? 'bg-red-500'
+                      : 'bg-primary'
+                )}
+              >
+                {createElement(
+                  getIconById(category.icon)?.icon ||
+                    SquareDashed,
+                  { size: 30 }
+                )}
+              </div>
+              <div>
+                {isPending ? (
+                  <Skeleton className="h-6 w-32 bg-gray-300" />
+                ) : (
+                  <TypographyH5 className="font-semibold">
+                    {category.name}
+                  </TypographyH5>
+                )}
+              </div>
+            </div>
+            <div className="text-right">
+              <CardDescription>
+                Total Amount:
+              </CardDescription>
+              <CardTitle
+                className={cn(
+                  isExpense(category.type)
+                    ? 'text-red-500'
+                    : 'text-primary'
+                )}
+              >
+                PHP {isExpense(category.type) ? '-' : '+'}
+                {formatAmount(category.totalAmount || 0.0)}
+              </CardTitle>
+            </div>
+          </CardHeader>
+          <Separator />
+          {isPending ? (
+            <CardContent className="-mb-2">
+              <Skeleton className="h-6 w-[50%] bg-gray-300" />
+            </CardContent>
+          ) : (
+            <CardContent className="-mb-2">
+              {category.description}
+            </CardContent>
+          )}
+        </Card>
+        {isMobile && isScrolled && (
+          <div className="w-full border-t-2 border-black" />
+        )}
+      </section>
+
       {/* Transactions Section */}
       <section className="flex flex-col space-y-2 px-3 mb-2">
         <div className="flex flex-row items-center pt-2 -ml-1">
