@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { categoryTypes } from '@/lib/data';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Category } from '@/types/categories.types';
@@ -25,39 +25,24 @@ import {
   useSearchParams,
   useRouter,
 } from 'next/navigation';
+import { useScrollState } from '@/hooks/use-scroll-state';
 
 export default function Categories() {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [dateStart, setDateStart] = useState<string>('');
-  const [dateEnd, setDateEnd] = useState<string>('');
+  const isScrolled = useScrollState();
   const [categoryType, setCategoryType] =
     useState('expense');
-  const [categories, setCategories] = useState<Category[]>(
-    []
-  );
-  const [totalIncome, setTotalIncome] =
-    useState<string>('0.00');
-  const [totalExpense, setTotalExpense] =
-    useState<string>('0.00');
   const { selectedAccountID } = useAccount();
   const isMobile = useIsMobile();
   const router = useRouter();
   const searchParams = useSearchParams();
-
-  // Scroll to top on load
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    window.scroll(0, 0);
-    setIsScrolled(false);
-  }, []);
-
-  // Initialize date from URL
-  useEffect(() => {
+  const [dateStart, setDateStart] = useState(() => {
     const urlDateStart = searchParams.get('dateStart');
+    return urlDateStart || '';
+  });
+  const [dateEnd, setDateEnd] = useState(() => {
     const urlDateEnd = searchParams.get('dateEnd');
-    if (urlDateStart) setDateStart(urlDateStart);
-    if (urlDateEnd) setDateEnd(urlDateEnd);
-  }, []);
+    return urlDateEnd || '';
+  });
 
   // Function to handle previous or next
   const handleDateRangeChange = (
@@ -92,27 +77,20 @@ export default function Categories() {
     )
   );
 
+  const { categories, totalIncome, totalExpense } =
+    useMemo(() => {
+      return {
+        categories: data?.[0]?.details || [],
+        totalIncome: data?.[0]?.totalIncome || '0.00',
+        totalExpense: data?.[0]?.totalExpense || '0.00',
+      };
+    }, [data]);
+
   useEffect(() => {
     if (error) {
       toast.error(error.message);
     }
-    setCategories(data?.[0]?.details);
-    setTotalIncome(data?.[0]?.totalIncome || '0.00');
-    setTotalExpense(data?.[0]?.totalExpense || '0.00');
-  }, [data, error]);
-
-  // Set isScrolled
-  useEffect(() => {
-    const onScroll = () => {
-      setIsScrolled(window.scrollY > 40);
-    };
-
-    window.addEventListener('scroll', onScroll, {
-      passive: true,
-    });
-    return () =>
-      window.removeEventListener('scroll', onScroll);
-  }, []);
+  }, [error]);
 
   return (
     <main
