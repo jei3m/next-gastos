@@ -31,6 +31,7 @@ import {
 import { Button } from '../ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { DateRange } from 'react-day-picker';
+import { useMounted } from '@/hooks/use-mounted';
 
 interface DateTransactionCardProps {
   onDateRangeChange?: (
@@ -47,7 +48,6 @@ function DateSelectCard({
   onDateRangeChange,
   isScrolled,
 }: DateTransactionCardProps) {
-  const [isMounted, setIsMounted] = useState(false);
   const [activeTab, setActiveTab] = useState('weekly');
   const [currentDate, setCurrentDate] = useState(
     new Date()
@@ -63,11 +63,7 @@ function DateSelectCard({
     from: undefined,
     to: undefined,
   });
-
-  // Set mounted once component loads in the browser
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const isMounted = useMounted();
 
   // Return dateStart, dateEnd, and dateDisplay
   const getDateRange = () => {
