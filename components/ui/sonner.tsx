@@ -34,7 +34,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
           toast: 'bg-popover text-popover-foreground',
           success: '!bg-[oklch(79.76%_0.2044_153.08)]',
           error: '!bg-[oklch(62.82%_0.204_26.71)]',
-          warning: '!bg-[oklch(62.82%_0.204_26.71)]',
+          warning: '!bg-orange-400',
           info: '!bg-[oklch(62.82%_0.132_231.6)]',
         },
       }}

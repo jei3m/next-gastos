@@ -24,4 +24,17 @@ export const auth = betterAuth({
         .GOOGLE_CLIENT_SECRET as string,
     },
   },
+  rateLimit: {
+    enabled: true,
+    window: 60,
+    max: 10,
+    storage: 'database',
+    modelName: 'rate_limit',
+  },
+  advanced: {
+    ipAddress: {
+      ipAddressHeaders: ['x-client-ip', 'x-forwarded-for'],
+      disableIpTracking: false,
+    },
+  },
 });

@@ -1,6 +1,6 @@
 'use client';
 import {
-  useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -53,14 +53,14 @@ export function TimePicker({
   const [minute, setMinute] = useState<number>(0);
   const [period, setPeriod] = useState<'AM' | 'PM'>('AM');
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (value) {
       const h = value.getHours();
       const m = value.getMinutes();
       const p = h >= 12 ? 'PM' : 'AM';
       const displayHour =
         h === 0 ? 12 : h > 12 ? h - 12 : h;
-
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setHour(displayHour);
       setMinute(m);
       setPeriod(p);
@@ -201,7 +201,7 @@ function ScrollWheel({
     (_, i) => min + i
   );
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (
       scrollContainerRef.current &&
       !isScrolling.current
@@ -254,9 +254,8 @@ function ScrollWheel({
         <div
           ref={scrollContainerRef}
           onScroll={handleScroll}
-          className="h-full overflow-y-scroll snap-y snap-mandatory scroll-smooth scrollbar-hide"
+          className="h-full overflow-y-scroll snap-y snap-mandatory scrollbar-hide"
           style={{
-            scrollBehavior: 'smooth',
             scrollSnapType: 'y mandatory',
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
@@ -277,7 +276,7 @@ function ScrollWheel({
                 onChange(v);
                 // Immediate snap on click
                 if (scrollContainerRef.current) {
-                  isScrolling.current = true; // prevent useEffect loop
+                  isScrolling.current = true; // prevent useLayoutEffect loop
                   scrollContainerRef.current.scrollTop =
                     (v - min) * itemHeight;
                   setTimeout(
@@ -321,7 +320,7 @@ function ScrollWheelPeriod({
     []
   );
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (
       scrollContainerRef.current &&
       !isScrolling.current
@@ -373,9 +372,8 @@ function ScrollWheelPeriod({
         <div
           ref={scrollContainerRef}
           onScroll={handleScroll}
-          className="h-full overflow-y-scroll snap-y snap-mandatory scroll-smooth scrollbar-hide"
+          className="h-full overflow-y-scroll snap-y snap-mandatory scrollbar-hide"
           style={{
-            scrollBehavior: 'smooth',
             scrollSnapType: 'y mandatory',
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',

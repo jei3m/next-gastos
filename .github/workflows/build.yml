@@ -1,0 +1,46 @@
+name: Build Workflow
+env:
+  NODE_ENV: ${{ secrets.NODE_ENV }}
+  HOST_PROD: ${{ secrets.HOST_PROD }}
+  PORT_PROD: ${{ secrets.PORT_PROD }}
+  USER_PROD: ${{ secrets.USER_PROD }}
+  PASSWORD_PROD: ${{ secrets.PASSWORD_PROD }}
+  DATABASE_PROD: ${{ secrets.DATABASE_PROD }}
+
+on:
+  push:
+    branches: [dev]
+  pull_request:
+    branches: [dev]
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  test-build:
+    name: Test and Build
+    runs-on: ubuntu-latest
+    outputs:
+      success: ${{ steps.build.outputs.success }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.0
+
+      - name: Install Dependencies
+        run: bun install
+
+      - name: Run TypeScript Check
+        run: npx tsc --noEmit
+
+      - name: Run ESLint
+        run: bun eslint
+
+      - name: Build Next.js
+        id: build
+        run: |
+          bun next build
+          echo "success=true" >> $GITHUB_OUTPUT

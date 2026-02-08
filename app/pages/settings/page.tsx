@@ -217,7 +217,7 @@ export default function Settings() {
 
       {/* Accounts Section */}
       <section className={cn('space-y-4')}>
-        <TypographyH4 className="font-semibold text-lg">
+        <TypographyH4 className="font-semibold">
           Accounts
         </TypographyH4>
         <Separator className="-mt-2 bg-muted-foreground" />
@@ -289,7 +289,7 @@ export default function Settings() {
           onValueChange={setActiveTab}
         >
           <div className="flex justify-between items-center">
-            <TypographyH4 className="font-semibold text-lg">
+            <TypographyH4 className="font-semibold">
               Categories
             </TypographyH4>
             <TabsList

@@ -1,4 +1,4 @@
-import { auth } from '@/lib/auth/auth';
+import { auth } from '@/utils/auth';
 import { headers } from 'next/headers';
 
 export async function fetchUserID() {

@@ -26,7 +26,10 @@ export default function Login() {
       provider: 'google',
     });
 
-    if (error) {
+    if (error?.status === 429) {
+      setGoogleLoading(false);
+      toast.warning(error.message);
+    } else if (error) {
       setGoogleLoading(false);
       toast.error(error.message);
     }
