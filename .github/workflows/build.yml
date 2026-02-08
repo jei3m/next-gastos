@@ -1,15 +1,26 @@
 name: Build Workflow
+env:
+  NODE_ENV: ${{ secrets.NODE_ENV }}
+  HOST_PROD: ${{ secrets.HOST_PROD }}
+  PORT_PROD: ${{ secrets.PORT_PROD }}
+  USER_PROD: ${{ secrets.USER_PROD }}
+  PASSWORD_PROD: ${{ secrets.PASSWORD_PROD }}
+  DATABASE_PROD: ${{ secrets.DATABASE_PROD }}
 
 on:
   push:
     branches: [dev]
   pull_request:
     branches: [dev]
+  workflow_call:
+  workflow_dispatch:
 
 jobs:
   test-build:
     name: Test and Build
     runs-on: ubuntu-latest
+    outputs:
+      success: ${{ steps.build.outputs.success }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -22,15 +33,6 @@ jobs:
       - name: Install Dependencies
         run: bun install
 
-      - name: Set Database Variables
-        run: |
-          echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> $GITHUB_ENV
-          echo "HOST_PROD=${{ secrets.HOST_PROD }}" >> $GITHUB_ENV
-          echo "PORT_PROD=${{ secrets.PORT_PROD }}" >> $GITHUB_ENV
-          echo "USER_PROD=${{ secrets.USER_PROD }}" >> $GITHUB_ENV
-          echo "PASSWORD_PROD=${{ secrets.PASSWORD_PROD }}" >> $GITHUB_ENV
-          echo "DATABASE_PROD=${{ secrets.DATABASE_PROD }}" >> $GITHUB_ENV
-
       - name: Run TypeScript Check
         run: npx tsc --noEmit
 
@@ -38,4 +40,7 @@ jobs:
         run: bun eslint
 
       - name: Build Next.js
-        run: bun next build
+        id: build
+        run: |
+          bun next build
+          echo "success=true" >> $GITHUB_OUTPUT
