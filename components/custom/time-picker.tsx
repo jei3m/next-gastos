@@ -372,9 +372,8 @@ function ScrollWheelPeriod({
         <div
           ref={scrollContainerRef}
           onScroll={handleScroll}
-          className="h-full overflow-y-scroll snap-y snap-mandatory scroll-smooth scrollbar-hide"
+          className="h-full overflow-y-scroll snap-y snap-mandatory scrollbar-hide"
           style={{
-            scrollBehavior: 'smooth',
             scrollSnapType: 'y mandatory',
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
