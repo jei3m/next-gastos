@@ -14,19 +14,12 @@ import { transactionsInfiniteQueryOptions } from '@/lib/tq-options/transactions.
 import { accountByIDQueryOptions } from '@/lib/tq-options/accounts.tq.options';
 import { toast } from 'sonner';
 import NoSelectedAccountDiv from '@/components/custom/no-selected-account-div';
+import { useScrollState } from '@/hooks/use-scroll-state';
 
 export default function Transactions() {
-  const [isScrolled, setIsScrolled] =
-    useState<boolean>(false);
   const isMobile = useIsMobile();
   const { selectedAccountID } = useAccount();
-
-  // Scroll to top on load
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    window.scroll(0, 0);
-    setIsScrolled(false);
-  }, []);
+  const isScrolled = useScrollState();
 
   const {
     data: account,
@@ -72,19 +65,6 @@ export default function Transactions() {
     return () =>
       window.removeEventListener('scroll', handleScroll);
   }, [isFetchingNextPage, hasNextPage]);
-
-  // Set isScrolled
-  useEffect(() => {
-    const onScroll = () => {
-      setIsScrolled(window.scrollY > 40);
-    };
-
-    window.addEventListener('scroll', onScroll, {
-      passive: true,
-    });
-    return () =>
-      window.removeEventListener('scroll', onScroll);
-  }, []);
 
   // Listen to errors
   useEffect(() => {
