@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "bun next dev -p 3000",
     "build": "prettier --write . && bun next build",
-    "start": "next start",
+    "start": "bun next start",
     "lint": "eslint"
   },
   "dependencies": {
