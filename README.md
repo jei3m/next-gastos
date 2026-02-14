@@ -22,7 +22,7 @@ Gastos is a comprehensive budget tracking application designed to help users man
 - **Next.js**: React-based framework
 - **TypeScript**: Type-safe JavaScript development
 - **Tailwind CSS**: Utility-first CSS framework for styling
-- **PWA Support**: With `@ducanh2912/next-pwa` for PWA support
+- **Serwist**: A collection of JavaScript libraries for PWAs
 - **Better Auth**: Authentication solution for user management
 - **TanStack Query**: Server state management and caching
 - **ShadCN**: Accessible UI components built on Radix UI
