@@ -39,5 +39,5 @@ jobs:
       - name: Build Next.js
         id: build
         run: |
-          bun next build
+          bun next build --webpack
           echo "success=true" >> $GITHUB_OUTPUT

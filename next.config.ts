@@ -1,5 +1,5 @@
 import type { NextConfig } from 'next';
-import withPWA from '@ducanh2912/next-pwa';
+import withSerwistInit from '@serwist/next';
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
@@ -20,10 +20,10 @@ const nextConfig: NextConfig = {
 
 const isDev = process.env.NODE_ENV === 'development';
 
-export default withPWA({
-  dest: 'public',
+const withSerwist = withSerwistInit({
+  swSrc: 'app/sw.ts',
+  swDest: 'public/sw.js',
   disable: isDev,
-  workboxOptions: {
-    mode: 'production', // disables workbox logging
-  },
-})(nextConfig);
+});
+
+export default withSerwist(nextConfig);
